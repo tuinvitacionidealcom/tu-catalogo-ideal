@@ -9,6 +9,7 @@ import Services from './components/main-web/Services';
 import Gallery from './components/main-web/Gallery';
 import FAQ from './components/main-web/FAQ';
 import Footer from './components/main-web/Footer';
+import WhatsAppCTA from './components/main-web/WhatsAppCTA';
 
 // Páginas
 import ArmaTuCatalogoPage from './pages/ArmaTuCatalogoPage';
@@ -52,8 +53,12 @@ function App() {
                 {/* 404 */}
                 <Route path="*" element={<NotFound />} />
             </Routes>
+            
+            {/* CTA Flotante de WhatsApp */}
+            <WhatsAppCTA />
         </Router>
     );
 }
 
 export default App;
+
