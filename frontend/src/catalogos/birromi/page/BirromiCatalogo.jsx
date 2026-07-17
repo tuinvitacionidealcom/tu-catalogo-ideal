@@ -254,7 +254,7 @@ const BirromiCatalogo = () => {
         }`}
       >
         {/* Logo y Nombre del Emprendimiento (Juntos a la izquierda) */}
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center font-serif font-black text-brand text-xs shadow-md shrink-0 overflow-hidden">
             {info.logo ? (
               <img src={info.logo} alt={info.name} className="w-full h-full object-cover" />
@@ -262,37 +262,37 @@ const BirromiCatalogo = () => {
               "B!"
             )}
           </div>
-          <span className="font-serif font-black text-xs uppercase tracking-wider text-white truncate max-w-[150px]">
-            {info.name}
+          <span className="font-serif font-black text-sm uppercase tracking-widest text-white">
+            Birromi
           </span>
         </div>
 
-        {/* Lupa de Búsqueda interactiva y WhatsApp Outline al costado */}
-        <div className="flex items-center gap-3 shrink-0">
-          {/* Input de Búsqueda Desplegable */}
-          <div className={`relative transition-all duration-300 ${isSearchOpen ? 'w-40 xs:w-48 opacity-100' : 'w-0 opacity-0 pointer-events-none'}`}>
+        {/* Lupa de Búsqueda interactiva que se expande hacia la izquierda y WhatsApp Outline */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Input de Búsqueda Desplegable (Posicionado antes para expandirse hacia la izquierda) */}
+          <div className={`relative transition-all duration-350 ease-out origin-right ${isSearchOpen ? 'w-32 xs:w-44 sm:w-56 opacity-100' : 'w-0 opacity-0 pointer-events-none'}`}>
             <input
               type="text"
               placeholder="Buscar..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/10 focus:bg-white focus:text-slate-800 border border-transparent focus:border-accent rounded-full pl-7 pr-7 py-1 text-[11px] text-white placeholder-slate-300 transition-all focus:outline-hidden font-medium"
+              className="w-full bg-white/15 focus:bg-white focus:text-slate-800 border border-transparent focus:border-accent rounded-full pl-7 pr-7 py-1 text-[11px] text-white placeholder-slate-300 transition-all focus:outline-hidden font-medium"
             />
-            <Search className="w-3 h-3 text-slate-300 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-slate-300 absolute left-2.5 top-1/2 -translate-y-1/2" />
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 cursor-pointer"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
               >
                 <X className="w-3 h-3" />
               </button>
             )}
           </div>
 
-          {/* Botón Lupa Toggle */}
+          {/* Botón Lupa / Cruz Toggle */}
           <button
             onClick={() => setIsSearchOpen(!isSearchOpen)}
-            className={`p-2 rounded-full transition-all active:scale-90 cursor-pointer ${isSearchOpen ? 'bg-accent text-brand' : 'hover:bg-white/10 text-white'}`}
+            className={`p-1.5 rounded-full transition-all active:scale-90 cursor-pointer ${isSearchOpen ? 'bg-accent text-brand' : 'hover:bg-white/10 text-white'}`}
             title="Buscar variedades"
           >
             {isSearchOpen ? <X className="w-4 h-4" /> : <Search className="w-4 h-4" />}
@@ -303,7 +303,7 @@ const BirromiCatalogo = () => {
             href={`https://wa.me/${info.phone}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 border border-accent hover:bg-accent hover:text-brand text-accent rounded-full transition-all active:scale-90 cursor-pointer flex items-center justify-center"
+            className="p-1.5 border border-accent hover:bg-accent hover:text-brand text-accent rounded-full transition-all active:scale-90 cursor-pointer flex items-center justify-center"
             title="Enviar WhatsApp"
           >
             <FaWhatsapp className="text-base" />
