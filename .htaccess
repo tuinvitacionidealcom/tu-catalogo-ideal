@@ -1,0 +1,8 @@
+# Activar motor de redirección
+RewriteEngine On
+
+# Evitar bucles infinitos de redirección
+RewriteCond %{REQUEST_URI} !^/frontend/dist/
+
+# Redirigir todas las peticiones a la carpeta frontend/dist/ compilada
+RewriteRule ^(.*)$ frontend/dist/$1 [L]
