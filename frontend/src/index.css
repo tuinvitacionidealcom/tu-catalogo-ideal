@@ -1,25 +1,25 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand - Azul Profundo Profesional */
-  --color-brand: #0F2439;
-  --color-brand-light: #1E3A5F;
-  --color-brand-dark: #091525;
+  /* Brand - Azul Profundo Nacional / Deportivo */
+  --color-brand: #0A3254;
+  --color-brand-light: #15558B;
+  --color-brand-dark: #051A2E;
   
-  /* Accent - Cyan/Turquesa */
-  --color-accent: #2BB5C7;
-  --color-accent-light: #5EC4D4;
-  --color-accent-dark: #1A8A9A;
+  /* Accent - Celeste Bandera/Cielo */
+  --color-accent: #74C0FC;
+  --color-accent-light: #A5D8FF;
+  --color-accent-dark: #339AF0;
   
   /* Web-specific colors */
-  --color-web-bg: #F8FAFC;
-  --color-web-bg-warm: #FAFAF8;
+  --color-web-bg: #FFFFFF;
+  --color-web-bg-warm: #F1F8FF;
   --color-web-card: #FFFFFF;
-  --color-web-border: #E2E8F0;
-  --color-web-text: #0F172A;
-  --color-web-text-muted: #64748B;
-  --color-web-dark: #0F172A;
-  --color-web-dark-soft: #1E293B;
+  --color-web-border: #D0EBFF;
+  --color-web-text: #0A3254;
+  --color-web-text-muted: #5C7C99;
+  --color-web-dark: #0A3254;
+  --color-web-dark-soft: #15558B;
   
   /* Tipografías */
   --font-serif: "Playfair Display", serif;
@@ -29,20 +29,20 @@
 
 :root {
   color-scheme: only light !important;
-  background-color: #F8FAFC;
+  background-color: #F1F8FF;
 }
 
 html {
   color-scheme: only light !important;
-  background-color: #F8FAFC !important;
+  background-color: #F1F8FF !important;
   scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #F8FAFC !important;
-  color: #0F172A;
+  background-color: #F1F8FF !important;
+  color: #0A3254;
   font-family: "Montserrat", sans-serif;
   -webkit-tap-highlight-color: transparent;
   -webkit-font-smoothing: antialiased;
@@ -50,7 +50,7 @@ body {
 }
 
 #root {
-  background-color: #F8FAFC;
+  background-color: #F1F8FF;
   min-height: 100vh;
 }
 
@@ -58,8 +58,8 @@ body {
 @media (prefers-color-scheme: dark) {
   :root, html, body {
     color-scheme: only light !important;
-    background-color: #F8FAFC !important;
-    color: #0F172A !important;
+    background-color: #F1F8FF !important;
+    color: #0A3254 !important;
     filter: none !important;
   }
 }

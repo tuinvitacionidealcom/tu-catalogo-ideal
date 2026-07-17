@@ -15,6 +15,10 @@ import WhatsAppCTA from './components/main-web/WhatsAppCTA';
 import ArmaTuCatalogoPage from './pages/ArmaTuCatalogoPage';
 import NotFound from './pages/NotFound';
 
+// Catálogo Birromi
+import BirromiCatalogo from './catalogos/birromi/page/BirromiCatalogo';
+import BirromiPanel from './catalogos/birromi/panel/BirromiPanel';
+
 // HomePage: Landing principal
 const HomePage = () => {
     return (
@@ -40,8 +44,12 @@ const ScrollToTop = () => {
 };
 
 function App() {
+    const location = useLocation();
+    // Ocultamos el botón flotante general de WhatsApp si estamos en el catálogo o el panel de Birromi
+    const isBirromiRoute = location.pathname.startsWith('/birromi');
+
     return (
-        <Router>
+        <>
             <ScrollToTop />
             <Routes>
                 {/* Landing principal */}
@@ -50,15 +58,27 @@ function App() {
                 {/* Formulario Armá tu Catálogo */}
                 <Route path="/arma-tu-catalogo" element={<ArmaTuCatalogoPage />} />
                 
+                {/* Rutas del Catálogo Birromi */}
+                <Route path="/birromi" element={<BirromiCatalogo />} />
+                <Route path="/birromi/panel" element={<BirromiPanel />} />
+                
                 {/* 404 */}
                 <Route path="*" element={<NotFound />} />
             </Routes>
             
-            {/* CTA Flotante de WhatsApp */}
-            <WhatsAppCTA />
+            {/* CTA Flotante de WhatsApp general (solo fuera del flujo de Birromi) */}
+            {!isBirromiRoute && <WhatsAppCTA />}
+        </>
+    );
+}
+
+// Envolvemos el componente principal para que useLocation() funcione correctamente
+export default function AppWrapper() {
+    return (
+        <Router>
+            <App />
         </Router>
     );
 }
 
-export default App;
 
