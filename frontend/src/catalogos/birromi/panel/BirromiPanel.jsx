@@ -72,7 +72,7 @@ const defaultProducts = [
 ];
 
 const defaultInfo = {
-  name: "Birromi Cerveza Artesanal",
+  name: "RoMi Bebidas",
   description: "Distribuidora oficial de cervezas artesanales Ludus. Llevamos la mejor calidad directo a tu evento o local.",
   address: "Av. de Mayo 1420, Ramos Mejía",
   phone: "5491139246425",

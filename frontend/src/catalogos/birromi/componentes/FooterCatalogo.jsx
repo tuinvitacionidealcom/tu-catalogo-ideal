@@ -112,10 +112,26 @@ const FooterCatalogo = ({ info = {}, topProducts = [] }) => {
         {/* Bottom bar */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[9px] text-slate-500 font-bold uppercase tracking-wider">
           <p>© {new Date().getFullYear()} {name}. Todos los derechos reservados.</p>
-          <div className="flex items-center gap-1">
-            <span>Desarrollado con</span>
-            <span className="text-accent">✦</span>
-            <span>por Tu Catálogo Ideal</span>
+          <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/5">
+            <a 
+              href="https://www.tucatalogoideal.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-accent transition-all cursor-pointer font-sans"
+            >
+              www.tucatalogoideal.com
+            </a>
+            <div className="w-[1px] h-3.5 bg-white/10" />
+            <a
+              href="https://wa.me/5491164623427?text=Hola!%20Quiero%20diseñar%20mi%20catálogo%20ideal"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 hover:text-green-400 text-slate-300 transition-all cursor-pointer"
+              title="Contacto WhatsApp"
+            >
+              <FaWhatsapp className="text-sm" />
+              <span>1164623427</span>
+            </a>
           </div>
         </div>
 

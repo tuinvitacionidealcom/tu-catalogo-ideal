@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShoppingBag, ArrowLeft, Store, X } from 'lucide-react';
+import { Search, ShoppingBag, ArrowLeft, Store, X, ArrowUp, Grid, List } from 'lucide-react';
 import { FaWhatsapp, FaInstagram } from 'react-icons/fa';
 import HeroCatalogo from '../componentes/HeroCatalogo';
+import ServiciosSeccion from '../componentes/ServiciosSeccion';
 import ProductCard from '../componentes/ProductCard';
 import CategoryTabs from '../componentes/CategoryTabs';
 import CartModal from '../componentes/CartModal';
@@ -11,16 +12,16 @@ import { Link } from 'react-router-dom';
 
 // Importación de imágenes locales
 import logoImg from '../img/logo.webp';
-import blondeAleImg from '../img/blondeale(rubia).webp';
-import irishRedImg from '../img/irishred.webp';
-import stoutImg from '../img/stout.webp';
-import ipaArgentaImg from '../img/ipaargenta.webp';
-import doubleNeipaImg from '../img/dobleneipaargenta.webp';
-import westCoastIpaImg from '../img/westcoastipa.webp';
-import imgPromo1Img from '../img/imgpromo1.webp';
-import copaOlavarriaImg from '../img/copaargentina2024olavarria2023.webp';
-import copaCervezasImg from '../img/copaargentinadecervezas2026.webp';
-import copaAustralImg from '../img/copaaustraloro2025.webp';
+import blondeAleImg from '../img/productos/blondeale(rubia).webp';
+import irishRedImg from '../img/productos/irishred.webp';
+import stoutImg from '../img/productos/stout.webp';
+import ipaArgentaImg from '../img/productos/ipaargenta.webp';
+import doubleNeipaImg from '../img/productos/dobleneipaargenta.webp';
+import westCoastIpaImg from '../img/productos/westcoastipa.webp';
+import imgPromo1Img from '../img/productos/imgpromo1.webp';
+import copaOlavarriaImg from '../img/productos/copaargentina2024olavarria2023.webp';
+import copaCervezasImg from '../img/productos/copaargentinadecervezas2026.webp';
+import copaAustralImg from '../img/productos/copaaustraloro2025.webp';
 
 const LOCAL_STORAGE_PRODUCTS_KEY = 'birromi_products_custom';
 const LOCAL_STORAGE_INFO_KEY = 'birromi_info_custom';
@@ -128,7 +129,7 @@ const defaultProducts = [
 ];
 
 const defaultInfo = {
-  name: "Birromi Cerveza Artesanal",
+  name: "RoMi Bebidas",
   description: "Distribuidora oficial de cervezas artesanales Ludus. Llevamos la mejor calidad directo a tu evento o local.",
   address: "Av. de Mayo 1420, Ramos Mejía",
   phone: "5491139246425",
@@ -146,6 +147,7 @@ const BirromiCatalogo = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' (2 columnas) o 'list' (1 columna / lista)
 
   // Load custom data from localStorage if exists
   useEffect(() => {
@@ -215,25 +217,47 @@ const BirromiCatalogo = () => {
   const [showHeader, setShowHeader] = useState(false);
   const [showWspMessage, setShowWspMessage] = useState(false);
   const [wspMessageDismissed, setWspMessageDismissed] = useState(false);
+  const [showScrollUp, setShowScrollUp] = useState(false);
+  const [showMobileNav, setShowMobileNav] = useState(true);
 
   useEffect(() => {
     let timeoutId;
+    let lastScrollY = window.scrollY;
+
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 80;
+      const currentScrollY = window.scrollY;
+      const isScrolled = currentScrollY > 80;
       setShowHeader(isScrolled);
       
-      // Mostrar el mensaje flotante de WhatsApp solo si no fue descartado y el usuario baja
-      if (isScrolled && !wspMessageDismissed) {
+      // Mostrar scroll-up si el usuario está scrolleando hacia arriba Y pasó los 300px
+      if (currentScrollY > 300 && currentScrollY < lastScrollY) {
+        setShowScrollUp(true);
+      } else {
+        setShowScrollUp(false);
+      }
+
+      // Detectar si el scroll llegó al bottom de la web (menos de 150px del final)
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      const isNearBottom = (currentScrollY + windowHeight) >= (documentHeight - 150);
+      setShowMobileNav(!isNearBottom);
+      
+      // Mostrar el globo y el boton verde solo cuando salimos de la altura del Hero en Mobile (window.innerHeight)
+      const outOfHero = currentScrollY >= window.innerHeight - 50;
+
+      if (outOfHero && !wspMessageDismissed) {
         setShowWspMessage(true);
 
-        // Ocultar automáticamente el mensaje después de 6 segundos
+        // Ocultar automáticamente el globo flotante de sugerencia después de 6 segundos
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
           setShowWspMessage(false);
         }, 6000);
-      } else {
+      } else if (!outOfHero) {
         setShowWspMessage(false);
       }
+
+      lastScrollY = currentScrollY;
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -263,7 +287,7 @@ const BirromiCatalogo = () => {
             )}
           </div>
           <span className="font-serif font-black text-sm uppercase tracking-widest text-white">
-            Birromi
+            {info.name}
           </span>
         </div>
 
@@ -321,6 +345,9 @@ const BirromiCatalogo = () => {
               {/* Hero Section */}
               <HeroCatalogo info={info} onScrollToProducts={scrollToProducts} />
 
+              {/* Servicios Section */}
+              <ServiciosSeccion />
+
               {/* Anchor for products */}
               <div id="seccion-productos" className="px-6 pt-6 pb-2">
                 <div className="relative">
@@ -335,21 +362,54 @@ const BirromiCatalogo = () => {
                 </div>
               </div>
 
-              {/* Category Navigation */}
-              <CategoryTabs
-                categories={categories}
-                activeCategory={selectedCategory}
-                onSelectCategory={setSelectedCategory}
-              />
+              {/* Category Navigation y Controles de Vista */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-6 gap-4">
+                <div className="flex-1 min-w-0">
+                  <CategoryTabs
+                    categories={categories}
+                    activeCategory={selectedCategory}
+                    onSelectCategory={setSelectedCategory}
+                  />
+                </div>
+                {/* Selector de Vista (Grid / Lista) */}
+                <div className="flex items-center gap-1 bg-slate-50 border border-slate-100 p-1 rounded-xl shrink-0 self-end sm:self-auto">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-1.5 rounded-lg transition-all active:scale-95 cursor-pointer ${
+                      viewMode === 'grid'
+                        ? 'bg-brand text-accent shadow-xs'
+                        : 'text-slate-400 hover:bg-slate-100'
+                    }`}
+                    title="Vista en cuadrícula (2 columnas)"
+                  >
+                    <Grid className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-1.5 rounded-lg transition-all active:scale-95 cursor-pointer ${
+                      viewMode === 'list'
+                        ? 'bg-brand text-accent shadow-xs'
+                        : 'text-slate-400 hover:bg-slate-100'
+                    }`}
+                    title="Vista en lista"
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
 
               {/* Product Grid */}
-              <div className="px-6 py-8">
+              <div className="px-6 py-6">
                 {filteredProducts.length === 0 ? (
                   <div className="text-center py-12">
                     <p className="text-slate-400 text-sm">No encontramos productos que coincidan con tu búsqueda.</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className={`grid gap-6 transition-all duration-300 ${
+                    viewMode === 'grid' 
+                      ? 'grid-cols-1 sm:grid-cols-2' 
+                      : 'grid-cols-1'
+                  }`}>
                     {filteredProducts.map(product => (
                       <ProductCard
                         key={product.id}
@@ -358,6 +418,7 @@ const BirromiCatalogo = () => {
                         onAdd={handleAddToCart}
                         onRemove={handleRemoveFromCart}
                         onClick={() => setSelectedProduct(product)}
+                        horizontalView={viewMode === 'list'}
                       />
                     ))}
                   </div>
@@ -461,68 +522,82 @@ const BirromiCatalogo = () => {
       {/* Footer Completo */}
       <FooterCatalogo info={info} topProducts={products} />
 
-      {/* Floating Action Button (Cart for Mobile) */}
-      {totalCartItems > 0 && (
-        <div className="fixed bottom-6 inset-x-0 z-40 px-6 max-w-md mx-auto lg:hidden">
+      {/* Mobile Navigation Bar Flotante (Abajo de todo en Mobile) */}
+      <div className={`fixed bottom-6 inset-x-4 z-45 max-w-sm mx-auto bg-brand/95 backdrop-blur-md border border-white/10 rounded-full py-2.5 px-4 flex items-center justify-between shadow-2xl shadow-brand/40 lg:hidden gap-2 transition-all duration-300 transform ${
+        showMobileNav 
+          ? 'opacity-100 translate-y-0 pointer-events-auto' 
+          : 'opacity-0 translate-y-12 pointer-events-none'
+      }`}>
+        
+        {/* Lado Izquierdo: Scroll Up animado con efecto de entrada/salida y colapso de espacio */}
+        <div className={`transition-all duration-350 ease-out flex items-center justify-center shrink-0 ${
+          showScrollUp ? 'w-10 opacity-100' : 'w-0 opacity-0 pointer-events-none'
+        }`}>
           <button
-            onClick={() => setIsCartOpen(true)}
-            className="w-full bg-brand hover:bg-brand-light active:scale-95 transition-all text-white font-sans font-bold py-4 rounded-2xl flex items-center justify-between px-6 shadow-xl shadow-brand/35 animate-bounce cursor-pointer"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className={`w-9 h-9 rounded-full bg-white/10 text-accent flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all duration-300 cursor-pointer ${
+              showScrollUp ? 'scale-100' : 'scale-75'
+            }`}
+            title="Subir al inicio"
           >
-            <div className="flex items-center gap-3">
-              <div className="bg-accent text-brand rounded-full w-6 h-6 flex items-center justify-center text-xs font-black">
-                {totalCartItems}
-              </div>
-              <span className="text-sm">Ver mi pedido</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <ShoppingBag className="w-5 h-5 text-accent" />
-              <span className="text-sm font-extrabold">
-                ${cart.reduce((acc, item) => acc + item.price * item.quantity, 0).toLocaleString('es-AR')}
-              </span>
-            </div>
+            <ArrowUp className="w-4 h-4 font-bold" />
           </button>
         </div>
-      )}
 
-      {/* Mensaje flotante de WhatsApp temporario (aparece al hacer scroll y tiene cruz para cerrar) */}
-      {showWspMessage && (
-        <div className="fixed bottom-6 right-6 z-45 max-w-xs bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 animate-slide-up flex items-start gap-3">
-          <div className="bg-green-500 text-white p-2.5 rounded-xl shrink-0">
-            <FaWhatsapp className="text-xl animate-bounce" />
-          </div>
-          <div className="flex-1 text-left min-w-0 pr-4">
-            <p className="font-sans font-bold text-slate-800 text-xs">¿Tenés alguna duda?</p>
-            <p className="text-[10px] text-slate-500 font-medium leading-normal mt-0.5">
-              Hacé click acá para consultarnos directo por WhatsApp.
-            </p>
-            <a
-              href={`https://wa.me/${info.phone}?text=Hola!%20Quería%20hacerles%20una%20consulta.`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block mt-2 text-[10px] text-green-500 hover:text-green-600 font-bold underline cursor-pointer"
+        {/* Centro: Botón de Carrito Dinámico que ocupa todo el ancho restante */}
+        <div className="flex-1 flex justify-center min-w-0 transition-all duration-350">
+          {totalCartItems > 0 ? (
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="w-full flex items-center justify-between bg-accent hover:bg-accent/90 active:scale-95 transition-all text-brand font-sans font-black py-2.5 px-4 rounded-full shadow-md cursor-pointer text-xs gap-1.5"
             >
-              Iniciar Chat
-            </a>
-          </div>
-          {/* Cruz para cerrar el mensaje */}
-          <button
-            onClick={() => {
-              setShowWspMessage(false);
-              setWspMessageDismissed(true);
-            }}
-            className="absolute top-2.5 right-2.5 text-slate-400 hover:text-slate-600 transition-all p-1 cursor-pointer"
-            title="Cerrar aviso"
-          >
-            <X className="w-3.5 h-3.5" />
-          </button>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <ShoppingBag className="w-4 h-4 text-brand shrink-0" />
+                <span className="truncate">Ver Pedido</span>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <div className="bg-brand text-accent rounded-full w-4 h-4 flex items-center justify-center text-[9px] font-black">
+                  {totalCartItems}
+                </div>
+                <span className="text-[10px] font-black opacity-80">
+                  (${cart.reduce((acc, item) => acc + item.price * item.quantity, 0).toLocaleString('es-AR')})
+                </span>
+              </div>
+            </button>
+          ) : (
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="w-full flex items-center justify-center gap-1.5 text-slate-300 hover:text-white active:scale-95 transition-all py-2 cursor-pointer"
+            >
+              <ShoppingBag className="w-4 h-4 text-slate-400 shrink-0" />
+              <span className="text-[10px] font-sans font-bold uppercase tracking-wider select-none truncate">
+                Tu carrito está vacío
+              </span>
+            </button>
+          )}
         </div>
-      )}
+
+        {/* Lado Derecho: WhatsApp Outline en Color Acento */}
+        <div className="w-10 h-10 flex items-center justify-center shrink-0">
+          <a
+            href={`https://wa.me/${info.phone}?text=Hola!%20Quería%20hacerles%20una%20consulta.`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-9 h-9 border border-accent hover:bg-accent hover:text-brand text-accent rounded-full flex items-center justify-center active:scale-90 transition-all cursor-pointer shadow-md"
+            title="Escribinos por WhatsApp"
+          >
+            <FaWhatsapp className="text-lg" />
+          </a>
+        </div>
+
+      </div>
 
       {/* Cart Drawer Modal */}
       <CartModal
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         cartItems={cart}
+        products={products}
         onAdd={handleAddToCart}
         onRemove={handleRemoveFromCart}
         onClear={handleClearCart}

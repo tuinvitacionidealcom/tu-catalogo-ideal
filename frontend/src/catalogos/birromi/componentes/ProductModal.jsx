@@ -71,7 +71,7 @@ const ProductModal = ({ isOpen, onClose, product, whatsappNumber }) => {
           </div>
 
           <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 flex items-center justify-between">
-            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Precio Sugerido</span>
+            <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Precio</span>
             <span className="font-sans font-black text-2xl text-brand">
               ${price.toLocaleString('es-AR')}
             </span>
@@ -95,9 +95,8 @@ const ProductModal = ({ isOpen, onClose, product, whatsappNumber }) => {
         <div className="p-6 bg-slate-50 border-t border-slate-100 shrink-0">
           <button
             onClick={handleBuyDirect}
-            className="w-full bg-green-500 hover:bg-green-600 active:scale-95 text-white font-sans font-black py-4 rounded-2xl flex items-center justify-center gap-2.5 shadow-lg shadow-green-500/25 transition-all cursor-pointer text-sm tracking-wide"
+            className="w-full bg-accent hover:bg-accent/90 active:scale-95 text-brand font-sans font-black py-4 rounded-2xl flex items-center justify-center shadow-lg shadow-accent/20 transition-all cursor-pointer text-sm tracking-wide"
           >
-            <FaWhatsapp className="text-xl" />
             <span>Comprar Ahora</span>
           </button>
         </div>

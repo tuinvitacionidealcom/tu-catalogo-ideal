@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, Trash2, ShoppingBag, Send } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 
-const CartModal = ({ isOpen, onClose, cartItems, onAdd, onRemove, onClear, whatsappNumber }) => {
+const CartModal = ({ isOpen, onClose, cartItems, products = [], onAdd, onRemove, onClear, whatsappNumber }) => {
   const [deliveryMethod, setDeliveryMethod] = useState('takeaway'); // 'takeaway' or 'delivery'
   const [customerName, setCustomerName] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
@@ -11,6 +11,12 @@ const CartModal = ({ isOpen, onClose, cartItems, onAdd, onRemove, onClear, whats
   if (!isOpen) return null;
 
   const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+  // Obtener imagen del producto desde la base de datos de productos
+  const getProductImage = (prodId) => {
+    const found = products.find(p => p.id === prodId);
+    return found ? found.image : null;
+  };
 
   const handleSendOrder = () => {
     if (!customerName.trim()) {
@@ -47,7 +53,7 @@ const CartModal = ({ isOpen, onClose, cartItems, onAdd, onRemove, onClear, whats
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex justify-end">
       {/* Mobile focused Slide-over drawer */}
-      <div className="w-full max-w-md bg-white h-full flex flex-col shadow-2xl animate-slide-up rounded-l-3xl overflow-hidden">
+      <div className="w-full max-w-md bg-white h-full flex flex-col shadow-2xl animate-slide-up rounded-none overflow-hidden">
         {/* Header */}
         <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-brand text-white">
           <div className="flex items-center gap-2">
@@ -62,14 +68,69 @@ const CartModal = ({ isOpen, onClose, cartItems, onAdd, onRemove, onClear, whats
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-5 space-y-6">
           {cartItems.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center py-12">
-              <ShoppingBag className="w-16 h-16 text-slate-300 mb-4 animate-float" />
-              <p className="text-slate-500 font-sans font-medium text-sm">Tu carrito está vacío</p>
+            <div className="h-full flex flex-col justify-between py-4">
+              {/* Mensaje vacío */}
+              <div className="flex flex-col items-center justify-center text-center py-6">
+                <ShoppingBag className="w-14 h-14 text-slate-300 mb-3 animate-float" />
+                <p className="text-slate-500 font-sans font-bold text-sm">Tu carrito está vacío</p>
+                <p className="text-[11px] text-slate-400 font-medium mt-0.5">¡Agregá tus bebidas favoritas para empezar!</p>
+              </div>
+
+              {/* Recomendados sugeridos */}
+              <div className="border-t border-slate-100 pt-6 mt-4 text-left">
+                <h4 className="text-[10px] font-sans font-black text-brand uppercase tracking-widest mb-4">
+                  Los más vendidos
+                </h4>
+                
+                <div className="space-y-3.5">
+                  {[
+                    { id: 1, name: 'Blonde Ale (Rubia)', price: 4500, desc: 'Cerveza dorada clásica y ligera.' },
+                    { id: 2, name: 'Irish Red', price: 4500, desc: 'Color rojizo con notas de caramelo.' },
+                    { id: 4, name: 'IPA Argenta', price: 5000, desc: 'Amargor cítrico y aroma lúpulo.' }
+                  ].map((prod) => {
+                    const img = getProductImage(prod.id);
+                    return (
+                      <div 
+                        key={prod.id} 
+                        className="bg-slate-50 border border-slate-100 rounded-2xl p-3 flex items-center justify-between hover:shadow-xs transition-all gap-3"
+                      >
+                        {/* Imagen del producto */}
+                        <div className="w-12 h-12 rounded-xl bg-slate-200 overflow-hidden shrink-0">
+                          {img ? (
+                            <img src={img} alt={prod.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-slate-400">
+                              <ShoppingBag className="w-5 h-5 opacity-40" />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <p className="font-sans font-bold text-slate-800 text-xs truncate">{prod.name}</p>
+                          <p className="text-[10px] text-slate-400 font-medium truncate mt-0.5">{prod.desc}</p>
+                          <p className="text-[10px] font-black text-brand mt-1">${prod.price.toLocaleString('es-AR')}</p>
+                        </div>
+                        
+                        {/* Botón rápido de agregar */}
+                        <button
+                          onClick={() => onAdd({ ...prod, image: img, category: prod.id === 4 ? 'LATAS IPAS' : 'LATAS CLÁSICAS', available: true })}
+                          className="bg-brand hover:bg-brand-light text-accent p-2 rounded-xl active:scale-90 transition-all cursor-pointer flex items-center justify-center shadow-xs shrink-0"
+                          title="Agregar rápido"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Botón de cierre */}
               <button
                 onClick={onClose}
-                className="mt-4 bg-brand text-white font-bold text-xs py-2.5 px-6 rounded-xl cursor-pointer"
+                className="mt-6 w-full bg-brand text-accent font-sans font-black text-xs py-3.5 rounded-2xl cursor-pointer shadow-md hover:bg-brand-light active:scale-95 transition-all uppercase tracking-wider"
               >
-                Ver productos
+                Volver al catálogo
               </button>
             </div>
           ) : (
@@ -217,7 +278,7 @@ const CartModal = ({ isOpen, onClose, cartItems, onAdd, onRemove, onClear, whats
               className="w-full bg-green-500 hover:bg-green-600 active:scale-95 text-white font-bold font-sans py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-green-500/20 transition-all cursor-pointer"
             >
               <FaWhatsapp className="text-xl" />
-              <span>Enviar Pedido a WhatsApp</span>
+              <span>Comprar Ahora</span>
             </button>
           </div>
         )}

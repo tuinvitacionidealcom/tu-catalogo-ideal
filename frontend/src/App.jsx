@@ -45,8 +45,9 @@ const ScrollToTop = () => {
 
 function App() {
     const location = useLocation();
-    // Ocultamos el botón flotante general de WhatsApp si estamos en el catálogo o el panel de Birromi
-    const isBirromiRoute = location.pathname.startsWith('/birromi');
+    // Ocultamos el botón flotante de la landing page si estamos en cualquier catálogo o panel comercial
+    const isCatalogRoute = location.pathname.toLowerCase().startsWith('/romi-bebidas') || 
+                           location.pathname.toLowerCase().startsWith('/birromi');
 
     return (
         <>
@@ -58,16 +59,16 @@ function App() {
                 {/* Formulario Armá tu Catálogo */}
                 <Route path="/arma-tu-catalogo" element={<ArmaTuCatalogoPage />} />
                 
-                {/* Rutas del Catálogo Birromi */}
-                <Route path="/birromi" element={<BirromiCatalogo />} />
-                <Route path="/birromi/panel" element={<BirromiPanel />} />
+                {/* Rutas del Catálogo RoMi Bebidas */}
+                <Route path="/RoMi-bebidas" element={<BirromiCatalogo />} />
+                <Route path="/RoMi-bebidas/panel" element={<BirromiPanel />} />
                 
                 {/* 404 */}
                 <Route path="*" element={<NotFound />} />
             </Routes>
             
-            {/* CTA Flotante de WhatsApp general (solo fuera del flujo de Birromi) */}
-            {!isBirromiRoute && <WhatsAppCTA />}
+            {/* CTA Flotante de WhatsApp general (solo para la landing page de ventas) */}
+            {!isCatalogRoute && <WhatsAppCTA />}
         </>
     );
 }
