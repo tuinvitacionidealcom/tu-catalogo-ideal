@@ -30,7 +30,7 @@ jobs:
         npm run build
 
     - name: Sync Files to Hostinger via SFTP
-      uses: Narasimham/sftp-deploy-action@v1.2.4
+      uses: narasimham/sftp-deploy-action@v1.2.4
       with:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
