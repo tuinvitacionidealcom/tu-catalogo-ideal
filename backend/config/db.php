@@ -12,9 +12,9 @@ class Database {
     private $conn;
 
     private $host = 'localhost';
-    private $user = 'root';
-    private $pass = '';
-    private $dbname = 'catalogo_db';
+    private $user = 'u506439444_catalogoideal';
+    private $pass = 'Akir@11!';
+    private $dbname = 'u506439444_catalogoideal';
 
     private function __construct() {
         try {

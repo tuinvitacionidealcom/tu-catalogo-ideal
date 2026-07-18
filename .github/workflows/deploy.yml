@@ -12,12 +12,14 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: 22
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
 
     - name: Install Dependencies
       run: |
@@ -29,13 +31,30 @@ jobs:
         cd frontend
         npm run build
 
+    - name: Prepare deploy files
+      run: |
+        # Copiar .htaccess al directorio de build
+        cp .htaccess frontend/dist/.htaccess
+        echo "✅ .htaccess copiado a dist/"
+        
+        # Mostrar contenido del dist para debug
+        echo "📁 Contenido de frontend/dist/:"
+        ls -la frontend/dist/
+
     - name: Deploy via FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
         server: 82.25.67.136
         username: u506439444.tucatalogoideal
         password: ${{ secrets.FTP_PASSWORD }}
         port: 21
-        protocol: ftp
+        protocol: ftps
         local-dir: ./frontend/dist/
-        server-dir: ./
+        server-dir: ./public_html/
+        dangerous-clean-slate: false
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/.DS_Store
+

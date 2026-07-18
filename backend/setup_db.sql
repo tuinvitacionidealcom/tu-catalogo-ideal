@@ -1,6 +1,6 @@
--- Database Creation
-CREATE DATABASE IF NOT EXISTS `catalogo_db` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `catalogo_db`;
+-- Usar la BD creada desde el panel de Hostinger
+-- (En Hostinger NO se puede hacer CREATE DATABASE desde SQL, ya viene creada)
+USE `u506439444_catalogoideal`;
 
 -- Catalogs Table
 CREATE TABLE IF NOT EXISTS `catalogs` (
