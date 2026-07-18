@@ -1,0 +1,51 @@
+name: Deploy via SFTP to Hostinger
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install Dependencies
+      run: |
+        cd frontend
+        npm ci
+
+    - name: Build Project
+      run: |
+        cd frontend
+        npm run build
+
+    - name: Prepare deploy files
+      run: |
+        # Copiar .htaccess al directorio de build
+        cp .htaccess frontend/dist/.htaccess
+        echo "✅ .htaccess copiado a dist/"
+
+    - name: Deploy via SFTP
+      uses: svenstaro/upload-sftp-action@v2
+      with:
+        username: ${{ secrets.SFTP_USER }}
+        password: ${{ secrets.SFTP_PASSWORD }}
+        server: ${{ secrets.SFTP_HOST }}
+        port: 22
+        local_dir: "frontend/dist"
+        server_dir: "/domains/tucatalogoideal.com/public_html"
+        file_glob: "**/*"
+        overwrite: true
+
