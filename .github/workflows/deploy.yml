@@ -44,13 +44,13 @@ jobs:
     - name: Deploy via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
-        server: 82.25.67.136
-        username: u506439444.tucatalogoideal
-        password: Morell@11
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
         port: 21
         protocol: ftps
         local-dir: ./frontend/dist/
-        server-dir: ./public_html/
+        server-dir: ./
         dangerous-clean-slate: true
         exclude: |
           **/.git*
