@@ -29,13 +29,9 @@ jobs:
         cd frontend
         npm run build
 
-    - name: Sync Files via FTPS
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        port: 21
-        protocol: ftps
-        local-dir: ./frontend/dist/
-        server-dir: ./public_html/
+    - name: Install sshpass
+      run: sudo apt-get update && sudo apt-get install -y sshpass
+
+    - name: Deploy files via SFTP (rsync)
+      run: |
+        sshpass -p "${{ secrets.FTP_PASSWORD }}" rsync -avz -e "ssh -p 65002 -o StrictHostKeyChecking=no" ./frontend/dist/ ${{ secrets.FTP_USERNAME }}@${{ secrets.FTP_SERVER }}:/domains/tucatalogoideal.com/public_html/
