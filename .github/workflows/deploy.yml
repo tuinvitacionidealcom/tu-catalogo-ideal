@@ -30,12 +30,11 @@ jobs:
         npm run build
 
     - name: Sync Files to Hostinger via SFTP
-      uses: wlixcreative/sftp-deployer-action@v1.2.4
+      uses: Narasimham/sftp-deploy-action@v1.2.4
       with:
-        username: ${{ secrets.FTP_USERNAME }}
         server: ${{ secrets.FTP_SERVER }}
-        port: 65002
+        username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local_path: './frontend/dist/*'
-        remote_path: '/domains/tucatalogoideal.com/public_html/'
-        sftp_only: true
+        port: 65002
+        local-dir: './frontend/dist/'
+        remote-dir: '/domains/tucatalogoideal.com/public_html/'
