@@ -29,9 +29,13 @@ jobs:
         cd frontend
         npm run build
 
-    - name: Install sshpass
-      run: sudo apt-get update && sudo apt-get install -y sshpass
-
-    - name: Deploy files via SFTP (rsync)
-      run: |
-        sshpass -p "${{ secrets.FTP_PASSWORD }}" rsync -avz -e "ssh -p 65002 -o StrictHostKeyChecking=no" ./frontend/dist/ ${{ secrets.FTP_USERNAME }}@${{ secrets.FTP_SERVER }}:/domains/tucatalogoideal.com/public_html/
+    - name: Deploy via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ftp.tucatalogoideal.com
+        username: u506439444.tucatalogoideal
+        password: ${{ secrets.FTP_PASSWORD }}
+        port: 21
+        protocol: ftp
+        local-dir: ./frontend/dist/
+        server-dir: /public_html/
