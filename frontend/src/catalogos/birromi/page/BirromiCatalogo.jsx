@@ -149,17 +149,38 @@ const BirromiCatalogo = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' (2 columnas) o 'list' (1 columna / lista)
 
-  // Load custom data from localStorage if exists
+  // Load custom data from localStorage if exists + Update Title & Favicon
   useEffect(() => {
     const savedProducts = localStorage.getItem(LOCAL_STORAGE_PRODUCTS_KEY);
     const savedInfo = localStorage.getItem(LOCAL_STORAGE_INFO_KEY);
 
+    let currentInfo = defaultInfo;
     if (savedProducts) {
       setProducts(JSON.parse(savedProducts));
     }
     if (savedInfo) {
-      setInfo(JSON.parse(savedInfo));
+      currentInfo = JSON.parse(savedInfo);
+      setInfo(currentInfo);
     }
+
+    // Guardar favicon y título originales
+    const originalTitle = document.title;
+    const faviconLink = document.querySelector("link[rel*='icon']");
+    const originalFavicon = faviconLink ? faviconLink.href : '/favicon.svg';
+
+    // Establecer título y favicon del negocio
+    document.title = `${currentInfo.name} | Catálogo Digital`;
+    if (faviconLink && currentInfo.logo) {
+      faviconLink.href = currentInfo.logo;
+    }
+
+    // Cleanup: Restaurar valores originales al salir del catálogo
+    return () => {
+      document.title = originalTitle;
+      if (faviconLink) {
+        faviconLink.href = originalFavicon;
+      }
+    };
   }, []);
 
   const handleAddToCart = (product) => {

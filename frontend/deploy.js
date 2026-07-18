@@ -13,17 +13,13 @@ async function deploy() {
         console.log("🚀 Iniciando conexión FTP con Hostinger...");
         await client.access({
             host: "82.25.67.136",
-            user: "u506439444.tucatalogoideal.com",
-            password: "Morella11!",
+            user: "u506439444.deploy",
+            password: "Morella2026!",
             port: 21,
             secure: false
         });
         
         console.log("✅ Conectado con éxito.");
-        
-        // Cambiar al directorio public_html en Hostinger
-        console.log("📁 Accediendo a public_html/...");
-        await client.cd("public_html");
         
         // Subir local-dir (dist/) a server-dir (public_html/)
         const localDistPath = path.resolve(__dirname, 'dist');
