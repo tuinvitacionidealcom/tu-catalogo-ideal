@@ -1,17 +1,19 @@
-# Activar motor de redirección
 RewriteEngine On
+RewriteBase /
 
-# Si la petición apunta a un archivo físico existente, no hacer nada
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
+# Si ya estamos en frontend/dist/ index.html, no hacer nada
+RewriteRule ^index\.html$ - [L]
 
-# Evitar bucles infinitos de redirección para activos y el build de dist
+# Si no es un archivo o directorio físico real en public_html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Si la URL no empieza por frontend/dist
 RewriteCond %{REQUEST_URI} !^/frontend/dist/
 
-# Redirigir todas las peticiones a la carpeta frontend/dist/ compilada
-RewriteRule ^(.*)$ frontend/dist/$1 [L]
+# Redirigir el ruteo virtual al index.html de producción
+RewriteRule ^(.*)$ /frontend/dist/index.html [L]
 
-# Si la ruta virtual no existe en el disco (SPA routing), delegar a index.html
-RewriteCond %{DOCUMENT_ROOT}/frontend/dist/$1 -f
-RewriteRule ^(.*)$ frontend/dist/index.html [L]
+# El resto de recursos (CSS, JS, imágenes) redireccionarlos a la carpeta dist
+RewriteCond %{REQUEST_URI} !^/frontend/dist/
+RewriteRule ^(.*)$ /frontend/dist/$1 [L]
