@@ -48,7 +48,7 @@ jobs:
         username: u506439444.tucatalogoideal
         password: ${{ secrets.FTP_PASSWORD }}
         port: 21
-        protocol: ftp
+        protocol: ftps
         local-dir: ./frontend/dist/
         server-dir: ./public_html/
         dangerous-clean-slate: true
