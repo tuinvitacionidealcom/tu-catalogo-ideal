@@ -29,11 +29,13 @@ jobs:
         cd frontend
         npm run build
 
-    - name: Sync FTP Files to Hostinger
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+    - name: Sync Files to Hostinger via SFTP
+      uses: wlixcreative/sftp-deployer-action@v1.2.4
       with:
-        server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
+        server: ${{ secrets.FTP_SERVER }}
+        port: 65002
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./frontend/dist/
-        server-dir: ./public_html/
+        local_path: './frontend/dist/*'
+        remote_path: '/domains/tucatalogoideal.com/public_html/'
+        sftp_only: true
