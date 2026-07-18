@@ -1,8 +1,17 @@
 # Activar motor de redirección
 RewriteEngine On
 
-# Evitar bucles infinitos de redirección
+# Si la petición apunta a un archivo físico existente, no hacer nada
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Evitar bucles infinitos de redirección para activos y el build de dist
 RewriteCond %{REQUEST_URI} !^/frontend/dist/
 
 # Redirigir todas las peticiones a la carpeta frontend/dist/ compilada
 RewriteRule ^(.*)$ frontend/dist/$1 [L]
+
+# Si la ruta virtual no existe en el disco (SPA routing), delegar a index.html
+RewriteCond %{DOCUMENT_ROOT}/frontend/dist/$1 -f
+RewriteRule ^(.*)$ frontend/dist/index.html [L]
