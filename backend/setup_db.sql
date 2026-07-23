@@ -2,6 +2,38 @@
 -- (En Hostinger NO se puede hacer CREATE DATABASE desde SQL, ya viene creada)
 USE `u506439444_catalogoideal`;
 
+-- =============================================
+-- PANEL USERS — Un usuario por catálogo
+-- =============================================
+CREATE TABLE IF NOT EXISTS `panel_users` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `catalog_slug` VARCHAR(100) NOT NULL,
+  `username` VARCHAR(100) UNIQUE NOT NULL,
+  `password_hash` VARCHAR(255) NOT NULL,
+  `last_login` TIMESTAMP NULL DEFAULT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- =============================================
+-- PANEL SESSIONS — Tokens de sesión (7 días)
+-- =============================================
+CREATE TABLE IF NOT EXISTS `panel_sessions` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `token` VARCHAR(64) UNIQUE NOT NULL,
+  `catalog_slug` VARCHAR(100) NOT NULL,
+  `username` VARCHAR(100) NOT NULL,
+  `expires_at` TIMESTAMP NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- =============================================
+-- USUARIO INICIAL: birromi / admin123
+-- Cambiar la contraseña desde Hostinger tras el deploy.
+-- Hash bcrypt de "admin123"
+-- =============================================
+INSERT IGNORE INTO `panel_users` (`catalog_slug`, `username`, `password_hash`)
+VALUES ('birromi', 'birromi', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+
 -- Catalogs Table
 CREATE TABLE IF NOT EXISTS `catalogs` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,

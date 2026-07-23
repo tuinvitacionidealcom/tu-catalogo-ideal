@@ -37,7 +37,7 @@ jobs:
         cp .htaccess frontend/dist/.htaccess
         echo "✅ .htaccess copiado a dist/"
 
-    - name: Deploy via FTP
+    - name: Deploy Frontend via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
         server: ${{ secrets.FTP_SERVER }}
@@ -47,3 +47,14 @@ jobs:
         protocol: ftp
         local-dir: frontend/dist/
         server-dir: /domains/tucatalogoideal.com/public_html/
+
+    - name: Deploy Backend via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        port: 21
+        protocol: ftp
+        local-dir: backend/
+        server-dir: /domains/tucatalogoideal.com/public_html/backend/
