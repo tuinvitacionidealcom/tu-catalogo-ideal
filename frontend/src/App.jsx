@@ -19,6 +19,9 @@ import NotFound from './pages/NotFound';
 import BirromiCatalogo from './catalogos/birromi/page/BirromiCatalogo';
 import BirromiPanel from './catalogos/birromi/panel/BirromiPanel';
 
+// Catálogo Perla Fit
+import PerlaFit from './catalogos/perla-fit/PerlaFit';
+
 // HomePage: Landing principal
 const HomePage = () => {
     return (
@@ -46,7 +49,8 @@ const ScrollToTop = () => {
 function App() {
     const location = useLocation();
     // Ocultamos el botón flotante de la landing page si estamos en cualquier catálogo o panel comercial
-    const isCatalogRoute = location.pathname.toLowerCase().startsWith('/mr-bebidas');
+    const isCatalogRoute = location.pathname.toLowerCase().startsWith('/mr-bebidas') ||
+                           location.pathname.toLowerCase().startsWith('/perla-fit');
 
     return (
         <>
@@ -61,6 +65,9 @@ function App() {
                 {/* Rutas del Catálogo M.R Bebidas */}
                 <Route path="/mr-bebidas" element={<BirromiCatalogo />} />
                 <Route path="/mr-bebidas/panel" element={<BirromiPanel />} />
+                
+                {/* Ruta Perla Fit */}
+                <Route path="/perla-fit" element={<PerlaFit />} />
                 
                 {/* 404 */}
                 <Route path="*" element={<NotFound />} />
