@@ -1,10 +1,9 @@
 name: Deploy via SFTP to Hostinger
 
-# on:
-#   push:
-#     branches:
-#       - main
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
