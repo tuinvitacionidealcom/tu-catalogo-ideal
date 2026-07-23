@@ -20,7 +20,8 @@ import BirromiCatalogo from './catalogos/birromi/page/BirromiCatalogo';
 import BirromiPanel from './catalogos/birromi/panel/BirromiPanel';
 
 // Catálogo Perla Fit
-import PerlaFit from './catalogos/perla-fit/PerlaFit';
+import PerlaFitCatalogo from './catalogos/perla-fit/page/PerlaFitCatalogo';
+import PerlaFitPanel from './catalogos/perla-fit/panel/PerlaFitPanel';
 
 // HomePage: Landing principal
 const HomePage = () => {
@@ -66,8 +67,9 @@ function App() {
                 <Route path="/mr-bebidas" element={<BirromiCatalogo />} />
                 <Route path="/mr-bebidas/panel" element={<BirromiPanel />} />
                 
-                {/* Ruta Perla Fit */}
-                <Route path="/perla-fit" element={<PerlaFit />} />
+                {/* Rutas del Catálogo Perla Fit */}
+                <Route path="/perla-fit" element={<PerlaFitCatalogo />} />
+                <Route path="/perla-fit/panel" element={<PerlaFitPanel />} />
                 
                 {/* 404 */}
                 <Route path="*" element={<NotFound />} />
