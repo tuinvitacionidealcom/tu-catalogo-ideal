@@ -47,6 +47,7 @@ jobs:
         protocol: ftp
         local-dir: frontend/dist/
         server-dir: /domains/tucatalogoideal.com/public_html/
+        dangerous-clean-slate: true
 
     - name: Deploy Backend via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
