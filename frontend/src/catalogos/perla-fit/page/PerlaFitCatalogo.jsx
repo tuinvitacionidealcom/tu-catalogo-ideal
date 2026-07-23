@@ -56,41 +56,11 @@ const defaultProducts = [
   },
   {
     id: 4,
-  },
-  {
-    id: 8,
-    name: 'Promo 3x Latas Clásicas',
-    description: 'Pack de 3 latas de variedades clásicas (Blonde Ale, Irish Red o Stout).',
-    price: 13000,
-    image: copaOlavarriaImg,
-    category: 'PROMOS CLÁSICAS',
-    available: true
-  },
-  {
-    id: 9,
-    name: 'Promo 6x Latas Clásicas',
-    description: 'Pack de 6 latas clásicas para stockearte al mejor precio.',
-    price: 24000,
-    image: copaCervezasImg,
-    category: 'PROMOS CLÁSICAS',
-    available: true
-  },
-  {
-    id: 10,
-    name: 'Promo 3x Latas IPAs',
-    description: 'Pack de 3 latas de nuestras variedades lupuladas más intensas.',
-    price: 14000,
-    image: copaAustralImg,
-    category: 'PROMOS IPAS',
-    available: true
-  },
-  {
-    id: 11,
-    name: 'Promo 6x Latas IPAs',
-    description: 'Pack de 6 latas IPAs para disfrutar de la máxima frescura de lúpulo.',
-    price: 27000,
-    image: copaAustralImg,
-    category: 'PROMOS IPAS',
+    name: 'Remera Oversize Training',
+    description: 'Remera 100% algodón premium estilo oversize. Cómoda, fresca y versátil para tu rutina.',
+    price: 16500,
+    image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=60',
+    category: 'REMERAS',
     available: true
   }
 ];
