@@ -11,7 +11,8 @@ import { useAuth } from './useAuth';
 import LoginPanel from './LoginPanel';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'https://tucatalogoideal.com/backend';
-const CATALOG_ID = 1; // ID del catálogo Birromi en la BD
+// catalog_id se obtiene del backend al hacer login (user.catalog_id)
+// No hay ID hardcodeado — cada usuario está vinculado a su catálogo en la BD
 
 const LOCAL_STORAGE_PRODUCTS_KEY = 'birromi_products_custom';
 const LOCAL_STORAGE_INFO_KEY     = 'birromi_info_custom';
@@ -91,32 +92,32 @@ const BirromiPanel = () => {
   // ── Fetch stats ────────────────────────────────────────────────────────────
   const fetchStats = useCallback(async () => {
     const token = getToken();
-    if (!token) return;
+    if (!token || !user?.catalog_id) return;
     setStatsLoading(true);
     try {
-      const res  = await fetch(`${API_BASE}/?request=visits/${CATALOG_ID}`, {
+      const res  = await fetch(`${API_BASE}/?request=visits/${user.catalog_id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
       if (data.status === 'ok') setStats(data.data);
     } catch { /* sin backend en dev */ }
     finally { setStatsLoading(false); }
-  }, [getToken]);
+  }, [getToken, user?.catalog_id]);
 
   // ── Fetch contacts ─────────────────────────────────────────────────────────
   const fetchContacts = useCallback(async () => {
     const token = getToken();
-    if (!token) return;
+    if (!token || !user?.catalog_id) return;
     setContactsLoading(true);
     try {
-      const res  = await fetch(`${API_BASE}/?request=contacts/${CATALOG_ID}`, {
+      const res  = await fetch(`${API_BASE}/?request=contacts/${user.catalog_id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
       if (data.status === 'ok') setContacts(data.data);
     } catch { /* sin backend en dev */ }
     finally { setContactsLoading(false); }
-  }, [getToken]);
+  }, [getToken, user?.catalog_id]);
 
   useEffect(() => {
     if (user) {

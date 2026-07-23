@@ -7,6 +7,7 @@ USE `u506439444_catalogoideal`;
 -- =============================================
 CREATE TABLE IF NOT EXISTS `panel_users` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `catalog_id` INT NOT NULL DEFAULT 0,     -- ID numérico del catálogo en la tabla catalogs
   `catalog_slug` VARCHAR(100) NOT NULL,
   `username` VARCHAR(100) UNIQUE NOT NULL,
   `password_hash` VARCHAR(255) NOT NULL,
@@ -20,6 +21,7 @@ CREATE TABLE IF NOT EXISTS `panel_users` (
 CREATE TABLE IF NOT EXISTS `panel_sessions` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `token` VARCHAR(64) UNIQUE NOT NULL,
+  `catalog_id` INT NOT NULL DEFAULT 0,     -- ID numérico del catálogo
   `catalog_slug` VARCHAR(100) NOT NULL,
   `username` VARCHAR(100) NOT NULL,
   `expires_at` TIMESTAMP NOT NULL,
@@ -31,8 +33,12 @@ CREATE TABLE IF NOT EXISTS `panel_sessions` (
 -- Cambiar la contraseña desde Hostinger tras el deploy.
 -- Hash bcrypt de "admin123"
 -- =============================================
-INSERT IGNORE INTO `panel_users` (`catalog_slug`, `username`, `password_hash`)
-VALUES ('birromi', 'birromi', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+INSERT IGNORE INTO `panel_users` (`catalog_id`, `catalog_slug`, `username`, `password_hash`)
+VALUES (1, 'birromi', 'birromi', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+
+-- Para agregar un nuevo catálogo en el futuro:
+-- INSERT IGNORE INTO `panel_users` (`catalog_id`, `catalog_slug`, `username`, `password_hash`)
+-- VALUES (2, 'nuevo-slug', 'usuario2', 'hash_bcrypt');
 
 -- Catalogs Table
 CREATE TABLE IF NOT EXISTS `catalogs` (

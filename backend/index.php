@@ -122,8 +122,8 @@ try {
                 $expiresAt = date('Y-m-d H:i:s', strtotime('+7 days'));
 
                 $db->query(
-                    "INSERT INTO panel_sessions (token, catalog_slug, username, expires_at) VALUES (?, ?, ?, ?)",
-                    [$token, $user['catalog_slug'], $user['username'], $expiresAt]
+                    "INSERT INTO panel_sessions (token, catalog_id, catalog_slug, username, expires_at) VALUES (?, ?, ?, ?, ?)",
+                    [$token, $user['catalog_id'], $user['catalog_slug'], $user['username'], $expiresAt]
                 );
 
                 $db->query(
@@ -134,6 +134,7 @@ try {
                 echo json_encode([
                     "status"       => "ok",
                     "token"        => $token,
+                    "catalog_id"   => intval($user['catalog_id']),
                     "catalog_slug" => $user['catalog_slug'],
                     "username"     => $user['username'],
                     "expires_at"   => $expiresAt
@@ -151,6 +152,7 @@ try {
                 $session = requireAuth();
                 echo json_encode([
                     "status"       => "ok",
+                    "catalog_id"   => intval($session['catalog_id']),
                     "catalog_slug" => $session['catalog_slug'],
                     "username"     => $session['username'],
                     "expires_at"   => $session['expires_at']
