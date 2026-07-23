@@ -1,19 +1,22 @@
+Options -MultiViews
 RewriteEngine On
 RewriteBase /
 
 # =============================================
-# REACT SPA - Fallback Routing
+# REACT SPA - Fallback Routing (Hostinger)
 # =============================================
 
-# No tocar archivos reales (JS, CSS, imágenes, etc.)
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+# Primero: si el archivo o directorio existe físicamente, servirlo directo
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
 
-# No redirigir requests al backend PHP
-RewriteCond %{REQUEST_URI} !^/backend/
+# Segundo: no redirigir el backend PHP
+RewriteCond %{REQUEST_URI} ^/backend/ [NC]
+RewriteRule ^ - [L]
 
-# Todo lo demás va al index.html (React Router se encarga)
-RewriteRule ^(.*)$ /index.html [L]
+# Tercero: todo lo demás → index.html (React Router maneja las rutas)
+RewriteRule ^ /index.html [QSA,L]
 
 # =============================================
 # CACHE - Assets estáticos (JS/CSS con hash)
