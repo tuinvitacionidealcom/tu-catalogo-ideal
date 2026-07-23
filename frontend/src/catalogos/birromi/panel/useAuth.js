@@ -9,9 +9,17 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState(null);
 
+  const clearSession = () => {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+    setUser(null);
+  };
+
   // Verificar token almacenado al montar
   const verify = useCallback(async () => {
     const token = localStorage.getItem(TOKEN_KEY);
+
+    // Sin token → mostrar login directamente
     if (!token) {
       setLoading(false);
       return;
@@ -24,20 +32,25 @@ export function useAuth() {
 
       if (res.ok) {
         const data = await res.json();
-        setUser({ token, ...data });
+
+        // Validar que la respuesta tenga los campos esperados
+        if (data.status === 'ok' && data.username && data.catalog_slug) {
+          setUser({ token, ...data });
+        } else {
+          // Respuesta inválida — limpiar
+          clearSession();
+        }
       } else {
-        // Token inválido o expirado — limpiar
-        localStorage.removeItem(TOKEN_KEY);
-        localStorage.removeItem(USER_KEY);
-        setUser(null);
+        // Token inválido o expirado (401, 403, etc.) — limpiar
+        clearSession();
       }
     } catch {
-      // Si no hay conexión al backend (dev sin backend), quedarse sin sesión
-      setUser(null);
+      // Error de red o CORS — no asumir sesión válida, limpiar igual
+      clearSession();
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     verify();
@@ -57,6 +70,11 @@ export function useAuth() {
 
       if (!res.ok) {
         throw new Error(data.error || 'Error al iniciar sesión');
+      }
+
+      // Validar respuesta mínima
+      if (!data.token || !data.username) {
+        throw new Error('Respuesta del servidor inválida');
       }
 
       localStorage.setItem(TOKEN_KEY, data.token);
@@ -83,9 +101,7 @@ export function useAuth() {
         // ignorar error de red al hacer logout
       }
     }
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
-    setUser(null);
+    clearSession();
   };
 
   const getToken = () => localStorage.getItem(TOKEN_KEY);
