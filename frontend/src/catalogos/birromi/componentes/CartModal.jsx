@@ -45,6 +45,16 @@ const CartModal = ({ isOpen, onClose, cartItems, products = [], onAdd, onRemove,
     message += `\n💵 *Total a Pagar:* $${total.toLocaleString('es-AR')}\n\n`;
     message += `¡Muchas gracias! Espero la confirmación.`;
 
+    // Registrar clicks de productos en localStorage (para "Más Pedidos" del panel)
+    try {
+      const LS_CLICKS = 'birromi_product_clicks';
+      const clicks = JSON.parse(localStorage.getItem(LS_CLICKS) || '{}');
+      cartItems.forEach(item => {
+        clicks[item.id] = (clicks[item.id] || 0) + (item.quantity || 1);
+      });
+      localStorage.setItem(LS_CLICKS, JSON.stringify(clicks));
+    } catch {}
+
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
     window.open(whatsappUrl, '_blank');

@@ -1,527 +1,823 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ArrowLeft, Save, Plus, Trash2, Edit3, Check, Store,
-  ShoppingBag, BarChart2, MessageSquare, LogOut, TrendingUp,
-  Eye, Users, Calendar, Loader2, Phone, Mail, Clock,
+  Menu, X, Save, Plus, Trash2, Edit3, Store, ShoppingBag, BarChart2,
+  MessageSquare, LogOut, TrendingUp, Eye, Calendar, Loader2, Phone,
+  Mail, Clock, Flame, Minus, Package, Check, Users,
 } from 'lucide-react';
 import '../birromi.css';
 import { BUSINESS_NAME, DEFAULT_HOURS, DEFAULT_ADDRESS } from '../config';
 import { useAuth } from './useAuth';
 import LoginPanel from './LoginPanel';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://tucatalogoideal.com/backend';
-// catalog_id se obtiene del backend al hacer login (user.catalog_id)
-// No hay ID hardcodeado — cada usuario está vinculado a su catálogo en la BD
+const API_BASE    = import.meta.env.VITE_API_URL || 'https://tucatalogoideal.com/backend';
+const LS_PRODUCTS = 'birromi_products_custom';
+const LS_INFO     = 'birromi_info_custom';
+const LS_CLICKS   = 'birromi_product_clicks';
 
-const LOCAL_STORAGE_PRODUCTS_KEY = 'birromi_products_custom';
-const LOCAL_STORAGE_INFO_KEY     = 'birromi_info_custom';
+const DARK  = '#1a0800';
+const BRAND = '#c17f3c';
+const BG    = '#f5f2ee';
 
+// ── Default data ──────────────────────────────────────────────────────────────
 const defaultProducts = [
-  { id: 1, name: 'Lata Clásica Ludus (1 Unidad)', description: 'Cerveza artesanal Ludus clásica. Variedades Golden, Honey o Scottish según disponibilidad.', price: 4500, image: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=600&auto=format&fit=crop&q=60', category: 'LATAS CLÁSICAS', available: true },
-  { id: 2, name: 'Promo 3x Latas Clásicas Ludus', description: 'Pack de 3 latas de variedades clásicas a elección. ¡Ideal para compartir!', price: 13000, image: 'https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?w=600&auto=format&fit=crop&q=60', category: 'PROMOS CLÁSICAS', available: true },
-  { id: 3, name: 'Promo 6x Latas Clásicas Ludus', description: 'Pack de 6 latas de variedades clásicas. La mejor relación precio-calidad.', price: 24000, image: 'https://images.unsplash.com/photo-1571613316887-6f8d5cbf7ef7?w=600&auto=format&fit=crop&q=60', category: 'PROMOS CLÁSICAS', available: true },
-  { id: 4, name: 'Lata IPA Ludus (1 Unidad)', description: 'Cerveza artesanal Ludus IPA / NEIPA con lúpulos seleccionados de aroma y amargor intenso.', price: 5000, image: 'https://images.unsplash.com/photo-1532634922-8fe0b757fb13?w=600&auto=format&fit=crop&q=60', category: 'LATAS IPAS', available: true },
-  { id: 5, name: 'Promo 3x Latas IPAs Ludus', description: 'Pack de 3 latas de variedades lupuladas de la marca Ludus.', price: 14000, image: 'https://images.unsplash.com/photo-1600788886242-5c96aabe3757?w=600&auto=format&fit=crop&q=60', category: 'PROMOS IPAS', available: true },
-  { id: 6, name: 'Promo 6x Latas IPAs Ludus', description: 'Pack de 6 latas de variedades lupuladas Ludus.', price: 27000, image: 'https://images.unsplash.com/photo-1600788886242-5c96aabe3757?w=600&auto=format&fit=crop&q=60', category: 'PROMOS IPAS', available: true },
-  { id: 7, name: 'Promo Mundial Ludus', description: '¡Super Combo Especial! Una selección imperdible de latas clásicas y lúpulos premium.', price: 35000, image: 'https://images.unsplash.com/photo-1584225065152-4a1454aa3d4e?w=600&auto=format&fit=crop&q=60', category: 'PROMO MUNDIAL', available: true },
+  { id: 1, name: 'Blonde Ale (Rubia)', description: 'Cerveza artesanal clásica dorada, ligera y refrescante.', price: 4500, image: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=600&auto=format&fit=crop&q=60', category: 'LATAS CLÁSICAS', available: true, stock: 50 },
+  { id: 2, name: 'Irish Red', description: 'Color rojizo profundo, maltosa con notas a caramelo.', price: 4500, image: 'https://images.unsplash.com/photo-1532634922-8fe0b757fb13?w=600&auto=format&fit=crop&q=60', category: 'LATAS CLÁSICAS', available: true, stock: 30 },
+  { id: 3, name: 'Stout (Negra)', description: 'Cerveza oscura, notas a chocolate amargo y café tostado.', price: 4500, image: 'https://images.unsplash.com/photo-1571613316887-6f8d5cbf7ef7?w=600&auto=format&fit=crop&q=60', category: 'LATAS CLÁSICAS', available: true, stock: 20 },
+  { id: 4, name: 'IPA Argenta', description: 'Lúpulos cítricos y amargor persistente característico.', price: 5000, image: 'https://images.unsplash.com/photo-1600788886242-5c96aabe3757?w=600&auto=format&fit=crop&q=60', category: 'LATAS IPAS', available: true, stock: 40 },
+  { id: 5, name: 'Doble NEIPA Argenta', description: 'Extremadamente turbia y jugosa. Explosión de aroma tropical.', price: 5000, image: 'https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?w=600&auto=format&fit=crop&q=60', category: 'LATAS IPAS', available: true, stock: 15 },
+  { id: 6, name: 'West Coast IPA', description: 'Amargor clásico con lúpulos del pacífico. Bien seca y refrescante.', price: 5000, image: 'https://images.unsplash.com/photo-1584225065152-4a1454aa3d4e?w=600&auto=format&fit=crop&q=60', category: 'LATAS IPAS', available: true, stock: 25 },
+  { id: 7, name: 'Promo 6x Mix', description: 'Elegí 6 latas entre toda la variedad disponible.', price: 27000, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=60', category: 'PROMOS', available: true, stock: 10 },
 ];
 
 const defaultInfo = {
   name: BUSINESS_NAME,
-  description: 'Distribuidora oficial de cervezas artesanales Ludus. Llevamos la mejor calidad directo a tu evento o local.',
+  description: 'Distribuidora oficial de cervezas artesanales Ludus.',
   address: DEFAULT_ADDRESS,
   phone: '5491139246425',
   instagram: '',
   hours: DEFAULT_HOURS,
 };
 
-// ── Stat Card ─────────────────────────────────────────────────────────────────
-const StatCard = ({ icon: Icon, label, value, color, sub }) => (
-  <div style={{
-    background: '#fff', borderRadius: '16px', padding: '18px',
-    border: '1px solid #f0ece8', boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-    display: 'flex', flexDirection: 'column', gap: '8px',
-  }}>
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <span style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.6px' }}>{label}</span>
-      <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: color + '15', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Icon size={16} color={color} />
+const emptyProduct = { id: null, name: '', description: '', price: '', category: '', image: '', available: true, stock: 0 };
+
+// ── Nav items ──────────────────────────────────────────────────────────────────
+const NAV = [
+  { id: 'products', label: 'Productos',     Icon: ShoppingBag,  emoji: '📦' },
+  { id: 'info',     label: 'Mi Comercio',   Icon: Store,        emoji: '🏪' },
+  { id: 'popular',  label: 'Más Pedidos',   Icon: Flame,        emoji: '🔥' },
+  { id: 'stats',    label: 'Estadísticas',  Icon: BarChart2,    emoji: '📊' },
+  { id: 'contacts', label: 'Consultas',     Icon: MessageSquare,emoji: '💬' },
+];
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+const getClickCounts = () => {
+  try { return JSON.parse(localStorage.getItem(LS_CLICKS) || '{}'); } catch { return {}; }
+};
+
+// ── Sheet Modal (slide desde abajo) ──────────────────────────────────────────
+const Sheet = ({ open, onClose, title, children }) => {
+  if (!open) return null;
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9000,
+        background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)',
+        display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+        fontFamily: "'Inter', sans-serif",
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          width: '100%', maxWidth: '480px',
+          background: '#fff', borderRadius: '24px 24px 0 0',
+          padding: '8px 20px 36px',
+          boxShadow: '0 -20px 60px rgba(0,0,0,0.25)',
+          maxHeight: '92vh', overflowY: 'auto',
+          animation: 'sheetUp 0.28s cubic-bezier(0.4,0,0.2,1)',
+        }}
+      >
+        {/* Drag handle */}
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
+          <div style={{ width: '36px', height: '4px', borderRadius: '2px', background: '#e2e8f0' }} />
+        </div>
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', paddingTop: '8px' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: 800, color: DARK, margin: 0 }}>{title}</h2>
+          <button onClick={onClose} style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <X size={16} color="#64748b" />
+          </button>
+        </div>
+        {children}
       </div>
     </div>
-    <p style={{ fontSize: '28px', fontWeight: 800, color: '#1e293b', margin: 0, lineHeight: 1 }}>{value}</p>
+  );
+};
+
+// ── Stat Card ──────────────────────────────────────────────────────────────────
+const StatCard = ({ icon: Icon, label, value, color, sub }) => (
+  <div style={{ background: '#fff', borderRadius: '16px', padding: '16px', border: '1px solid #f0ece8', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <span style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.6px' }}>{label}</span>
+      <div style={{ width: '30px', height: '30px', borderRadius: '10px', background: color + '18', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Icon size={14} color={color} />
+      </div>
+    </div>
+    <p style={{ fontSize: '26px', fontWeight: 800, color: '#1e293b', margin: 0, lineHeight: 1 }}>{value}</p>
     {sub && <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0 }}>{sub}</p>}
   </div>
 );
 
-// ── Componente principal ───────────────────────────────────────────────────────
+// ── Main Component ────────────────────────────────────────────────────────────
 const BirromiPanel = () => {
   const { user, loading: authLoading, error: authError, login, logout, getToken } = useAuth();
 
-  const [products, setProducts]     = useState(defaultProducts);
-  const [info, setInfo]             = useState(defaultInfo);
-  const [activeTab, setActiveTab]   = useState('info');
+  // UI state
+  const [drawerOpen, setDrawerOpen]   = useState(false);
+  const [activeSection, setActiveSection] = useState('products');
 
-  // Stats
-  const [stats, setStats]           = useState(null);
-  const [statsLoading, setStatsLoading] = useState(false);
+  // Modals
+  const [productModal, setProductModal] = useState({ open: false, mode: 'add', data: { ...emptyProduct } });
+  const [stockModal, setStockModal]     = useState({ open: false, product: null, input: '' });
 
-  // Consultas
-  const [contacts, setContacts]     = useState([]);
+  // Data
+  const [products, setProducts]       = useState(defaultProducts);
+  const [info, setInfo]               = useState(defaultInfo);
+  const [clickCounts, setClickCounts] = useState({});
+
+  // Backend
+  const [stats, setStats]                     = useState(null);
+  const [statsLoading, setStatsLoading]       = useState(false);
+  const [contacts, setContacts]               = useState([]);
   const [contactsLoading, setContactsLoading] = useState(false);
 
-  // Product Form
-  const [editingProduct, setEditingProduct]         = useState(null);
-  const [newProductName, setNewProductName]         = useState('');
-  const [newProductDesc, setNewProductDesc]         = useState('');
-  const [newProductPrice, setNewProductPrice]       = useState('');
-  const [newProductCategory, setNewProductCategory] = useState('');
-  const [newProductImage, setNewProductImage]       = useState('');
-  const [newProductAvailable, setNewProductAvailable] = useState(true);
-
-  // ── Load localStorage ──────────────────────────────────────────────────────
+  // ── Init ──────────────────────────────────────────────────────────────────────
   useEffect(() => {
     document.body.classList.add('birromi-theme');
-    const savedProducts = localStorage.getItem(LOCAL_STORAGE_PRODUCTS_KEY);
-    const savedInfo     = localStorage.getItem(LOCAL_STORAGE_INFO_KEY);
-    if (savedProducts) setProducts(JSON.parse(savedProducts));
-    if (savedInfo)     setInfo(JSON.parse(savedInfo));
+    const sp = localStorage.getItem(LS_PRODUCTS);
+    const si = localStorage.getItem(LS_INFO);
+    if (sp) setProducts(JSON.parse(sp));
+    if (si) setInfo(JSON.parse(si));
+    setClickCounts(getClickCounts());
     return () => document.body.classList.remove('birromi-theme');
   }, []);
 
-  // ── Fetch stats ────────────────────────────────────────────────────────────
+  // ── Persist ────────────────────────────────────────────────────────────────────
+  const saveProducts = (updated) => {
+    localStorage.setItem(LS_PRODUCTS, JSON.stringify(updated));
+    setProducts(updated);
+  };
+
+  // ── Backend ───────────────────────────────────────────────────────────────────
   const fetchStats = useCallback(async () => {
     const token = getToken();
     if (!token || !user?.catalog_id) return;
     setStatsLoading(true);
     try {
-      const res  = await fetch(`${API_BASE}/?request=visits/${user.catalog_id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res  = await fetch(`${API_BASE}/?request=visits/${user.catalog_id}`, { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
       if (data.status === 'ok') setStats(data.data);
-    } catch { /* sin backend en dev */ }
+    } catch {}
     finally { setStatsLoading(false); }
   }, [getToken, user?.catalog_id]);
 
-  // ── Fetch contacts ─────────────────────────────────────────────────────────
   const fetchContacts = useCallback(async () => {
     const token = getToken();
     if (!token || !user?.catalog_id) return;
     setContactsLoading(true);
     try {
-      const res  = await fetch(`${API_BASE}/?request=contacts/${user.catalog_id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res  = await fetch(`${API_BASE}/?request=contacts/${user.catalog_id}`, { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
       if (data.status === 'ok') setContacts(data.data);
-    } catch { /* sin backend en dev */ }
+    } catch {}
     finally { setContactsLoading(false); }
   }, [getToken, user?.catalog_id]);
 
   useEffect(() => {
-    if (user) {
-      if (activeTab === 'stats')    fetchStats();
-      if (activeTab === 'contacts') fetchContacts();
-    }
-  }, [activeTab, user, fetchStats, fetchContacts]);
+    if (!user) return;
+    if (activeSection === 'stats')    fetchStats();
+    if (activeSection === 'contacts') fetchContacts();
+  }, [activeSection, user, fetchStats, fetchContacts]);
 
-  // ── Helpers localStorage ───────────────────────────────────────────────────
-  const saveToLocalStorage = (updatedProducts, updatedInfo) => {
-    if (updatedProducts) {
-      localStorage.setItem(LOCAL_STORAGE_PRODUCTS_KEY, JSON.stringify(updatedProducts));
-      setProducts(updatedProducts);
-    }
-    if (updatedInfo) {
-      localStorage.setItem(LOCAL_STORAGE_INFO_KEY, JSON.stringify(updatedInfo));
-      setInfo(updatedInfo);
-    }
-  };
+  // ── Product CRUD ──────────────────────────────────────────────────────────────
+  const openAdd  = () => setProductModal({ open: true, mode: 'add', data: { ...emptyProduct } });
+  const openEdit = (p) => setProductModal({ open: true, mode: 'edit', data: { ...p } });
+  const closeProductModal = () => setProductModal(prev => ({ ...prev, open: false }));
 
-  const handleInfoChange = e => {
-    const { name, value } = e.target;
-    setInfo(prev => ({ ...prev, [name]: value }));
-  };
+  const setPField = (key, val) =>
+    setProductModal(prev => ({ ...prev, data: { ...prev.data, [key]: val } }));
 
-  const handleSaveInfo = e => {
-    e.preventDefault();
-    saveToLocalStorage(null, info);
-    alert('Configuración guardada correctamente.');
-  };
-
-  const handleSaveProduct = e => {
-    e.preventDefault();
-    if (!newProductName || !newProductPrice || !newProductCategory) {
-      alert('Completá los campos obligatorios: Nombre, Precio y Categoría');
+  const handleSaveProduct = () => {
+    const p = productModal.data;
+    if (!p.name?.trim() || !p.price || !p.category?.trim()) {
+      alert('Completá Nombre, Precio y Categoría');
       return;
     }
-    let updatedProducts;
-    if (editingProduct) {
-      updatedProducts = products.map(p =>
-        p.id === editingProduct.id
-          ? { ...p, name: newProductName, description: newProductDesc, price: parseFloat(newProductPrice), category: newProductCategory.toUpperCase(), image: newProductImage, available: newProductAvailable }
-          : p
-      );
-      setEditingProduct(null);
+    const clean = {
+      ...p,
+      price:    parseFloat(p.price),
+      category: p.category.toUpperCase().trim(),
+      stock:    Math.max(0, parseInt(p.stock) || 0),
+      image:    p.image || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=60',
+    };
+    if (productModal.mode === 'add') {
+      saveProducts([...products, { ...clean, id: Date.now() }]);
     } else {
-      const newProduct = {
-        id: Date.now(), name: newProductName, description: newProductDesc,
-        price: parseFloat(newProductPrice), category: newProductCategory.toUpperCase(),
-        image: newProductImage || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=60',
-        available: newProductAvailable,
-      };
-      updatedProducts = [...products, newProduct];
+      saveProducts(products.map(x => x.id === p.id ? clean : x));
     }
-    saveToLocalStorage(updatedProducts, null);
-    clearProductForm();
+    closeProductModal();
   };
 
-  const handleEditProduct = product => {
-    setEditingProduct(product);
-    setNewProductName(product.name);
-    setNewProductDesc(product.description);
-    setNewProductPrice(product.price);
-    setNewProductCategory(product.category);
-    setNewProductImage(product.image);
-    setNewProductAvailable(product.available);
+  const handleDelete = (id) => {
+    if (confirm('¿Eliminar este producto?')) saveProducts(products.filter(p => p.id !== id));
   };
 
-  const handleDeleteProduct = id => {
-    if (confirm('¿Seguro que querés eliminar este producto?')) {
-      saveToLocalStorage(products.filter(p => p.id !== id), null);
-    }
+  // ── Stock ─────────────────────────────────────────────────────────────────────
+  const nudgeStock = (id, delta) =>
+    saveProducts(products.map(p => p.id === id ? { ...p, stock: Math.max(0, (p.stock || 0) + delta) } : p));
+
+  const openStockModal = (product) =>
+    setStockModal({ open: true, product, input: String(product.stock || 0) });
+
+  const saveStock = () => {
+    const val = parseInt(stockModal.input);
+    if (!isNaN(val) && val >= 0)
+      saveProducts(products.map(p => p.id === stockModal.product.id ? { ...p, stock: val } : p));
+    setStockModal({ open: false, product: null, input: '' });
   };
 
-  const clearProductForm = () => {
-    setEditingProduct(null);
-    setNewProductName('');
-    setNewProductDesc('');
-    setNewProductPrice('');
-    setNewProductCategory('');
-    setNewProductImage('');
-    setNewProductAvailable(true);
-  };
+  // ── Navigation ────────────────────────────────────────────────────────────────
+  const goTo = (section) => { setActiveSection(section); setDrawerOpen(false); };
 
-  const formatDate = dateStr => {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString('es-AR', {
-      day: '2-digit', month: 'short', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
-    });
-  };
+  // ── Popular ───────────────────────────────────────────────────────────────────
+  const popular = [...products]
+    .map(p => ({ ...p, clicks: clickCounts[p.id] || 0 }))
+    .sort((a, b) => b.clicks - a.clicks);
 
-  // ── Auth Guard ─────────────────────────────────────────────────────────────
-  if (authLoading) {
-    return (
-      <div style={{ minHeight: '100vh', background: '#1a0a00', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Loader2 size={32} color="#d4a017" style={{ animation: 'spin 1s linear infinite' }} />
-        <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
-  }
+  const formatDate = (d) => !d ? '—' : new Date(d).toLocaleDateString('es-AR', {
+    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
+  });
 
-  if (!user) {
-    return <LoginPanel onLogin={login} loading={authLoading} error={authError} />;
-  }
+  // ── Auth guard ────────────────────────────────────────────────────────────────
+  if (authLoading) return (
+    <div style={{ minHeight: '100vh', background: DARK, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <Loader2 size={32} color="#d4a017" style={{ animation: 'panelSpin 1s linear infinite' }} />
+      <style>{`@keyframes panelSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+  if (!user) return <LoginPanel onLogin={login} loading={authLoading} error={authError} />;
 
-  // ── Tabs config ─────────────────────────────────────────────────────────────
-  const tabs = [
-    { id: 'info',     label: 'Comercio',  icon: Store        },
-    { id: 'products', label: `Productos (${products.length})`, icon: ShoppingBag },
-    { id: 'stats',    label: 'Estadísticas', icon: BarChart2  },
-    { id: 'contacts', label: 'Consultas', icon: MessageSquare },
-  ];
+  const activeNav = NAV.find(n => n.id === activeSection);
 
+  // ── Render ────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 font-sans pb-12">
-      <div className="max-w-md mx-auto bg-white min-h-screen shadow-md flex flex-col">
+    <div style={{ minHeight: '100vh', background: BG, fontFamily: "'Inter', sans-serif", maxWidth: '480px', margin: '0 auto', position: 'relative' }}>
 
-        {/* ── Header ──────────────────────────────────────────────────────── */}
-        <div className="bg-brand text-white p-4 flex items-center justify-between border-b border-white/10">
-          <Link to="/mr-bebidas" className="text-white hover:text-accent transition-all flex items-center gap-1 text-sm font-bold">
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Ver Catálogo</span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <Store className="w-5 h-5 text-accent" />
-            <h1 className="font-sans font-extrabold text-base">{info.name || BUSINESS_NAME}</h1>
+      {/* Global styles */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        @keyframes panelSpin  { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes sheetUp    { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes drawerSlide{ from { transform: translateX(-100%); } to { transform: translateX(0); } }
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button { opacity: 1; }
+        ::-webkit-scrollbar { width: 0px; }
+      `}</style>
+
+      {/* ── Drawer overlay ── */}
+      {drawerOpen && (
+        <div
+          onClick={() => setDrawerOpen(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 500, backdropFilter: 'blur(2px)' }}
+        />
+      )}
+
+      {/* ── Drawer ── */}
+      <div style={{
+        position: 'fixed', top: 0, left: 0, width: '268px', height: '100dvh',
+        background: DARK, zIndex: 600,
+        transform: drawerOpen ? 'translateX(0)' : 'translateX(-100%)',
+        transition: 'transform 0.3s cubic-bezier(0.4,0,0.2,1)',
+        display: 'flex', flexDirection: 'column',
+        boxShadow: drawerOpen ? '8px 0 32px rgba(0,0,0,0.4)' : 'none',
+      }}>
+        {/* Drawer user section */}
+        <div style={{ padding: '20px 18px 18px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '1.2px' }}>Menú</span>
+            <button onClick={() => setDrawerOpen(false)} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', borderRadius: '8px', width: '28px', height: '28px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <X size={13} color="rgba(255,255,255,0.5)" />
+            </button>
           </div>
-          <button
-            id="panel-logout-btn"
-            onClick={logout}
-            title="Cerrar sesión"
-            className="flex items-center gap-1.5 text-white/70 hover:text-white text-xs font-bold transition-all cursor-pointer"
+          {/* Avatar + info */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'linear-gradient(135deg, #b46414, #d4a017)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 12px rgba(180,100,20,0.4)' }}>
+              <span style={{ fontSize: '18px', fontWeight: 800, color: '#fff' }}>{user.username?.[0]?.toUpperCase()}</span>
+            </div>
+            <div>
+              <p style={{ fontSize: '14px', fontWeight: 800, color: '#fff', margin: 0, lineHeight: 1.2 }}>{info.name || BUSINESS_NAME}</p>
+              <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.35)', margin: '2px 0 0', fontWeight: 600 }}>@{user.username}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Nav items */}
+        <nav style={{ padding: '14px 10px', flex: 1, overflowY: 'auto' }}>
+          {NAV.map(item => {
+            const active = activeSection === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => goTo(item.id)}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
+                  padding: '12px 14px', borderRadius: '12px', border: 'none', cursor: 'pointer',
+                  background: active ? 'rgba(193,127,60,0.18)' : 'transparent',
+                  color: active ? '#d4a017' : 'rgba(255,255,255,0.55)',
+                  fontWeight: 700, fontSize: '14px', marginBottom: '2px',
+                  transition: 'all 0.15s',
+                  borderLeft: `3px solid ${active ? '#d4a017' : 'transparent'}`,
+                  textAlign: 'left',
+                }}
+              >
+                <item.Icon size={16} />
+                <span>{item.emoji} {item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Drawer footer */}
+        <div style={{ padding: '12px 10px', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+          <Link
+            to="/mr-bebidas"
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '10px', color: 'rgba(255,255,255,0.45)', textDecoration: 'none', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}
+            onClick={() => setDrawerOpen(false)}
           >
-            <LogOut className="w-4 h-4" />
-            <span className="hidden sm:inline">Salir</span>
+            <Eye size={14} />Ver catálogo
+          </Link>
+          <button onClick={logout} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', border: 'none', color: '#f87171', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>
+            <LogOut size={14} />Cerrar sesión
           </button>
         </div>
+      </div>
 
-        {/* ── User badge ──────────────────────────────────────────────────── */}
-        <div style={{ background: '#faf8f5', borderBottom: '1px solid #f0ece8', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'linear-gradient(135deg, #b46414, #d4a017)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: '10px', fontWeight: 800, color: '#fff' }}>{user.username?.[0]?.toUpperCase()}</span>
-          </div>
-          <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>Sesión activa: <strong style={{ color: '#64748b' }}>{user.username}</strong></span>
+      {/* ── Header ── */}
+      <header style={{
+        background: DARK, padding: '0 16px', height: '58px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        position: 'sticky', top: 0, zIndex: 100,
+        boxShadow: '0 2px 16px rgba(0,0,0,0.35)',
+      }}>
+        <button
+          id="burger-menu-btn"
+          onClick={() => setDrawerOpen(true)}
+          style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '10px', width: '38px', height: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+        >
+          <Menu size={18} color="#fff" />
+        </button>
+
+        <div style={{ textAlign: 'center', flex: 1 }}>
+          <p style={{ fontSize: '14px', fontWeight: 800, color: '#fff', margin: 0, lineHeight: 1.2 }}>{info.name || BUSINESS_NAME}</p>
+          <p style={{ fontSize: '10px', color: BRAND, margin: 0, fontWeight: 600 }}>{activeNav?.emoji} {activeNav?.label}</p>
         </div>
 
-        {/* ── Tabs ────────────────────────────────────────────────────────── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', borderBottom: '1px solid #f1f5f9', background: '#f8fafc' }}>
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              id={`tab-${tab.id}`}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                padding: '10px 4px',
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
-                fontWeight: 700, fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.5px',
-                cursor: 'pointer', border: 'none', transition: 'all 0.2s',
-                borderBottom: activeTab === tab.id ? '2px solid #b46414' : '2px solid transparent',
-                color: activeTab === tab.id ? '#b46414' : '#94a3b8',
-                background: activeTab === tab.id ? '#fff' : 'transparent',
-              }}
-            >
-              <tab.icon style={{ width: '14px', height: '14px' }} />
-              {tab.label}
-            </button>
-          ))}
+        {/* Avatar en header */}
+        <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'linear-gradient(135deg, #b46414, #d4a017)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(180,100,20,0.4)' }}>
+          <span style={{ fontSize: '14px', fontWeight: 800, color: '#fff' }}>{user.username?.[0]?.toUpperCase()}</span>
         </div>
+      </header>
 
-        {/* ── Content ─────────────────────────────────────────────────────── */}
-        <div className="p-5 flex-1">
+      {/* ── Main content ── */}
+      <main style={{ padding: '18px 16px 60px' }}>
 
-          {/* ── TAB: Información Comercial ─────────────────────────────── */}
-          {activeTab === 'info' && (
-            <form onSubmit={handleSaveInfo} className="space-y-4">
-              {[
-                { label: 'Nombre del Comercio', name: 'name', type: 'text', required: true },
-                { label: 'WhatsApp (código + número, sin +)', name: 'phone', type: 'text', placeholder: 'Ej: 5491123456789', required: true },
-                { label: 'Instagram (sin @)', name: 'instagram', type: 'text' },
-                { label: 'Dirección Física', name: 'address', type: 'text' },
-                { label: 'Horarios de Atención', name: 'hours', type: 'text' },
-              ].map(field => (
-                <div key={field.name}>
-                  <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1.5">{field.label}</label>
-                  <input
-                    type={field.type}
-                    name={field.name}
-                    value={info[field.name] || ''}
-                    onChange={handleInfoChange}
-                    placeholder={field.placeholder}
-                    required={field.required}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent"
-                  />
-                </div>
-              ))}
+        {/* ─────────────────── PRODUCTOS ─────────────────── */}
+        {activeSection === 'products' && (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '18px' }}>
               <div>
-                <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1.5">Descripción</label>
-                <textarea
-                  name="description"
-                  value={info.description}
-                  onChange={handleInfoChange}
-                  rows="3"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-accent"
+                <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: DARK }}>Productos</h2>
+                <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#94a3b8' }}>{products.length} productos • {products.filter(p => p.available).length} disponibles</p>
+              </div>
+              <button
+                id="add-product-btn"
+                onClick={openAdd}
+                style={{ background: `linear-gradient(135deg, #b46414, ${BRAND})`, border: 'none', borderRadius: '12px', padding: '10px 16px', color: '#fff', fontWeight: 800, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 16px rgba(180,100,20,0.3)', flexShrink: 0 }}
+              >
+                <Plus size={15} />Agregar
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {products.map(p => {
+                const stockLow  = (p.stock || 0) > 0 && (p.stock || 0) <= 5;
+                const stockOut  = (p.stock || 0) === 0;
+                return (
+                  <div key={p.id} style={{
+                    background: '#fff', borderRadius: '18px', padding: '14px',
+                    border: '1px solid #f0ece8',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.05)',
+                    transition: 'box-shadow 0.2s',
+                  }}>
+                    {/* Product info row */}
+                    <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                      <div style={{ position: 'relative', flexShrink: 0 }}>
+                        <img src={p.image} alt={p.name} style={{ width: '64px', height: '64px', borderRadius: '14px', objectFit: 'cover' }} />
+                        {/* Disponibilidad badge */}
+                        <div style={{
+                          position: 'absolute', bottom: '-4px', right: '-4px',
+                          width: '16px', height: '16px', borderRadius: '50%',
+                          background: p.available ? '#10b981' : '#ef4444',
+                          border: '2px solid #fff',
+                        }} />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ margin: '0 0 2px', fontSize: '13px', fontWeight: 800, color: DARK, lineHeight: 1.3 }}>{p.name}</p>
+                        <p style={{ margin: '0 0 6px', fontSize: '10px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px' }}>{p.category}</p>
+                        <p style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: BRAND }}>${p.price.toLocaleString('es-AR')}</p>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flexShrink: 0 }}>
+                        <button
+                          onClick={() => openEdit(p)}
+                          title="Editar"
+                          style={{ background: '#f1f5f9', border: 'none', borderRadius: '9px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                        >
+                          <Edit3 size={13} color="#64748b" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(p.id)}
+                          title="Eliminar"
+                          style={{ background: '#fef2f2', border: 'none', borderRadius: '9px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                        >
+                          <Trash2 size={13} color="#ef4444" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Stock row */}
+                    <div style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      background: stockOut ? '#fef2f2' : stockLow ? '#fffbeb' : '#f8f7f5',
+                      borderRadius: '12px', padding: '9px 12px',
+                      border: `1px solid ${stockOut ? '#fecaca' : stockLow ? '#fde68a' : '#f0ece8'}`,
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Package size={12} color={stockOut ? '#ef4444' : stockLow ? '#f59e0b' : '#94a3b8'} />
+                        <span style={{ fontSize: '11px', fontWeight: 700, color: stockOut ? '#ef4444' : stockLow ? '#f59e0b' : '#64748b' }}>
+                          {stockOut ? '⚠ Sin stock' : stockLow ? '⚠ Stock bajo' : 'Stock disponible'}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                        <button
+                          onClick={() => nudgeStock(p.id, -1)}
+                          style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+                        >
+                          <Minus size={11} color="#64748b" />
+                        </button>
+                        <button
+                          onClick={() => openStockModal(p)}
+                          title="Tocar para editar cantidad"
+                          style={{
+                            background: stockOut ? '#ef4444' : BRAND,
+                            border: 'none', borderRadius: '9px',
+                            minWidth: '40px', height: '28px', padding: '0 10px',
+                            color: '#fff', fontWeight: 800, fontSize: '14px',
+                            cursor: 'pointer', transition: 'transform 0.1s',
+                            flexShrink: 0,
+                          }}
+                          onMouseDown={e => e.currentTarget.style.transform = 'scale(0.92)'}
+                          onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+                        >
+                          {p.stock || 0}
+                        </button>
+                        <button
+                          onClick={() => nudgeStock(p.id, 1)}
+                          style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+                        >
+                          <Plus size={11} color="#64748b" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ─────────────────── MI COMERCIO ─────────────────── */}
+        {activeSection === 'info' && (
+          <form
+            onSubmit={e => { e.preventDefault(); localStorage.setItem(LS_INFO, JSON.stringify(info)); alert('✓ Guardado correctamente'); }}
+            style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}
+          >
+            <div style={{ marginBottom: '4px' }}>
+              <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: DARK }}>Mi Comercio</h2>
+              <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#94a3b8' }}>Datos que se muestran en el catálogo</p>
+            </div>
+
+            {[
+              { label: 'Nombre del Comercio', key: 'name', required: true },
+              { label: 'WhatsApp (código + número, sin +)', key: 'phone', placeholder: '5491123456789', required: true },
+              { label: 'Instagram (sin @)', key: 'instagram', placeholder: 'tucuenta' },
+              { label: 'Dirección', key: 'address' },
+              { label: 'Horarios de Atención', key: 'hours' },
+            ].map(f => (
+              <div key={f.key}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '6px' }}>{f.label}</label>
+                <input
+                  type="text"
+                  value={info[f.key] || ''}
+                  onChange={e => setInfo(prev => ({ ...prev, [f.key]: e.target.value }))}
+                  placeholder={f.placeholder || ''}
+                  required={f.required}
+                  style={{ width: '100%', background: '#fff', border: '1px solid #e8e0d8', borderRadius: '12px', padding: '12px 14px', fontSize: '14px', color: DARK, outline: 'none', fontFamily: 'inherit', transition: 'border-color 0.2s' }}
+                  onFocus={e => e.target.style.borderColor = BRAND}
+                  onBlur={e => e.target.style.borderColor = '#e8e0d8'}
                 />
               </div>
-              <button type="submit" className="w-full bg-brand hover:bg-brand-light active:scale-95 text-white font-sans font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-brand/20 transition-all mt-6 cursor-pointer">
-                <Save className="w-4 h-4 text-accent" />
-                <span>Guardar Cambios</span>
-              </button>
-            </form>
-          )}
-
-          {/* ── TAB: Productos ────────────────────────────────────────────── */}
-          {activeTab === 'products' && (
-            <div className="space-y-6">
-              <form onSubmit={handleSaveProduct} className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-                <h3 className="font-bold text-slate-800 text-sm flex items-center gap-1.5">
-                  {editingProduct ? <Edit3 className="w-4 h-4 text-accent" /> : <Plus className="w-4 h-4 text-accent" />}
-                  <span>{editingProduct ? 'Editar Producto' : 'Agregar Nuevo Producto'}</span>
-                </h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nombre *</label>
-                    <input type="text" placeholder="Ej. Burguer Bacon" value={newProductName} onChange={e => setNewProductName(e.target.value)} className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-xs focus:outline-none focus:border-accent" required />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Categoría *</label>
-                    <input type="text" placeholder="Ej. HAMBURGUESAS" value={newProductCategory} onChange={e => setNewProductCategory(e.target.value)} className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-xs focus:outline-none focus:border-accent" required />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Descripción</label>
-                  <input type="text" placeholder="Detalle de ingredientes o especificaciones" value={newProductDesc} onChange={e => setNewProductDesc(e.target.value)} className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-xs focus:outline-none focus:border-accent" />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Precio ($ ARS) *</label>
-                    <input type="number" placeholder="Ej. 6500" value={newProductPrice} onChange={e => setNewProductPrice(e.target.value)} className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-xs focus:outline-none focus:border-accent" required />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Imagen URL</label>
-                    <input type="text" placeholder="Unsplash o link público" value={newProductImage} onChange={e => setNewProductImage(e.target.value)} className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-xs focus:outline-none focus:border-accent" />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between pt-1">
-                  <label className="flex items-center gap-2 text-xs font-bold text-slate-600 cursor-pointer">
-                    <input type="checkbox" checked={newProductAvailable} onChange={e => setNewProductAvailable(e.target.checked)} className="rounded border-slate-300" />
-                    <span>¿Hay Stock?</span>
-                  </label>
-                  <div className="flex items-center gap-2">
-                    {editingProduct && (
-                      <button type="button" onClick={clearProductForm} className="bg-slate-200 hover:bg-slate-300 text-slate-700 text-[10px] font-bold py-2 px-3 rounded-lg cursor-pointer">Cancelar</button>
-                    )}
-                    <button type="submit" className="bg-brand hover:bg-brand-light text-white text-[10px] font-bold py-2 px-4 rounded-lg flex items-center gap-1 cursor-pointer">
-                      <Check className="w-3.5 h-3.5" />
-                      <span>{editingProduct ? 'Actualizar' : 'Agregar'}</span>
-                    </button>
-                  </div>
-                </div>
-              </form>
-
-              <div className="space-y-2">
-                <h4 className="font-sans font-bold text-slate-800 text-xs uppercase tracking-wider">Listado de Productos</h4>
-                <div className="divide-y divide-slate-100">
-                  {products.map(p => (
-                    <div key={p.id} className="py-3 flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <img src={p.image} alt={p.name} className="w-10 h-10 object-cover rounded-lg shrink-0" />
-                        <div className="min-w-0">
-                          <p className="font-bold text-xs text-slate-800 truncate">{p.name}</p>
-                          <p className="text-[10px] text-slate-400 font-medium">{p.category} • ${p.price.toLocaleString('es-AR')}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 shrink-0">
-                        <button onClick={() => handleEditProduct(p)} className="p-1.5 text-slate-500 hover:bg-slate-100 rounded-md transition-all cursor-pointer" title="Editar"><Edit3 className="w-3.5 h-3.5" /></button>
-                        <button onClick={() => handleDeleteProduct(p.id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded-md transition-all cursor-pointer" title="Eliminar"><Trash2 className="w-3.5 h-3.5" /></button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            ))}
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '6px' }}>Descripción</label>
+              <textarea
+                value={info.description || ''}
+                onChange={e => setInfo(prev => ({ ...prev, description: e.target.value }))}
+                rows={3}
+                style={{ width: '100%', background: '#fff', border: '1px solid #e8e0d8', borderRadius: '12px', padding: '12px 14px', fontSize: '14px', color: DARK, outline: 'none', resize: 'none', fontFamily: 'inherit', transition: 'border-color 0.2s' }}
+                onFocus={e => e.target.style.borderColor = BRAND}
+                onBlur={e => e.target.style.borderColor = '#e8e0d8'}
+              />
             </div>
-          )}
+            <button type="submit" style={{ background: `linear-gradient(135deg, #b46414, ${BRAND})`, border: 'none', borderRadius: '14px', padding: '15px', color: '#fff', fontWeight: 800, fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 16px rgba(180,100,20,0.3)', marginTop: '4px' }}>
+              <Save size={16} />Guardar Cambios
+            </button>
+          </form>
+        )}
 
-          {/* ── TAB: Estadísticas ─────────────────────────────────────────── */}
-          {activeTab === 'stats' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-bold text-slate-800 text-sm">Visitas del catálogo</h3>
-                <button onClick={fetchStats} className="text-xs text-brand font-bold cursor-pointer hover:underline flex items-center gap-1">
-                  <TrendingUp className="w-3 h-3" /> Actualizar
-                </button>
-              </div>
-
-              {statsLoading ? (
-                <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 text-brand animate-spin" /></div>
-              ) : stats ? (
-                <>
-                  <div className="grid grid-cols-2 gap-3">
-                    <StatCard icon={Eye}      label="Total visitas" value={stats.total.toLocaleString('es-AR')}      color="#b46414" />
-                    <StatCard icon={Calendar} label="Hoy"           value={stats.today.toLocaleString('es-AR')}      color="#10b981" sub="visitas de hoy" />
-                    <StatCard icon={TrendingUp} label="Esta semana" value={stats.last_7_days.toLocaleString('es-AR')} color="#6366f1" sub="últimos 7 días" />
-                    <StatCard icon={Users}    label="Promedio/día"  value={stats.daily.length > 0 ? Math.round(stats.total / Math.max(stats.daily.length, 1)).toLocaleString('es-AR') : '—'} color="#f59e0b" sub="últ. 30 días" />
-                  </div>
-
-                  {stats.daily.length > 0 && (
-                    <div style={{ background: '#f8fafc', borderRadius: '16px', padding: '16px', border: '1px solid #f1f5f9' }}>
-                      <p className="text-[11px] font-bold text-slate-500 uppercase mb-3">Visitas por día (últ. 30 días)</p>
-                      <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '60px' }}>
-                        {(() => {
-                          const max = Math.max(...stats.daily.map(d => d.visitas), 1);
-                          return stats.daily.slice(-20).map((d, i) => (
-                            <div key={i} title={`${d.fecha}: ${d.visitas} visitas`} style={{
-                              flex: 1, minWidth: '6px',
-                              height: `${Math.max((d.visitas / max) * 100, 6)}%`,
-                              background: 'linear-gradient(180deg, #b46414, #d4a017)',
-                              borderRadius: '3px 3px 0 0',
-                              cursor: 'pointer', transition: 'opacity 0.2s',
-                            }}
-                              onMouseEnter={e => e.currentTarget.style.opacity = '0.7'}
-                              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-                            />
-                          ));
-                        })()}
-                      </div>
-                      <p style={{ fontSize: '10px', color: '#cbd5e1', marginTop: '6px', textAlign: 'right' }}>
-                        {stats.daily.length} días con actividad
-                      </p>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div style={{ textAlign: 'center', padding: '48px 0', color: '#94a3b8' }}>
-                  <BarChart2 style={{ width: '40px', height: '40px', margin: '0 auto 12px', opacity: 0.3 }} />
-                  <p style={{ fontSize: '13px', fontWeight: 600 }}>Sin datos de visitas aún</p>
-                  <p style={{ fontSize: '11px', marginTop: '4px' }}>Se registran automáticamente cuando alguien ve el catálogo</p>
-                </div>
-              )}
+        {/* ─────────────────── MÁS PEDIDOS ─────────────────── */}
+        {activeSection === 'popular' && (
+          <div>
+            <div style={{ marginBottom: '18px' }}>
+              <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: DARK }}>Más Pedidos</h2>
+              <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#94a3b8' }}>Ranking de productos por pedidos de WhatsApp</p>
             </div>
-          )}
-
-          {/* ── TAB: Consultas ────────────────────────────────────────────── */}
-          {activeTab === 'contacts' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-bold text-slate-800 text-sm">Consultas recibidas</h3>
-                <button onClick={fetchContacts} className="text-xs text-brand font-bold cursor-pointer hover:underline flex items-center gap-1">
-                  <MessageSquare className="w-3 h-3" /> Actualizar
-                </button>
-              </div>
-
-              {contactsLoading ? (
-                <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 text-brand animate-spin" /></div>
-              ) : contacts.length > 0 ? (
-                <div className="space-y-3">
-                  {contacts.map(c => (
-                    <div key={c.id} style={{
-                      background: '#fff', border: '1px solid #f1f5f9', borderRadius: '14px',
-                      padding: '14px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+            {popular.some(p => p.clicks > 0) ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {popular.map((p, i) => {
+                  const medalColors = ['#f59e0b', '#94a3b8', '#d97706'];
+                  const isTop3 = i < 3;
+                  return (
+                    <div key={p.id} style={{
+                      background: '#fff', borderRadius: '16px', padding: '14px',
+                      border: `1px solid ${isTop3 ? '#f0ece8' : '#f5f5f5'}`,
+                      boxShadow: isTop3 ? '0 2px 12px rgba(0,0,0,0.06)' : 'none',
+                      display: 'flex', alignItems: 'center', gap: '12px',
+                      opacity: p.clicks === 0 ? 0.45 : 1,
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #b46414, #d4a017)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <span style={{ fontSize: '12px', fontWeight: 800, color: '#fff' }}>{c.name?.[0]?.toUpperCase()}</span>
-                          </div>
-                          <div>
-                            <p style={{ fontWeight: 700, fontSize: '13px', color: '#1e293b', margin: 0 }}>{c.name}</p>
-                            <p style={{ fontSize: '10px', color: '#94a3b8', margin: 0, display: 'flex', alignItems: 'center', gap: '3px' }}>
-                              <Clock size={9} />{formatDate(c.created_at)}
-                            </p>
-                          </div>
-                        </div>
+                      {/* Rank */}
+                      <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: isTop3 ? medalColors[i] : '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : <span style={{ fontSize: '12px', fontWeight: 800, color: '#94a3b8' }}>#{i + 1}</span>}
                       </div>
-                      <p style={{ fontSize: '12px', color: '#475569', margin: '0 0 10px', lineHeight: 1.5, background: '#f8fafc', padding: '8px 10px', borderRadius: '8px' }}>
-                        {c.message}
-                      </p>
-                      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                        {c.phone && (
-                          <a href={`https://wa.me/${c.phone}`} target="_blank" rel="noreferrer" style={{ fontSize: '11px', color: '#10b981', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}>
-                            <Phone size={11} />{c.phone}
-                          </a>
-                        )}
-                        {c.email && (
-                          <a href={`mailto:${c.email}`} style={{ fontSize: '11px', color: '#6366f1', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}>
-                            <Mail size={11} />{c.email}
-                          </a>
-                        )}
+                      <img src={p.image} alt={p.name} style={{ width: '48px', height: '48px', borderRadius: '12px', objectFit: 'cover', flexShrink: 0 }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ margin: '0 0 2px', fontSize: '13px', fontWeight: 800, color: DARK, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</p>
+                        <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>${p.price.toLocaleString('es-AR')}</p>
+                      </div>
+                      {p.clicks > 0 && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#fff7ed', borderRadius: '10px', padding: '5px 10px', flexShrink: 0 }}>
+                          <Flame size={12} color="#f97316" />
+                          <span style={{ fontSize: '14px', fontWeight: 800, color: '#f97316' }}>{p.clicks}</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '64px 20px', color: '#94a3b8' }}>
+                <Flame size={44} style={{ margin: '0 auto 14px', display: 'block', opacity: 0.25 }} />
+                <p style={{ fontWeight: 800, fontSize: '15px', margin: '0 0 8px', color: '#64748b' }}>Sin datos de pedidos aún</p>
+                <p style={{ fontSize: '13px', margin: 0, lineHeight: 1.6 }}>Los clicks se registran cuando los clientes presionan <strong>"Hacer Pedido"</strong> en el catálogo</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ─────────────────── ESTADÍSTICAS ─────────────────── */}
+        {activeSection === 'stats' && (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '18px' }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: DARK }}>Estadísticas</h2>
+                <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#94a3b8' }}>Visitas al catálogo</p>
+              </div>
+              <button onClick={fetchStats} style={{ background: '#fff', border: `1.5px solid ${BRAND}`, borderRadius: '10px', padding: '7px 13px', color: BRAND, fontWeight: 700, fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <TrendingUp size={12} />Actualizar
+              </button>
+            </div>
+            {statsLoading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '64px 0' }}>
+                <Loader2 size={28} color={BRAND} style={{ animation: 'panelSpin 1s linear infinite' }} />
+              </div>
+            ) : stats ? (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
+                  <StatCard icon={Eye}        label="Total"       value={stats.total?.toLocaleString('es-AR') || '0'} color="#b46414" />
+                  <StatCard icon={Calendar}   label="Hoy"         value={stats.today?.toLocaleString('es-AR') || '0'} color="#10b981" sub="visitas de hoy" />
+                  <StatCard icon={TrendingUp} label="7 días"      value={stats.last_7_days?.toLocaleString('es-AR') || '0'} color="#6366f1" sub="última semana" />
+                  <StatCard icon={Users}      label="Promedio"    value={stats.daily?.length > 0 ? Math.round(stats.total / Math.max(stats.daily.length, 1)) : '—'} color="#f59e0b" sub="visitas por día" />
+                </div>
+                {stats.daily?.length > 0 && (
+                  <div style={{ background: '#fff', borderRadius: '18px', padding: '18px', border: '1px solid #f0ece8', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
+                    <p style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.6px', margin: '0 0 14px' }}>Últimos 30 días</p>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '72px' }}>
+                      {(() => {
+                        const max = Math.max(...stats.daily.map(d => d.visitas), 1);
+                        return stats.daily.slice(-28).map((d, i) => (
+                          <div
+                            key={i}
+                            title={`${d.fecha}: ${d.visitas} visitas`}
+                            style={{
+                              flex: 1, minWidth: '5px',
+                              height: `${Math.max((d.visitas / max) * 100, 6)}%`,
+                              background: `linear-gradient(180deg, #b46414, #d4a017)`,
+                              borderRadius: '4px 4px 0 0',
+                              cursor: 'pointer', transition: 'opacity 0.15s',
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.opacity = '0.65'}
+                            onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                          />
+                        ));
+                      })()}
+                    </div>
+                    <p style={{ fontSize: '10px', color: '#cbd5e1', marginTop: '8px', margin: '8px 0 0', textAlign: 'right' }}>
+                      {stats.daily.length} días registrados
+                    </p>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '64px 20px', color: '#94a3b8' }}>
+                <BarChart2 size={44} style={{ margin: '0 auto 14px', display: 'block', opacity: 0.25 }} />
+                <p style={{ fontWeight: 800, fontSize: '15px', margin: '0 0 8px', color: '#64748b' }}>Sin datos todavía</p>
+                <p style={{ fontSize: '13px', margin: 0 }}>Presioná "Actualizar" para cargar los datos del servidor</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ─────────────────── CONSULTAS ─────────────────── */}
+        {activeSection === 'contacts' && (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '18px' }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: DARK }}>Consultas</h2>
+                <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#94a3b8' }}>{contacts.length} mensajes recibidos</p>
+              </div>
+              <button onClick={fetchContacts} style={{ background: '#fff', border: `1.5px solid ${BRAND}`, borderRadius: '10px', padding: '7px 13px', color: BRAND, fontWeight: 700, fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <MessageSquare size={12} />Actualizar
+              </button>
+            </div>
+            {contactsLoading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '64px 0' }}>
+                <Loader2 size={28} color={BRAND} style={{ animation: 'panelSpin 1s linear infinite' }} />
+              </div>
+            ) : contacts.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {contacts.map(c => (
+                  <div key={c.id} style={{ background: '#fff', borderRadius: '18px', padding: '16px', border: '1px solid #f0ece8', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
+                    <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
+                      <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: `linear-gradient(135deg, #b46414, #d4a017)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <span style={{ fontWeight: 800, color: '#fff', fontSize: '15px' }}>{c.name?.[0]?.toUpperCase()}</span>
+                      </div>
+                      <div>
+                        <p style={{ margin: 0, fontWeight: 800, fontSize: '14px', color: DARK }}>{c.name}</p>
+                        <p style={{ margin: 0, fontSize: '10px', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <Clock size={9} />{formatDate(c.created_at)}
+                        </p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ textAlign: 'center', padding: '48px 0', color: '#94a3b8' }}>
-                  <MessageSquare style={{ width: '40px', height: '40px', margin: '0 auto 12px', opacity: 0.3 }} />
-                  <p style={{ fontSize: '13px', fontWeight: 600 }}>Sin consultas por ahora</p>
-                  <p style={{ fontSize: '11px', marginTop: '4px' }}>Aparecen acá cuando alguien manda un mensaje desde el catálogo</p>
-                </div>
-              )}
-            </div>
-          )}
+                    <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#475569', background: '#f8fafc', padding: '10px 12px', borderRadius: '10px', lineHeight: 1.6 }}>{c.message}</p>
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                      {c.phone && (
+                        <a href={`https://wa.me/${c.phone}`} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: '#10b981', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '5px', textDecoration: 'none', background: '#f0fdf4', padding: '6px 10px', borderRadius: '8px' }}>
+                          <Phone size={12} />{c.phone}
+                        </a>
+                      )}
+                      {c.email && (
+                        <a href={`mailto:${c.email}`} style={{ fontSize: '12px', color: '#6366f1', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '5px', textDecoration: 'none', background: '#eef2ff', padding: '6px 10px', borderRadius: '8px' }}>
+                          <Mail size={12} />{c.email}
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '64px 20px', color: '#94a3b8' }}>
+                <MessageSquare size={44} style={{ margin: '0 auto 14px', display: 'block', opacity: 0.25 }} />
+                <p style={{ fontWeight: 800, fontSize: '15px', margin: '0 0 8px', color: '#64748b' }}>Sin consultas por ahora</p>
+                <p style={{ fontSize: '13px', margin: 0 }}>Aparecen acá cuando alguien manda un mensaje desde el catálogo</p>
+              </div>
+            )}
+          </div>
+        )}
+      </main>
 
+      {/* ══════════════ MODAL: Producto ══════════════ */}
+      <Sheet
+        open={productModal.open}
+        onClose={closeProductModal}
+        title={productModal.mode === 'add' ? '➕ Nuevo Producto' : '✏️ Editar Producto'}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '13px' }}>
+          {/* Preview imagen si hay URL */}
+          {productModal.data.image && (
+            <img
+              src={productModal.data.image}
+              alt="preview"
+              style={{ width: '100%', height: '130px', objectFit: 'cover', borderRadius: '14px', marginBottom: '2px' }}
+              onError={e => e.target.style.display = 'none'}
+            />
+          )}
+          {[
+            { label: 'Nombre del producto *', key: 'name', placeholder: 'Ej. Blonde Ale' },
+            { label: 'Categoría *', key: 'category', placeholder: 'Ej. LATAS CLÁSICAS' },
+            { label: 'Descripción', key: 'description', placeholder: 'Detalle breve del producto' },
+            { label: 'URL de Imagen', key: 'image', placeholder: 'https://images.unsplash.com/...' },
+          ].map(f => (
+            <div key={f.key}>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '6px' }}>{f.label}</label>
+              <input
+                type="text"
+                value={productModal.data[f.key] || ''}
+                onChange={e => setPField(f.key, e.target.value)}
+                placeholder={f.placeholder}
+                style={{ width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '11px', padding: '11px 13px', fontSize: '14px', color: DARK, outline: 'none', fontFamily: 'inherit', transition: 'border-color 0.2s' }}
+                onFocus={e => e.target.style.borderColor = BRAND}
+                onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+              />
+            </div>
+          ))}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '6px' }}>Precio $ ARS *</label>
+              <input type="number" value={productModal.data.price || ''} onChange={e => setPField('price', e.target.value)} placeholder="4500" style={{ width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '11px', padding: '11px 13px', fontSize: '14px', color: DARK, outline: 'none', fontFamily: 'inherit' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '6px' }}>Stock inicial</label>
+              <input type="number" value={productModal.data.stock ?? ''} onChange={e => setPField('stock', e.target.value)} placeholder="0" style={{ width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '11px', padding: '11px 13px', fontSize: '14px', color: DARK, outline: 'none', fontFamily: 'inherit' }} />
+            </div>
+          </div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', padding: '4px 0' }}>
+            <input
+              type="checkbox"
+              checked={productModal.data.available ?? true}
+              onChange={e => setPField('available', e.target.checked)}
+              style={{ width: '18px', height: '18px', accentColor: BRAND }}
+            />
+            <span style={{ fontSize: '14px', fontWeight: 600, color: '#475569' }}>Producto disponible para pedir</span>
+          </label>
+          <button
+            onClick={handleSaveProduct}
+            style={{ background: `linear-gradient(135deg, #b46414, ${BRAND})`, border: 'none', borderRadius: '13px', padding: '15px', color: '#fff', fontWeight: 800, fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 16px rgba(180,100,20,0.3)', marginTop: '4px' }}
+          >
+            <Check size={17} />{productModal.mode === 'add' ? 'Agregar Producto' : 'Guardar Cambios'}
+          </button>
         </div>
-      </div>
+      </Sheet>
+
+      {/* ══════════════ MODAL: Stock ══════════════ */}
+      <Sheet
+        open={stockModal.open}
+        onClose={() => setStockModal({ open: false, product: null, input: '' })}
+        title="✏️ Cambiar Stock"
+      >
+        {stockModal.product && (
+          <div>
+            {/* Mini product preview */}
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: '#f8f7f5', borderRadius: '14px', padding: '12px', marginBottom: '24px' }}>
+              <img src={stockModal.product.image} alt="" style={{ width: '44px', height: '44px', borderRadius: '10px', objectFit: 'cover' }} />
+              <div>
+                <p style={{ margin: 0, fontSize: '13px', fontWeight: 800, color: DARK }}>{stockModal.product.name}</p>
+                <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8' }}>Stock actual: {stockModal.product.stock || 0} unidades</p>
+              </div>
+            </div>
+
+            {/* Cantidad editable */}
+            <p style={{ textAlign: 'center', fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '16px' }}>Nueva cantidad</p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', marginBottom: '28px' }}>
+              <button
+                onClick={() => setStockModal(prev => ({ ...prev, input: String(Math.max(0, parseInt(prev.input || '0') - 1)) }))}
+                style={{ width: '52px', height: '52px', borderRadius: '14px', background: '#f1f5f9', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '20px' }}
+              >
+                <Minus size={20} color="#64748b" />
+              </button>
+              <input
+                type="number"
+                value={stockModal.input}
+                onChange={e => setStockModal(prev => ({ ...prev, input: e.target.value }))}
+                style={{ width: '96px', textAlign: 'center', fontSize: '36px', fontWeight: 800, color: DARK, border: `2.5px solid ${BRAND}`, borderRadius: '16px', padding: '10px 0', outline: 'none', fontFamily: 'inherit', background: '#fffbf5' }}
+              />
+              <button
+                onClick={() => setStockModal(prev => ({ ...prev, input: String(parseInt(prev.input || '0') + 1) }))}
+                style={{ width: '52px', height: '52px', borderRadius: '14px', background: '#f1f5f9', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+              >
+                <Plus size={20} color="#64748b" />
+              </button>
+            </div>
+            <button
+              onClick={saveStock}
+              style={{ width: '100%', background: `linear-gradient(135deg, #b46414, ${BRAND})`, border: 'none', borderRadius: '14px', padding: '15px', color: '#fff', fontWeight: 800, fontSize: '15px', cursor: 'pointer', boxShadow: '0 4px 16px rgba(180,100,20,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+            >
+              <Check size={17} />Confirmar Stock
+            </button>
+          </div>
+        )}
+      </Sheet>
     </div>
   );
 };
