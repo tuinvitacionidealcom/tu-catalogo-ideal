@@ -46,7 +46,7 @@ jobs:
         port: 21
         protocol: ftp
         local-dir: frontend/dist/
-        server-dir: /domains/tucatalogoideal.com/public_html/
+        server-dir: public_html/
         dangerous-clean-slate: true
 
     - name: Deploy Backend via FTP
@@ -58,4 +58,4 @@ jobs:
         port: 21
         protocol: ftp
         local-dir: backend/
-        server-dir: /domains/tucatalogoideal.com/public_html/backend/
+        server-dir: public_html/backend/
