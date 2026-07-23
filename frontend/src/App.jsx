@@ -46,8 +46,7 @@ const ScrollToTop = () => {
 function App() {
     const location = useLocation();
     // Ocultamos el botón flotante de la landing page si estamos en cualquier catálogo o panel comercial
-    const isCatalogRoute = location.pathname.toLowerCase().startsWith('/romi-bebidas') || 
-                           location.pathname.toLowerCase().startsWith('/birromi');
+    const isCatalogRoute = location.pathname.toLowerCase().startsWith('/mr-bebidas');
 
     return (
         <>
@@ -59,9 +58,9 @@ function App() {
                 {/* Formulario Armá tu Catálogo */}
                 <Route path="/arma-tu-catalogo" element={<ArmaTuCatalogoPage />} />
                 
-                {/* Rutas del Catálogo RoMi Bebidas */}
-                <Route path="/RoMi-bebidas" element={<BirromiCatalogo />} />
-                <Route path="/RoMi-bebidas/panel" element={<BirromiPanel />} />
+                {/* Rutas del Catálogo M.R Bebidas */}
+                <Route path="/mr-bebidas" element={<BirromiCatalogo />} />
+                <Route path="/mr-bebidas/panel" element={<BirromiPanel />} />
                 
                 {/* 404 */}
                 <Route path="*" element={<NotFound />} />

@@ -238,7 +238,7 @@ const BirromiPanel = () => {
 
         {/* ── Header ──────────────────────────────────────────────────────── */}
         <div className="bg-brand text-white p-4 flex items-center justify-between border-b border-white/10">
-          <Link to="/birromi" className="text-white hover:text-accent transition-all flex items-center gap-1 text-sm font-bold">
+          <Link to="/mr-bebidas" className="text-white hover:text-accent transition-all flex items-center gap-1 text-sm font-bold">
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Ver Catálogo</span>
           </Link>
