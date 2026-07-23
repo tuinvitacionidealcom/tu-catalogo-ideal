@@ -47,7 +47,7 @@ jobs:
         protocol: ftp
         local-dir: frontend/dist/
         server-dir: ./
-        dangerous-clean-slate: true
+        timeout: 60000
 
     - name: Deploy Backend via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -59,3 +59,4 @@ jobs:
         protocol: ftp
         local-dir: backend/
         server-dir: ./backend/
+        timeout: 60000
