@@ -245,12 +245,14 @@ const PerlaFitCatalogo = () => {
         padding: '20px'
       }}>
         <h1 style={{
-          fontSize: '48px',
-          fontWeight: 900,
-          letterSpacing: '8px',
-          margin: '0 0 16px 0',
+          fontFamily: "'Montserrat', 'Syne', sans-serif",
+          fontSize: '52px',
+          fontWeight: 700,
+          letterSpacing: '14px',
+          margin: '0 0 16px 14px',
           color: '#ffffff',
-          textTransform: 'uppercase'
+          textTransform: 'uppercase',
+          lineHeight: 1
         }}>
           PERLA FIT
         </h1>
