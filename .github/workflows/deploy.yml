@@ -38,14 +38,12 @@ jobs:
         echo "✅ .htaccess copiado a dist/"
 
     - name: Deploy via SFTP
-      uses: svenstaro/upload-sftp-action@v2
+      uses: wangyucode/sftp-upload-action@v2
       with:
+        host: ${{ secrets.SFTP_HOST }}
         username: ${{ secrets.SFTP_USER }}
         password: ${{ secrets.SFTP_PASSWORD }}
-        server: ${{ secrets.SFTP_HOST }}
         port: 22
-        local_dir: "frontend/dist"
-        server_dir: "/domains/tucatalogoideal.com/public_html"
-        file_glob: "**/*"
-        overwrite: true
+        localDir: "frontend/dist"
+        remoteDir: "/domains/tucatalogoideal.com/public_html"
 
