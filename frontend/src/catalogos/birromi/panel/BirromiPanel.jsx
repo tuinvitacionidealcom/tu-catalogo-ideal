@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Save, Plus, Trash2, Edit3, Check, Store, ShoppingBag } from 'lucide-react';
+import '../birromi.css';
+import { BUSINESS_NAME, DEFAULT_HOURS, DEFAULT_ADDRESS } from '../config';
 
 const LOCAL_STORAGE_PRODUCTS_KEY = 'birromi_products_custom';
 const LOCAL_STORAGE_INFO_KEY = 'birromi_info_custom';
@@ -72,12 +74,12 @@ const defaultProducts = [
 ];
 
 const defaultInfo = {
-  name: "RoMi Bebidas",
+  name: BUSINESS_NAME,
   description: "Distribuidora oficial de cervezas artesanales Ludus. Llevamos la mejor calidad directo a tu evento o local.",
-  address: "Av. de Mayo 1420, Ramos Mejía",
+  address: DEFAULT_ADDRESS,
   phone: "5491139246425",
-  instagram: "birromi.ludus",
-  hours: "Lunes a Sábados de 10:00 a 20:00"
+  instagram: "",
+  hours: DEFAULT_HOURS
 };
 
 const BirromiPanel = () => {
@@ -96,10 +98,17 @@ const BirromiPanel = () => {
 
   // Load from localStorage on mount
   useEffect(() => {
+    // Aplicar clase de tema para colores marrones
+    document.body.classList.add('birromi-theme');
+
     const savedProducts = localStorage.getItem(LOCAL_STORAGE_PRODUCTS_KEY);
     const savedInfo = localStorage.getItem(LOCAL_STORAGE_INFO_KEY);
     if (savedProducts) setProducts(JSON.parse(savedProducts));
     if (savedInfo) setInfo(JSON.parse(savedInfo));
+
+    return () => {
+      document.body.classList.remove('birromi-theme');
+    };
   }, []);
 
   const saveToLocalStorage = (updatedProducts, updatedInfo) => {
@@ -205,7 +214,7 @@ const BirromiPanel = () => {
           </Link>
           <div className="flex items-center gap-2">
             <Store className="w-5 h-5 text-accent" />
-            <h1 className="font-sans font-extrabold text-lg">Panel Birromi</h1>
+            <h1 className="font-sans font-extrabold text-lg">Panel {info.name || BUSINESS_NAME}</h1>
           </div>
         </div>
 

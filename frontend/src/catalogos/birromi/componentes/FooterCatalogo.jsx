@@ -1,15 +1,16 @@
 import React from 'react';
 import { Phone, MapPin, Clock, Award } from 'lucide-react';
 import { FaWhatsapp, FaInstagram } from 'react-icons/fa';
+import { BUSINESS_NAME, DEFAULT_HOURS, DEFAULT_ADDRESS } from '../config';
 
 const FooterCatalogo = ({ info = {}, topProducts = [] }) => {
   const {
-    name = "Birromi Cerveza Artesanal",
+    name = BUSINESS_NAME,
     description = "Distribuidora oficial de cervezas artesanales Ludus.",
-    address = "Av. de Mayo 1420, Ramos Mejía",
+    address = DEFAULT_ADDRESS,
     phone = "5491139246425",
-    instagram = "birromi.ludus",
-    hours = "Lunes a Sábados de 10:00 a 20:00",
+    instagram = "",
+    hours = DEFAULT_HOURS,
     logo
   } = info;
 
@@ -33,7 +34,7 @@ const FooterCatalogo = ({ info = {}, topProducts = [] }) => {
                 {logo ? (
                   <img src={logo} alt={name} className="w-full h-full object-cover" />
                 ) : (
-                  "B!"
+                  name ? name.charAt(0).toUpperCase() : BUSINESS_NAME.charAt(0).toUpperCase()
                 )}
               </div>
               <div className="flex flex-col">
@@ -59,15 +60,17 @@ const FooterCatalogo = ({ info = {}, topProducts = [] }) => {
               >
                 <FaWhatsapp className="text-sm" />
               </a>
-              <a
-                href={`https://instagram.com/${instagram}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-8 h-8 rounded-full bg-white/5 hover:bg-pink-600 hover:text-white transition-all text-slate-300 flex items-center justify-center border border-white/10 active:scale-95 cursor-pointer"
-                title="Instagram"
-              >
-                <FaInstagram className="text-sm" />
-              </a>
+              {instagram && (
+                <a
+                  href={`https://instagram.com/${instagram}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 rounded-full bg-white/5 hover:bg-pink-600 hover:text-white transition-all text-slate-300 flex items-center justify-center border border-white/10 active:scale-95 cursor-pointer"
+                  title="Instagram"
+                >
+                  <FaInstagram className="text-sm" />
+                </a>
+              )}
             </div>
           </div>
 

@@ -1,22 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Truck, Award, Beer, CreditCard } from 'lucide-react';
+import { Truck, Store, Beer, CreditCard } from 'lucide-react';
 
 const ServiciosSeccion = () => {
   const servicios = [
     {
       icon: <Truck className="w-6 h-6 text-accent" />,
-      title: "Envíos a todo el país",
-      description: "Despachamos tu pedido de forma rápida y segura a cualquier rincón de la Argentina."
+      title: "Envíos a domicilio",
+      description: "Envíos rápidos a cargo del comprador."
     },
     {
-      icon: <Award className="w-6 h-6 text-accent" />,
-      title: "Venta por mayor",
-      description: "Precios especiales y distribución directa para locales comerciales, bares y eventos."
+      icon: <Store className="w-6 h-6 text-accent" />,
+      title: "Venta a bares",
+      description: "Distribución directa y precios especiales para locales comerciales y bares."
     },
     {
       icon: <Beer className="w-6 h-6 text-accent" />,
-      title: "Alquiler de choperas",
-      description: "Barriles listos para instalar con equipamiento profesional de frío para tu fiesta."
+      title: "Alquiler de chopera",
+      description: "Consultar disponibilidad de barriles y equipamiento de frío para tu evento."
     },
     {
       icon: <CreditCard className="w-6 h-6 text-accent" />,

@@ -1,0 +1,19 @@
+/* Tema Marrón/Dorado para Catálogo Birromi / MR Bebidas */
+body.birromi-theme {
+  --color-brand: #2B1B10;
+  --color-brand-light: #4A3525;
+  --color-brand-dark: #1A0F0A;
+  
+  --color-accent: #D4A373;
+  --color-accent-light: #FAEDCD;
+  --color-accent-dark: #BC6C25;
+  
+  --color-web-bg: #FAF7F2;
+  --color-web-bg-warm: #FAF7F2;
+  --color-web-card: #FFFFFF;
+  --color-web-border: #E8D8C8;
+  --color-web-text: #2B1B10;
+  --color-web-text-muted: #7A604D;
+  --color-web-dark: #2B1B10;
+  --color-web-dark-soft: #4A3525;
+}

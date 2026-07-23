@@ -8,7 +8,10 @@ import CategoryTabs from '../componentes/CategoryTabs';
 import CartModal from '../componentes/CartModal';
 import FooterCatalogo from '../componentes/FooterCatalogo';
 import ProductModal from '../componentes/ProductModal';
+import FAQ from '../componentes/FAQ';
 import { Link } from 'react-router-dom';
+import '../birromi.css';
+import { BUSINESS_NAME, DEFAULT_HOURS, DEFAULT_ADDRESS } from '../config';
 
 // Importación de imágenes locales
 import logoImg from '../img/logo.webp';
@@ -129,12 +132,12 @@ const defaultProducts = [
 ];
 
 const defaultInfo = {
-  name: "RoMi Bebidas",
+  name: BUSINESS_NAME,
   description: "Distribuidora oficial de cervezas artesanales Ludus. Llevamos la mejor calidad directo a tu evento o local.",
-  address: "Av. de Mayo 1420, Ramos Mejía",
+  address: DEFAULT_ADDRESS,
   phone: "5491139246425",
-  instagram: "birromi.ludus",
-  hours: "Lunes a Sábados de 10:00 a 20:00",
+  instagram: "",
+  hours: DEFAULT_HOURS,
   logo: logoImg
 };
 
@@ -151,6 +154,9 @@ const BirromiCatalogo = () => {
 
   // Load custom data from localStorage if exists + Update Title & Favicon
   useEffect(() => {
+    // Aplicar clase de tema para colores marrones
+    document.body.classList.add('birromi-theme');
+
     const savedProducts = localStorage.getItem(LOCAL_STORAGE_PRODUCTS_KEY);
     const savedInfo = localStorage.getItem(LOCAL_STORAGE_INFO_KEY);
 
@@ -176,6 +182,7 @@ const BirromiCatalogo = () => {
 
     // Cleanup: Restaurar valores originales al salir del catálogo
     return () => {
+      document.body.classList.remove('birromi-theme');
       document.title = originalTitle;
       if (faviconLink) {
         faviconLink.href = originalFavicon;
@@ -304,7 +311,7 @@ const BirromiCatalogo = () => {
             {info.logo ? (
               <img src={info.logo} alt={info.name} className="w-full h-full object-cover" />
             ) : (
-              "B!"
+              info.name ? info.name.charAt(0).toUpperCase() : BUSINESS_NAME.charAt(0).toUpperCase()
             )}
           </div>
           <span className="font-serif font-black text-sm uppercase tracking-widest text-white">
@@ -447,22 +454,8 @@ const BirromiCatalogo = () => {
               </div>
             </div>
 
-            {/* Info Section (Anchor 'Más Info') */}
-            <div id="informacion-contacto" className="bg-white rounded-3xl p-6 border border-slate-100 space-y-4">
-              <h3 className="font-serif font-black text-lg text-brand border-b border-slate-100 pb-2">
-                Información de Entrega y Contacto
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium text-slate-600">
-                <div className="space-y-2">
-                  <p className="font-bold text-brand uppercase text-[10px] tracking-wider">Dirección de Retiro</p>
-                  <p>{info.address}</p>
-                </div>
-                <div className="space-y-2">
-                  <p className="font-bold text-brand uppercase text-[10px] tracking-wider">Horario de Atención</p>
-                  <p>{info.hours}</p>
-                </div>
-              </div>
-            </div>
+            {/* FAQ Section */}
+            <FAQ />
 
           </div>
 
