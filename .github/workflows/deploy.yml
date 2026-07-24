@@ -46,7 +46,7 @@ jobs:
         port: 21
         protocol: ftp
         local-dir: frontend/dist/
-        server-dir: ./
+        server-dir: ./public_html/
         timeout: 60000
 
     - name: Deploy Backend via FTP
@@ -58,5 +58,5 @@ jobs:
         port: 21
         protocol: ftp
         local-dir: backend/
-        server-dir: ./backend/
+        server-dir: ./public_html/backend/
         timeout: 60000
