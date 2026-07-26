@@ -1,0 +1,19 @@
+/* Tema Warm Bakery / Marrón y Crema para Bakery Limón */
+body.bakery-limon-theme {
+  --color-brand: #4A1E05;
+  --color-brand-light: #6E2F0B;
+  --color-brand-dark: #321302;
+  
+  --color-accent: #C88A58;
+  --color-accent-light: #F7EAD0;
+  --color-accent-dark: #8C471A;
+  
+  --color-web-bg: #FAF5EE;
+  --color-web-bg-warm: #F5EBE0;
+  --color-web-card: #FFFFFF;
+  --color-web-border: #E8D8C8;
+  --color-web-text: #3E1A07;
+  --color-web-text-muted: #7A5843;
+  --color-web-dark: #4A1E05;
+  --color-web-dark-soft: #6E2F0B;
+}

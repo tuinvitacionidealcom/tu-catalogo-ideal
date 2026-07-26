@@ -23,6 +23,10 @@ import BirromiPanel from './catalogos/birromi/panel/BirromiPanel';
 import PerlaFitCatalogo from './catalogos/perla-fit/page/PerlaFitCatalogo';
 import PerlaFitPanel from './catalogos/perla-fit/panel/PerlaFitPanel';
 
+// Catálogo Bakery Limón
+import BakeryLimonCatalogo from './catalogos/bakery-limon/page/BakeryLimonCatalogo';
+import BakeryLimonPanel from './catalogos/bakery-limon/panel/BakeryLimonPanel';
+
 // HomePage: Landing principal
 const HomePage = () => {
     return (
@@ -51,7 +55,8 @@ function App() {
     const location = useLocation();
     // Ocultamos el botón flotante de la landing page si estamos en cualquier catálogo o panel comercial
     const isCatalogRoute = location.pathname.toLowerCase().startsWith('/mr-bebidas') ||
-                           location.pathname.toLowerCase().startsWith('/perla-fit');
+                           location.pathname.toLowerCase().startsWith('/perla-fit') ||
+                           location.pathname.toLowerCase().startsWith('/bakery-limon');
 
     return (
         <>
@@ -70,6 +75,10 @@ function App() {
                 {/* Rutas del Catálogo Perla Fit */}
                 <Route path="/perla-fit" element={<PerlaFitCatalogo />} />
                 <Route path="/perla-fit/panel" element={<PerlaFitPanel />} />
+                
+                {/* Rutas del Catálogo Bakery Limón */}
+                <Route path="/bakery-limon" element={<BakeryLimonCatalogo />} />
+                <Route path="/bakery-limon/panel" element={<BakeryLimonPanel />} />
                 
                 {/* 404 */}
                 <Route path="*" element={<NotFound />} />
