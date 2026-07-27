@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, Trash2, ShoppingBag, Send } from 'lucide-react';
+import { X, Trash2, ShoppingBag, Send, ArrowRight } from 'lucide-react';
+import { useDialog } from '../../../components/ui/Dialog';
 import { FaWhatsapp } from 'react-icons/fa';
 
 const CartModal = ({ isOpen, onClose, cartItems, products = [], onAdd, onRemove, onClear, whatsappNumber }) => {

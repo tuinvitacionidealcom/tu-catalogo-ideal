@@ -9,6 +9,7 @@ import '../birromi.css';
 import { BUSINESS_NAME, DEFAULT_HOURS, DEFAULT_ADDRESS } from '../config';
 import { useAuth } from './useAuth';
 import LoginPanel from './LoginPanel';
+import { useDialog } from '../../../components/ui/Dialog';
 
 const API_BASE    = import.meta.env.VITE_API_URL || 'https://tucatalogoideal.com/backend';
 const LS_PRODUCTS = 'birromi_products_custom';
@@ -113,6 +114,7 @@ const StatCard = ({ icon: Icon, label, value, color, sub }) => (
 // ── Main Component ────────────────────────────────────────────────────────────
 const BirromiPanel = () => {
   const { user, loading: authLoading, error: authError, login, logout, getToken } = useAuth();
+  const dialog = useDialog();
 
   // UI state
   const [drawerOpen, setDrawerOpen]   = useState(false);
@@ -150,17 +152,27 @@ const BirromiPanel = () => {
     setProducts(updated);
   };
 
-  // ── Backend ───────────────────────────────────────────────────────────────────
   const fetchStats = useCallback(async () => {
     const token = getToken();
-    if (!token || !user?.catalog_id) return;
+    const catalogId = user?.catalog_id || 1; // Fallback al id 1 si catalog_id no viene en la sesión
+    if (!token) {
+      setStatsLoading(false);
+      return;
+    }
     setStatsLoading(true);
     try {
-      const res  = await fetch(`${API_BASE}/?request=visits/${user.catalog_id}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res  = await fetch(`${API_BASE}/?request=visits/${catalogId}`, { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
-      if (data.status === 'ok') setStats(data.data);
-    } catch {}
-    finally { setStatsLoading(false); }
+      if (data.status === 'ok') {
+        setStats(data.data);
+      } else {
+        setStats({ total: 0, today: 0, last_7_days: 0, daily: [] });
+      }
+    } catch {
+      setStats({ total: 0, today: 0, last_7_days: 0, daily: [] });
+    } finally {
+      setStatsLoading(false);
+    }
   }, [getToken, user?.catalog_id]);
 
   const fetchContacts = useCallback(async () => {
@@ -189,10 +201,10 @@ const BirromiPanel = () => {
   const setPField = (key, val) =>
     setProductModal(prev => ({ ...prev, data: { ...prev.data, [key]: val } }));
 
-  const handleSaveProduct = () => {
+  const handleSaveProduct = async () => {
     const p = productModal.data;
     if (!p.name?.trim() || !p.price || !p.category?.trim()) {
-      alert('Completá Nombre, Precio y Categoría');
+      await dialog.error('Completá Nombre, Precio y Categoría');
       return;
     }
     const clean = {
@@ -210,8 +222,9 @@ const BirromiPanel = () => {
     closeProductModal();
   };
 
-  const handleDelete = (id) => {
-    if (confirm('¿Eliminar este producto?')) saveProducts(products.filter(p => p.id !== id));
+  const handleDelete = async (id) => {
+    const confirmed = await dialog.danger('¿Estás seguro de que querés eliminar este producto? Esta acción no se puede deshacer.');
+    if (confirmed) saveProducts(products.filter(p => p.id !== id));
   };
 
   // ── Stock ─────────────────────────────────────────────────────────────────────
@@ -491,7 +504,11 @@ const BirromiPanel = () => {
         {/* ─────────────────── MI COMERCIO ─────────────────── */}
         {activeSection === 'info' && (
           <form
-            onSubmit={e => { e.preventDefault(); localStorage.setItem(LS_INFO, JSON.stringify(info)); alert('✓ Guardado correctamente'); }}
+            onSubmit={async e => {
+              e.preventDefault();
+              localStorage.setItem(LS_INFO, JSON.stringify(info));
+              await dialog.success('Los datos del comercio fueron guardados correctamente.');
+            }}
             style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}
           >
             <div style={{ marginBottom: '4px' }}>
@@ -608,9 +625,9 @@ const BirromiPanel = () => {
                   <StatCard icon={Eye}        label="Total"       value={stats.total?.toLocaleString('es-AR') || '0'} color="#b46414" />
                   <StatCard icon={Calendar}   label="Hoy"         value={stats.today?.toLocaleString('es-AR') || '0'} color="#10b981" sub="visitas de hoy" />
                   <StatCard icon={TrendingUp} label="7 días"      value={stats.last_7_days?.toLocaleString('es-AR') || '0'} color="#6366f1" sub="última semana" />
-                  <StatCard icon={Users}      label="Promedio"    value={stats.daily?.length > 0 ? Math.round(stats.total / Math.max(stats.daily.length, 1)) : '—'} color="#f59e0b" sub="visitas por día" />
+                  <StatCard icon={Users}      label="Promedio"    value={stats.daily?.length > 0 ? Math.round(stats.total / Math.max(stats.daily.length, 1)) : '0'} color="#f59e0b" sub="visitas por día" />
                 </div>
-                {stats.daily?.length > 0 && (
+                {stats.daily?.length > 0 ? (
                   <div style={{ background: '#fff', borderRadius: '18px', padding: '18px', border: '1px solid #f0ece8', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
                     <p style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.6px', margin: '0 0 14px' }}>Últimos 30 días</p>
                     <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '72px' }}>
@@ -633,9 +650,10 @@ const BirromiPanel = () => {
                         ));
                       })()}
                     </div>
-                    <p style={{ fontSize: '10px', color: '#cbd5e1', marginTop: '8px', margin: '8px 0 0', textAlign: 'right' }}>
-                      {stats.daily.length} días registrados
-                    </p>
+                  </div>
+                ) : (
+                  <div style={{ background: '#fff', borderRadius: '18px', padding: '24px', textAlign: 'center', border: '1px solid #f0ece8' }}>
+                    <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>Aún no hay registro de visitas registrado en la base de datos.</p>
                   </div>
                 )}
               </>
@@ -818,6 +836,9 @@ const BirromiPanel = () => {
           </div>
         )}
       </Sheet>
+
+      {/* Custom Dialog UI */}
+      <dialog.DialogUI />
     </div>
   );
 };
