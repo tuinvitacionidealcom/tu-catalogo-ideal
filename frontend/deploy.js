@@ -34,10 +34,27 @@ async function deploy() {
         
         console.log("✅ Conectado con éxito.");
         
-        // Asegurar navegación dentro de public_html
-        await client.ensureDir('public_html');
-        const pwd = await client.pwd();
-        console.log(`📍 Directorio FTP actual para el sitio: ${pwd}`);
+        let pwd = await client.pwd();
+        console.log(`📍 Directorio inicial FTP: ${pwd}`);
+        
+        // Si el usuario no está ya dentro de public_html, ingresar a public_html
+        if (!pwd.endsWith('/public_html') && !pwd.endsWith('/public_html/')) {
+            try {
+                await client.cd('public_html');
+                pwd = await client.pwd();
+                console.log(`📍 Navegado a: ${pwd}`);
+            } catch (cdErr) {
+                console.log("ℹ️ No se pudo cambiar a public_html, utilizando directorio actual.");
+            }
+        }
+        
+        // Si estando en /public_html existe una subcarpeta duplicala llamada 'public_html', eliminarla
+        try {
+            await client.removeDir('public_html');
+            console.log("🧹 Subcarpeta duplicada 'public_html' eliminada correctamente.");
+        } catch (e) {
+            // No existe subcarpeta duplicada
+        }
         
         // Copiar .htaccess al directorio de build (dist/)
         const rootHtaccess = path.resolve(__dirname, '../.htaccess');
