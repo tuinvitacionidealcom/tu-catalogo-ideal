@@ -37,26 +37,8 @@ jobs:
         cp .htaccess frontend/dist/.htaccess
         echo "✅ .htaccess copiado a dist/"
 
-    - name: Deploy Frontend via FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        port: 21
-        protocol: ftp
-        local-dir: frontend/dist/
-        server-dir: ./public_html/
-        timeout: 60000
+    - name: Deploy via basic-ftp (deploy.js)
+      run: |
+        cd frontend
+        node deploy.js
 
-    - name: Deploy Backend via FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        port: 21
-        protocol: ftp
-        local-dir: backend/
-        server-dir: ./public_html/backend/
-        timeout: 60000
