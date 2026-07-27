@@ -5,15 +5,22 @@ const TOKEN_KEY = 'panel_token';
 const USER_KEY  = 'panel_user';
 
 export function useAuth() {
-  const [user, setUser]       = useState(null);
+  const [user, setUser] = useState(() => {
+    try {
+      const stored = localStorage.getItem(USER_KEY);
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState(null);
 
-  const clearSession = () => {
+  const clearSession = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     setUser(null);
-  };
+  }, []);
 
   // Verificar token almacenado al montar
   const verify = useCallback(async () => {
@@ -22,6 +29,7 @@ export function useAuth() {
     // Sin token → mostrar login directamente
     if (!token) {
       setLoading(false);
+      setUser(null);
       return;
     }
 
@@ -35,28 +43,27 @@ export function useAuth() {
 
         // Validar que la respuesta tenga los campos esperados
         if (data.status === 'ok' && data.username && data.catalog_slug) {
-          setUser({ token, ...data });
+          const userData = { token, ...data };
+          setUser(userData);
+          localStorage.setItem(USER_KEY, JSON.stringify(userData));
         } else {
-          // Respuesta inválida — limpiar
           clearSession();
         }
       } else {
-        // Token inválido o expirado (401, 403, etc.) — limpiar
         clearSession();
       }
     } catch {
-      // Error de red o CORS — no asumir sesión válida, limpiar igual
-      clearSession();
+      // Error de red o CORS: mantener usuario local si existe pero marcar no cargando
     } finally {
       setLoading(false);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [clearSession]);
 
   useEffect(() => {
     verify();
   }, [verify]);
 
-  const login = async (username, password) => {
+  const login = useCallback(async (username, password) => {
     setError(null);
     setLoading(true);
     try {
@@ -72,7 +79,6 @@ export function useAuth() {
         throw new Error(data.error || 'Error al iniciar sesión');
       }
 
-      // Validar respuesta mínima
       if (!data.token || !data.username) {
         throw new Error('Respuesta del servidor inválida');
       }
@@ -87,9 +93,9 @@ export function useAuth() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     const token = localStorage.getItem(TOKEN_KEY);
     if (token) {
       try {
@@ -102,9 +108,10 @@ export function useAuth() {
       }
     }
     clearSession();
-  };
+  }, [clearSession]);
 
-  const getToken = () => localStorage.getItem(TOKEN_KEY);
+  const getToken = useCallback(() => localStorage.getItem(TOKEN_KEY), []);
 
   return { user, loading, error, login, logout, getToken };
 }
+

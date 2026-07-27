@@ -68,12 +68,24 @@ CREATE TABLE IF NOT EXISTS `catalog_contacts` (
   FOREIGN KEY (`catalog_id`) REFERENCES `catalogs`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Catalog Visits Table (For analytics)
-CREATE TABLE IF NOT EXISTS `catalog_visits` (
+-- Catalog Products Table
+CREATE TABLE IF NOT EXISTS `catalog_products` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `catalog_id` INT NOT NULL,
-  `ip_address` VARCHAR(45),
-  `user_agent` VARCHAR(255),
-  `visited_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`catalog_id`) REFERENCES `catalogs`(`id`) ON DELETE CASCADE
+  `name` VARCHAR(255) NOT NULL,
+  `description` TEXT,
+  `price` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  `category` VARCHAR(100) NOT NULL DEFAULT 'GENERAL',
+  `image` TEXT,
+  `available` TINYINT(1) DEFAULT 1,
+  `stock` INT DEFAULT 0,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Seed Catalogs Default
+INSERT IGNORE INTO `catalogs` (`id`, `slug`, `business_name`) VALUES 
+(1, 'mr-bebidas', 'M.R Bebidas'),
+(2, 'perla-fit', 'Perla Fit'),
+(3, 'bakery-limon', 'Bakery Limón');
+

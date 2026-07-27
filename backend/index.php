@@ -292,6 +292,174 @@ try {
             break;
 
         // =============================================
+        // SUBIDA DE IMÁGENES / ARCHIVOS
+        // =============================================
+        case 'upload':
+            if ($method === 'POST') {
+                $session = requireAuth();
+
+                $uploadDir = __DIR__ . '/uploads/';
+                if (!file_exists($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+
+                $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+                $host = $_SERVER['HTTP_HOST'] ?? 'tucatalogoideal.com';
+                $baseUrl = $protocol . $host . '/backend/uploads/';
+
+                // 1. Archivo subido por multipart/form-data
+                if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                    $fileTmp  = $_FILES['image']['tmp_name'];
+                    $fileName = $_FILES['image']['name'];
+                    $ext      = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                    if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'])) {
+                        $ext = 'webp';
+                    }
+
+                    $newFilename = 'img_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+                    $targetPath  = $uploadDir . $newFilename;
+
+                    if (move_uploaded_file($fileTmp, $targetPath)) {
+                        echo json_encode(["status" => "ok", "url" => $baseUrl . $newFilename]);
+                        exit;
+                    }
+                }
+
+                // 2. Imagen base64 por JSON
+                $input = json_decode(file_get_contents('php://input'), true);
+                if (!empty($input['image_base64'])) {
+                    $base64 = $input['image_base64'];
+                    if (preg_match('/^data:image\/(\w+);base64,/', $base64, $type)) {
+                        $base64Data = substr($base64, strpos($base64, ',') + 1);
+                        $type = strtolower($type[1]);
+                        if (!in_array($type, ['jpg', 'jpeg', 'png', 'webp', 'gif'])) {
+                            $type = 'webp';
+                        }
+                        $base64Data = base64_decode($base64Data);
+                        if ($base64Data !== false) {
+                            $newFilename = 'img_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $type;
+                            file_put_contents($uploadDir . $newFilename, $base64Data);
+                            echo json_encode(["status" => "ok", "url" => $baseUrl . $newFilename]);
+                            exit;
+                        }
+                    }
+                }
+
+                http_response_code(400);
+                echo json_encode(["error" => "No se envió ninguna imagen válida"]);
+            }
+            break;
+
+        // =============================================
+        // PRODUCTOS DE CATÁLOGOS
+        // =============================================
+        case 'products':
+            $db = Database::getInstance();
+
+            // Asegurar tabla catalog_products
+            $db->query("CREATE TABLE IF NOT EXISTS `catalog_products` (
+              `id` INT AUTO_INCREMENT PRIMARY KEY,
+              `catalog_id` INT NOT NULL,
+              `name` VARCHAR(255) NOT NULL,
+              `description` TEXT,
+              `price` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+              `category` VARCHAR(100) NOT NULL DEFAULT 'GENERAL',
+              `image` TEXT,
+              `available` TINYINT(1) DEFAULT 1,
+              `stock` INT DEFAULT 0,
+              `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+            if ($method === 'GET') {
+                $catalog_id = intval($sub ?? 0);
+                if ($catalog_id <= 0) {
+                    http_response_code(400);
+                    echo json_encode(["error" => "Falta catalog_id"]);
+                    exit;
+                }
+
+                $stmt = $db->query(
+                    "SELECT * FROM catalog_products WHERE catalog_id = ? ORDER BY id DESC",
+                    [$catalog_id]
+                );
+                $products = $stmt->fetchAll();
+                
+                // Formatear tipos
+                $formatted = array_map(function($p) {
+                    return [
+                        "id"          => intval($p['id']),
+                        "catalog_id"  => intval($p['catalog_id']),
+                        "name"        => $p['name'],
+                        "description" => $p['description'] ?? '',
+                        "price"       => floatval($p['price']),
+                        "category"    => $p['category'],
+                        "image"       => $p['image'],
+                        "available"   => (bool)$p['available'],
+                        "stock"       => intval($p['stock'])
+                    ];
+                }, $products);
+
+                echo json_encode(["status" => "ok", "data" => $formatted]);
+
+            } elseif ($method === 'POST') {
+                $session = requireAuth();
+                $input = json_decode(file_get_contents('php://input'), true);
+
+                $catalog_id  = intval($input['catalog_id'] ?? $session['catalog_id'] ?? 1);
+                $name        = trim($input['name'] ?? '');
+                $description = trim($input['description'] ?? '');
+                $price       = floatval($input['price'] ?? 0);
+                $category    = trim($input['category'] ?? 'GENERAL');
+                $image       = trim($input['image'] ?? '');
+                $available   = isset($input['available']) ? ($input['available'] ? 1 : 0) : 1;
+                $stock       = intval($input['stock'] ?? 0);
+                $prod_id     = isset($input['id']) && is_numeric($input['id']) ? intval($input['id']) : null;
+
+                if (empty($name)) {
+                    http_response_code(400);
+                    echo json_encode(["error" => "El nombre del producto es obligatorio"]);
+                    exit;
+                }
+
+                if ($prod_id) {
+                    // Verificar si existe para actualizar
+                    $existing = $db->query("SELECT id FROM catalog_products WHERE id = ? AND catalog_id = ?", [$prod_id, $catalog_id])->fetch();
+                    if ($existing) {
+                        $db->query(
+                            "UPDATE catalog_products SET name = ?, description = ?, price = ?, category = ?, image = ?, available = ?, stock = ? WHERE id = ? AND catalog_id = ?",
+                            [$name, $description, $price, $category, $image, $available, $stock, $prod_id, $catalog_id]
+                        );
+                        echo json_encode(["status" => "ok", "message" => "Producto actualizado", "id" => $prod_id]);
+                        exit;
+                    }
+                }
+
+                // Insertar producto nuevo
+                $db->query(
+                    "INSERT INTO catalog_products (catalog_id, name, description, price, category, image, available, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    [$catalog_id, $name, $description, $price, $category, $image, $available, $stock]
+                );
+                $newId = intval($db->getConnection()->lastInsertId());
+
+                echo json_encode(["status" => "ok", "message" => "Producto creado", "id" => $newId]);
+
+            } elseif ($method === 'DELETE') {
+                $session = requireAuth();
+                $prod_id = intval($sub ?? 0);
+
+                if ($prod_id <= 0) {
+                    http_response_code(400);
+                    echo json_encode(["error" => "ID de producto inválido"]);
+                    exit;
+                }
+
+                $db->query("DELETE FROM catalog_products WHERE id = ?", [$prod_id]);
+                echo json_encode(["status" => "ok", "message" => "Producto eliminado"]);
+            }
+            break;
+
+        // =============================================
         // CATÁLOGOS
         // =============================================
         case 'catalogs':

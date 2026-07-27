@@ -194,8 +194,26 @@ const BakeryLimonCatalogo = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [viewMode, setViewMode] = useState('list'); // 'list' (1 columna / lista por defecto) o 'grid' (2 columnas)
 
-  // Load custom data from localStorage if exists + Update Title & Favicon
+  // Load custom data from localStorage if exists + Update Title & Favicon + Record Visit
   useEffect(() => {
+    // Registrar visita al catálogo
+    const API_BASE = import.meta.env.VITE_API_URL || 'https://tucatalogoideal.com/backend';
+    fetch(`${API_BASE}/?request=visits`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ catalog_id: 3 })
+    }).catch(() => {});
+
+    // Cargar productos actualizados desde MySQL
+    fetch(`${API_BASE}/?request=products/3`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'ok' && Array.isArray(data.data) && data.data.length > 0) {
+          setProducts(data.data);
+        }
+      })
+      .catch(() => {});
+
     // Aplicar clase de tema para colores marrones
     document.body.classList.add('bakery-limon-theme');
 

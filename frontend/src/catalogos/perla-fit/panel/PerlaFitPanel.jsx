@@ -130,6 +130,8 @@ const PerlaFitPanel = () => {
   const [contacts, setContacts]               = useState([]);
   const [contactsLoading, setContactsLoading] = useState(false);
 
+  const [uploadingImage, setUploadingImage] = useState(false);
+
   // ── Init ──────────────────────────────────────────────────────────────────────
   useEffect(() => {
     document.body.classList.add('perla-fit-theme');
@@ -146,6 +148,18 @@ const PerlaFitPanel = () => {
     localStorage.setItem(LS_PRODUCTS, JSON.stringify(updated));
     setProducts(updated);
   };
+
+  const fetchProductsFromDB = useCallback(async () => {
+    const catalogId = user?.catalog_id || 2;
+    try {
+      const res = await fetch(`${API_BASE}/?request=products/${catalogId}`);
+      const data = await res.json();
+      if (data.status === 'ok' && Array.isArray(data.data) && data.data.length > 0) {
+        setProducts(data.data);
+        localStorage.setItem(LS_PRODUCTS, JSON.stringify(data.data));
+      }
+    } catch {}
+  }, [user?.catalog_id]);
 
   // ── Backend ───────────────────────────────────────────────────────────────────
   const fetchStats = useCallback(async () => {
@@ -174,9 +188,10 @@ const PerlaFitPanel = () => {
 
   useEffect(() => {
     if (!user) return;
+    fetchProductsFromDB();
     if (activeSection === 'stats')    fetchStats();
     if (activeSection === 'contacts') fetchContacts();
-  }, [activeSection, user, fetchStats, fetchContacts]);
+  }, [activeSection, user?.catalog_id, fetchStats, fetchContacts, fetchProductsFromDB]);
 
   // ── Product CRUD ──────────────────────────────────────────────────────────────
   const openAdd  = () => setProductModal({ open: true, mode: 'add', data: { ...emptyProduct } });
@@ -186,7 +201,7 @@ const PerlaFitPanel = () => {
   const setPField = (key, val) =>
     setProductModal(prev => ({ ...prev, data: { ...prev.data, [key]: val } }));
 
-  const handleSaveProduct = () => {
+  const handleSaveProduct = async () => {
     const p = productModal.data;
     if (!p.name?.trim() || !p.price || !p.category?.trim()) {
       alert('Completá Nombre, Precio y Categoría');
@@ -194,21 +209,51 @@ const PerlaFitPanel = () => {
     }
     const clean = {
       ...p,
+      catalog_id: user?.catalog_id || 2,
       price:    parseFloat(p.price),
       category: p.category.toUpperCase().trim(),
       stock:    Math.max(0, parseInt(p.stock) || 0),
       image:    p.image || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=60',
     };
+
+    // Guardar en MySQL Backend
+    try {
+      const token = getToken();
+      const res = await fetch(`${API_BASE}/?request=products`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(clean)
+      });
+      const data = await res.json();
+      if (data.status === 'ok' && data.id) {
+        clean.id = data.id;
+      }
+    } catch (err) {
+      console.warn('Error al guardar producto en MySQL:', err);
+    }
+
     if (productModal.mode === 'add') {
-      saveProducts([...products, { ...clean, id: Date.now() }]);
+      saveProducts([...products.filter(x => x.id !== clean.id), clean]);
     } else {
       saveProducts(products.map(x => x.id === p.id ? clean : x));
     }
     closeProductModal();
   };
 
-  const handleDelete = (id) => {
-    if (confirm('¿Eliminar este producto?')) saveProducts(products.filter(p => p.id !== id));
+  const handleDelete = async (id) => {
+    if (confirm('¿Eliminar este producto?')) {
+      try {
+        const token = getToken();
+        await fetch(`${API_BASE}/?request=products/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } catch {}
+      saveProducts(products.filter(p => p.id !== id));
+    }
   };
 
   // ── Stock ─────────────────────────────────────────────────────────────────────
@@ -724,7 +769,6 @@ const PerlaFitPanel = () => {
             { label: 'Nombre del producto *', key: 'name', placeholder: 'Ej. Blonde Ale' },
             { label: 'Categoría *', key: 'category', placeholder: 'Ej. LATAS CLÁSICAS' },
             { label: 'Descripción', key: 'description', placeholder: 'Detalle breve del producto' },
-            { label: 'URL de Imagen', key: 'image', placeholder: 'https://images.unsplash.com/...' },
           ].map(f => (
             <div key={f.key}>
               <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '6px' }}>{f.label}</label>
@@ -739,6 +783,59 @@ const PerlaFitPanel = () => {
               />
             </div>
           ))}
+
+          {/* Campo e Imagen de Producto (Archivo local o URL) */}
+          <div>
+            <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '6px' }}>Imagen del producto</label>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+              <input
+                type="file"
+                accept="image/*"
+                id="perlafit-image-file-input"
+                style={{ display: 'none' }}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  setUploadingImage(true);
+                  try {
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    const token = getToken();
+                    const res = await fetch(`${API_BASE}/?request=upload`, {
+                      method: 'POST',
+                      headers: { Authorization: `Bearer ${token}` },
+                      body: formData
+                    });
+                    const data = await res.json();
+                    if (data.status === 'ok' && data.url) {
+                      setPField('image', data.url);
+                    } else {
+                      alert(data.error || 'No se pudo subir la imagen');
+                    }
+                  } catch {
+                    alert('Error al subir imagen al servidor');
+                  } finally {
+                    setUploadingImage(false);
+                  }
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => document.getElementById('perlafit-image-file-input')?.click()}
+                disabled={uploadingImage}
+                style={{ background: '#f1f5f9', border: '1.5px solid #cbd5e1', borderRadius: '11px', padding: '10px 14px', fontSize: '13px', fontWeight: 700, color: DARK, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', width: '100%', justifyContent: 'center' }}
+              >
+                {uploadingImage ? <Loader2 size={16} color={BRAND} style={{ animation: 'panelSpin 1s linear infinite' }} /> : '📷 Subir Foto desde mi celular/dispositivo'}
+              </button>
+            </div>
+            <input
+              type="text"
+              value={productModal.data.image || ''}
+              onChange={e => setPField('image', e.target.value)}
+              placeholder="O pegá un link de imagen (https://...)"
+              style={{ width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '11px', padding: '11px 13px', fontSize: '13px', color: DARK, outline: 'none', fontFamily: 'inherit' }}
+            />
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '6px' }}>Precio $ ARS *</label>
