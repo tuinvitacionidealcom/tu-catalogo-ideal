@@ -9,6 +9,7 @@ import CartModal from '../componentes/CartModal';
 import FooterCatalogo from '../componentes/FooterCatalogo';
 import ProductModal from '../componentes/ProductModal';
 import FAQ from '../componentes/FAQ';
+import ContactForm from '../../../components/common/ContactForm';
 import { Link } from 'react-router-dom';
 import '../birromi.css';
 import { BUSINESS_NAME, DEFAULT_HOURS, DEFAULT_ADDRESS } from '../config';
@@ -531,6 +532,15 @@ const BirromiCatalogo = () => {
           </div>
 
         </div>
+      </div>
+
+      {/* Formulario de Consultas antes del Footer */}
+      <div className="px-4 max-w-4xl mx-auto my-12">
+        <ContactForm 
+          catalogId={1} 
+          catalogName={info.name || 'MR. Bebidas'} 
+          imageUrl="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1200&auto=format&fit=crop&q=80" 
+        />
       </div>
 
       {/* Footer Completo */}

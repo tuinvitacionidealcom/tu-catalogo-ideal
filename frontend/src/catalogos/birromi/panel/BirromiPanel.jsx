@@ -177,14 +177,25 @@ const BirromiPanel = () => {
 
   const fetchContacts = useCallback(async () => {
     const token = getToken();
-    if (!token || !user?.catalog_id) return;
+    const catalogId = user?.catalog_id || 1;
+    if (!token) {
+      setContactsLoading(false);
+      return;
+    }
     setContactsLoading(true);
     try {
-      const res  = await fetch(`${API_BASE}/?request=contacts/${user.catalog_id}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res  = await fetch(`${API_BASE}/?request=contacts/${catalogId}`, { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
-      if (data.status === 'ok') setContacts(data.data);
-    } catch {}
-    finally { setContactsLoading(false); }
+      if (data.status === 'ok') {
+        setContacts(data.data);
+      } else {
+        setContacts([]);
+      }
+    } catch {
+      setContacts([]);
+    } finally {
+      setContactsLoading(false);
+    }
   }, [getToken, user?.catalog_id]);
 
   useEffect(() => {
