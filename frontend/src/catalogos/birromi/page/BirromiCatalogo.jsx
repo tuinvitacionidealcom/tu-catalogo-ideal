@@ -163,12 +163,32 @@ const BirromiCatalogo = () => {
       body: JSON.stringify({ catalog_id: 1 })
     }).catch(() => {});
 
+    let initialProducts = defaultProducts;
+    const savedProducts = localStorage.getItem(LOCAL_STORAGE_PRODUCTS_KEY);
+    if (savedProducts) {
+      try {
+        const parsed = JSON.parse(savedProducts);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const map = new Map();
+          defaultProducts.forEach(p => map.set(p.id, p));
+          parsed.forEach(p => map.set(p.id, p));
+          initialProducts = Array.from(map.values());
+        }
+      } catch {}
+    }
+    setProducts(initialProducts);
+
     // Cargar productos actualizados desde MySQL
     fetch(`${API_BASE}/?request=products/1`)
       .then(res => res.json())
       .then(data => {
         if (data.status === 'ok' && Array.isArray(data.data) && data.data.length > 0) {
-          setProducts(data.data);
+          setProducts(prevProducts => {
+            const map = new Map();
+            prevProducts.forEach(p => map.set(p.id, p));
+            data.data.forEach(p => map.set(p.id, p));
+            return Array.from(map.values());
+          });
         }
       })
       .catch(() => {});
@@ -176,13 +196,8 @@ const BirromiCatalogo = () => {
     // Aplicar clase de tema para colores marrones
     document.body.classList.add('birromi-theme');
 
-    const savedProducts = localStorage.getItem(LOCAL_STORAGE_PRODUCTS_KEY);
     const savedInfo = localStorage.getItem(LOCAL_STORAGE_INFO_KEY);
-
     let currentInfo = defaultInfo;
-    if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
-    }
     if (savedInfo) {
       currentInfo = JSON.parse(savedInfo);
       setInfo(currentInfo);
@@ -246,8 +261,10 @@ const BirromiCatalogo = () => {
   const categories = [...new Set(products.map(p => p.category))];
 
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          product.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const query = searchQuery.toLowerCase();
+    const matchesSearch = (product.name || '').toLowerCase().includes(query) || 
+                          (product.description || '').toLowerCase().includes(query) ||
+                          (product.category || '').toLowerCase().includes(query);
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });

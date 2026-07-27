@@ -160,8 +160,14 @@ const BirromiPanel = () => {
       const res = await fetch(`${API_BASE}/?request=products/${catalogId}`);
       const data = await res.json();
       if (data.status === 'ok' && Array.isArray(data.data) && data.data.length > 0) {
-        setProducts(data.data);
-        localStorage.setItem(LS_PRODUCTS, JSON.stringify(data.data));
+        setProducts(prevProducts => {
+          const map = new Map();
+          prevProducts.forEach(p => map.set(p.id, p));
+          data.data.forEach(p => map.set(p.id, p));
+          const merged = Array.from(map.values());
+          localStorage.setItem(LS_PRODUCTS, JSON.stringify(merged));
+          return merged;
+        });
       }
     } catch {}
   }, [user?.catalog_id]);
@@ -797,9 +803,40 @@ const BirromiPanel = () => {
               onError={e => e.target.style.display = 'none'}
             />
           )}
+          <div>
+            <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '6px' }}>Nombre del producto *</label>
+            <input
+              type="text"
+              value={productModal.data.name || ''}
+              onChange={e => setPField('name', e.target.value)}
+              placeholder="Ej. Blonde Ale"
+              style={{ width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '11px', padding: '11px 13px', fontSize: '14px', color: DARK, outline: 'none', fontFamily: 'inherit', transition: 'border-color 0.2s' }}
+              onFocus={e => e.target.style.borderColor = BRAND}
+              onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+            />
+          </div>
+
+          {/* Categoría con Dropdown + Opción de Nueva Categoría */}
+          <div>
+            <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '6px' }}>Categoría *</label>
+            <input
+              type="text"
+              list="categories-list"
+              value={productModal.data.category || ''}
+              onChange={e => setPField('category', e.target.value.toUpperCase())}
+              placeholder="Seleccioná o escribí una nueva categoría..."
+              style={{ width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '11px', padding: '11px 13px', fontSize: '14px', color: DARK, outline: 'none', fontFamily: 'inherit', transition: 'border-color 0.2s' }}
+              onFocus={e => e.target.style.borderColor = BRAND}
+              onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+            />
+            <datalist id="categories-list">
+              {Array.from(new Set(products.map(p => p.category?.trim()).filter(Boolean))).map(cat => (
+                <option key={cat} value={cat} />
+              ))}
+            </datalist>
+          </div>
+
           {[
-            { label: 'Nombre del producto *', key: 'name', placeholder: 'Ej. Blonde Ale' },
-            { label: 'Categoría *', key: 'category', placeholder: 'Ej. LATAS CLÁSICAS' },
             { label: 'Descripción', key: 'description', placeholder: 'Detalle breve del producto' },
           ].map(f => (
             <div key={f.key}>
