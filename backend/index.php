@@ -111,7 +111,13 @@ try {
                 );
                 $user = $stmt->fetch();
 
-                if (!$user || !password_verify($password, $user['password_hash'])) {
+                // Soporte dual: bcrypt (hash $2y$...) o texto plano (editable directo desde phpMyAdmin)
+                $hash  = $user['password_hash'] ?? '';
+                $valid = str_starts_with($hash, '$2y$')
+                    ? password_verify($password, $hash)   // bcrypt
+                    : ($password === $hash);              // texto plano
+
+                if (!$user || !$valid) {
                     http_response_code(401);
                     echo json_encode(["error" => "Usuario o contraseña incorrectos"]);
                     exit;
