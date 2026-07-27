@@ -46,14 +46,30 @@ const CartModal = ({ isOpen, onClose, cartItems, products = [], onAdd, onRemove,
     message += `\n💵 *Total a Pagar:* $${total.toLocaleString('es-AR')}\n\n`;
     message += `¡Muchas gracias! Espero la confirmación.`;
 
-    // Registrar clicks de productos en localStorage (para "Más Pedidos" del panel)
+    // Registrar clicks de productos en localStorage (para "Más Pedidos" del panel) y registrar en BD
     try {
       const LS_CLICKS = 'birromi_product_clicks';
       const clicks = JSON.parse(localStorage.getItem(LS_CLICKS) || '{}');
+      const itemsList = [];
+
       cartItems.forEach(item => {
         clicks[item.id] = (clicks[item.id] || 0) + (item.quantity || 1);
+        itemsList.push(`${item.quantity || 1}x ${item.name}`);
       });
       localStorage.setItem(LS_CLICKS, JSON.stringify(clicks));
+
+      const API_BASE = import.meta.env.VITE_API_URL || 'https://tucatalogoideal.com/backend';
+      fetch(`${API_BASE}/?request=contacts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          catalog_id: 1,
+          name: 'Pedido de Catálogo',
+          phone: '',
+          email: '',
+          message: `Pedido de: ${itemsList.join(', ')} - Total: $${total}`
+        })
+      }).catch(() => {});
     } catch {}
 
     const encodedMessage = encodeURIComponent(message);

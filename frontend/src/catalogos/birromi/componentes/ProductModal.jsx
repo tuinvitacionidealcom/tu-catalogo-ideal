@@ -8,11 +8,35 @@ const ProductModal = ({ isOpen, onClose, product, whatsappNumber }) => {
   const { name, description, price, image, category, available = true } = product;
 
   const handleBuyDirect = () => {
-    let message = `🍺 *CONSULTA DIRECTA DE PRODUCTO* 🍔\n\n`;
-    message += `Hola! Estoy interesado en el siguiente producto de su catálogo:\n\n`;
-    message += `- *${name}* ($${price.toLocaleString('es-AR')})\n`;
-    message += `- _${description || 'Sin descripción'}_ \n\n`;
-    message += `¿Tienen disponibilidad en este momento? ¡Muchas gracias!`;
+    try {
+      const LS_CLICKS = 'birromi_product_clicks';
+      const clicks = JSON.parse(localStorage.getItem(LS_CLICKS) || '{}');
+      if (product.id) {
+        clicks[product.id] = (clicks[product.id] || 0) + 1;
+      }
+      localStorage.setItem(LS_CLICKS, JSON.stringify(clicks));
+
+      const API_BASE = import.meta.env.VITE_API_URL || 'https://tucatalogoideal.com/backend';
+      fetch(`${API_BASE}/?request=contacts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          catalog_id: 1,
+          name: 'Cliente Catálogo',
+          phone: '',
+          email: '',
+          message: `Consulta por producto: ${name} ($${price})`
+        })
+      }).catch(() => {});
+    } catch {}
+
+    let message = `*¡Hola! Quiero consultar por este producto:* 👋\n\n`;
+    message += `📌 *Producto:* ${name}\n`;
+    message += `💰 *Precio:* $${price.toLocaleString('es-AR')}\n`;
+    if (description) {
+      message += `📝 *Detalle:* _${description}_\n`;
+    }
+    message += `\n¿Tienen stock disponible actualmente? ¡Muchas gracias!`;
 
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;

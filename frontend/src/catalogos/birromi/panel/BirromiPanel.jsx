@@ -220,6 +220,7 @@ const BirromiPanel = () => {
 
   useEffect(() => {
     if (!user) return;
+    setClickCounts(getClickCounts());
     fetchProductsFromDB();
     if (activeSection === 'stats')    fetchStats();
     if (activeSection === 'contacts') fetchContacts();
@@ -267,12 +268,14 @@ const BirromiPanel = () => {
       console.warn('Error al guardar producto en MySQL:', err);
     }
 
-    if (productModal.mode === 'add') {
+    const isAdd = productModal.mode === 'add';
+    if (isAdd) {
       saveProducts([...products.filter(x => x.id !== clean.id), clean]);
     } else {
       saveProducts(products.map(x => x.id === p.id ? clean : x));
     }
     closeProductModal();
+    await dialog.success(isAdd ? 'Producto agregado con éxito.' : 'Producto guardado con éxito.');
   };
 
   const handleDelete = async (id) => {
@@ -286,6 +289,7 @@ const BirromiPanel = () => {
         });
       } catch {}
       saveProducts(products.filter(p => p.id !== id));
+      await dialog.success('Producto eliminado con éxito.');
     }
   };
 
@@ -296,11 +300,15 @@ const BirromiPanel = () => {
   const openStockModal = (product) =>
     setStockModal({ open: true, product, input: String(product.stock || 0) });
 
-  const saveStock = () => {
+  const saveStock = async () => {
     const val = parseInt(stockModal.input);
-    if (!isNaN(val) && val >= 0)
+    if (!isNaN(val) && val >= 0) {
       saveProducts(products.map(p => p.id === stockModal.product.id ? { ...p, stock: val } : p));
-    setStockModal({ open: false, product: null, input: '' });
+      setStockModal({ open: false, product: null, input: '' });
+      await dialog.success('Stock actualizado con éxito.');
+    } else {
+      setStockModal({ open: false, product: null, input: '' });
+    }
   };
 
   // ── Navigation ────────────────────────────────────────────────────────────────
