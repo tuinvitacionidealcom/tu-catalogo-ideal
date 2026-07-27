@@ -257,9 +257,14 @@ const PerlaFitPanel = () => {
   useEffect(() => {
     if (!user) return;
     fetchProductsFromDB();
+    fetchContacts();
+  }, [user?.catalog_id, fetchProductsFromDB, fetchContacts]);
+
+  useEffect(() => {
+    if (!user) return;
     if (activeSection === 'stats')    fetchStats();
     if (activeSection === 'contacts') fetchContacts();
-  }, [activeSection, user?.catalog_id, fetchStats, fetchContacts, fetchProductsFromDB]);
+  }, [activeSection, user?.catalog_id, fetchStats, fetchContacts]);
 
   // ── Product CRUD ──────────────────────────────────────────────────────────────
   const openAdd  = () => setProductModal({ open: true, mode: 'add', data: { ...emptyProduct } });
@@ -342,9 +347,44 @@ const PerlaFitPanel = () => {
   const goTo = (section) => { setActiveSection(section); setDrawerOpen(false); };
 
   // ── Popular ───────────────────────────────────────────────────────────────────
-  const popular = [...products]
-    .map(p => ({ ...p, clicks: clickCounts[p.id] || 0 }))
-    .sort((a, b) => b.clicks - a.clicks);
+  const popular = React.useMemo(() => {
+    const counts = {};
+    products.forEach(p => {
+      counts[p.name.toLowerCase().trim()] = { id: p.id, count: 0 };
+    });
+    
+    contacts.forEach(c => {
+      if (c.message && c.message.startsWith('Pedido de:')) {
+        const content = c.message.replace('Pedido de: ', '').split(' - Total: ')[0];
+        if (content) {
+          const items = content.split(', ');
+          items.forEach(item => {
+            const match = item.match(/^(\d+)x\s+(.+)$/);
+            if (match) {
+              const qty = parseInt(match[1]) || 1;
+              const name = match[2].toLowerCase().trim();
+              if (counts[name]) {
+                counts[name].count += qty;
+              } else {
+                counts[name] = { count: qty };
+              }
+            }
+          });
+        }
+      }
+    });
+
+    return [...products]
+      .map(p => {
+        const key = p.name.toLowerCase().trim();
+        const salesCount = counts[key]?.count || 0;
+        return {
+          ...p,
+          clicks: salesCount
+        };
+      })
+      .sort((a, b) => b.clicks - a.clicks);
+  }, [products, contacts]);
 
   const formatDate = (d) => !d ? '—' : new Date(d).toLocaleDateString('es-AR', {
     day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
