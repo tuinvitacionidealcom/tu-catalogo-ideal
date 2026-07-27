@@ -14,10 +14,14 @@ const ICONS = {
 const DialogModal = ({ dialog, onResolve }) => {
   const overlayRef = useRef(null);
 
-  // Cerrar con Escape
+  // Cerrar con Escape, confirmar con Enter
   useEffect(() => {
     const handler = (e) => {
-      if (e.key === 'Escape') onResolve(false);
+      if (e.key === 'Escape') {
+        onResolve(false);
+      } else if (e.key === 'Enter') {
+        onResolve(true);
+      }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);

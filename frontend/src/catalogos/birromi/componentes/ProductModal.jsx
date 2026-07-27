@@ -3,6 +3,18 @@ import { X, ShoppingBag } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 
 const ProductModal = ({ isOpen, onClose, product, whatsappNumber }) => {
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen || !product) return null;
 
   const { name, description, price, image, category, available = true } = product;

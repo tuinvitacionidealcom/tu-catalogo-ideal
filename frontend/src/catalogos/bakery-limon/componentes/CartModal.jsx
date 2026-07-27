@@ -8,6 +8,18 @@ const CartModal = ({ isOpen, onClose, cartItems, products = [], onAdd, onRemove,
   const [customerAddress, setCustomerAddress] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('cash'); // 'cash' or 'transfer'
 
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -198,6 +210,12 @@ const CartModal = ({ isOpen, onClose, cartItems, products = [], onAdd, onRemove,
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
                     className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-hidden focus:border-accent"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleSendOrder();
+                      }
+                    }}
                   />
                 </div>
 
@@ -238,6 +256,12 @@ const CartModal = ({ isOpen, onClose, cartItems, products = [], onAdd, onRemove,
                       value={customerAddress}
                       onChange={(e) => setCustomerAddress(e.target.value)}
                       className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-hidden focus:border-accent"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleSendOrder();
+                        }
+                      }}
                     />
                   </div>
                 )}

@@ -54,6 +54,18 @@ const getClickCounts = () => {
 
 // ── Sheet Modal (slide desde abajo) ──────────────────────────────────────────
 const Sheet = ({ open, onClose, title, children }) => {
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    if (open) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [open, onClose]);
+
   if (!open) return null;
   return (
     <div
