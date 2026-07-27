@@ -60,7 +60,7 @@ const defaultProducts = [
   },
   {
     id: 4,
-    name: 'IPA Argenta',
+    name: 'Lata IPA Ludus',
     description: 'Una IPA con identidad nacional, lúpulos cítricos y amargor persistente característico.',
     price: 5000,
     image: ipaArgentaImg,
@@ -186,7 +186,13 @@ const BirromiCatalogo = () => {
           setProducts(prevProducts => {
             const map = new Map();
             prevProducts.forEach(p => map.set(p.id, p));
-            data.data.forEach(p => map.set(p.id, p));
+            data.data.forEach(p => {
+              const existing = map.get(p.id);
+              if ((!p.image || p.image.trim() === '') && existing && existing.image) {
+                p.image = existing.image;
+              }
+              map.set(p.id, p);
+            });
             return Array.from(map.values());
           });
         }

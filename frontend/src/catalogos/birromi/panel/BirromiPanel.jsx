@@ -25,7 +25,7 @@ const defaultProducts = [
   { id: 1, name: 'Blonde Ale (Rubia)', description: 'Cerveza artesanal clásica dorada, ligera y refrescante.', price: 4500, image: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?w=600&auto=format&fit=crop&q=60', category: 'LATAS CLÁSICAS', available: true, stock: 50 },
   { id: 2, name: 'Irish Red', description: 'Color rojizo profundo, maltosa con notas a caramelo.', price: 4500, image: 'https://images.unsplash.com/photo-1532634922-8fe0b757fb13?w=600&auto=format&fit=crop&q=60', category: 'LATAS CLÁSICAS', available: true, stock: 30 },
   { id: 3, name: 'Stout (Negra)', description: 'Cerveza oscura, notas a chocolate amargo y café tostado.', price: 4500, image: 'https://images.unsplash.com/photo-1571613316887-6f8d5cbf7ef7?w=600&auto=format&fit=crop&q=60', category: 'LATAS CLÁSICAS', available: true, stock: 20 },
-  { id: 4, name: 'IPA Argenta', description: 'Lúpulos cítricos y amargor persistente característico.', price: 5000, image: 'https://images.unsplash.com/photo-1600788886242-5c96aabe3757?w=600&auto=format&fit=crop&q=60', category: 'LATAS IPAS', available: true, stock: 40 },
+  { id: 4, name: 'Lata IPA Ludus', description: 'Lúpulos cítricos y amargor persistente característico.', price: 5000, image: 'https://images.unsplash.com/photo-1600788886242-5c96aabe3757?w=600&auto=format&fit=crop&q=60', category: 'LATAS IPAS', available: true, stock: 40 },
   { id: 5, name: 'Doble NEIPA Argenta', description: 'Extremadamente turbia y jugosa. Explosión de aroma tropical.', price: 5000, image: 'https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?w=600&auto=format&fit=crop&q=60', category: 'LATAS IPAS', available: true, stock: 15 },
   { id: 6, name: 'West Coast IPA', description: 'Amargor clásico con lúpulos del pacífico. Bien seca y refrescante.', price: 5000, image: 'https://images.unsplash.com/photo-1584225065152-4a1454aa3d4e?w=600&auto=format&fit=crop&q=60', category: 'LATAS IPAS', available: true, stock: 25 },
   { id: 7, name: 'Promo 6x Mix', description: 'Elegí 6 latas entre toda la variedad disponible.', price: 27000, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=60', category: 'PROMOS', available: true, stock: 10 },
@@ -163,7 +163,13 @@ const BirromiPanel = () => {
         setProducts(prevProducts => {
           const map = new Map();
           prevProducts.forEach(p => map.set(p.id, p));
-          data.data.forEach(p => map.set(p.id, p));
+          data.data.forEach(p => {
+            const existing = map.get(p.id);
+            if ((!p.image || p.image.trim() === '') && existing && existing.image) {
+              p.image = existing.image;
+            }
+            map.set(p.id, p);
+          });
           const merged = Array.from(map.values());
           localStorage.setItem(LS_PRODUCTS, JSON.stringify(merged));
           return merged;
