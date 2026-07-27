@@ -4,6 +4,57 @@ import { useDialog } from '../ui/Dialog';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'https://tucatalogoideal.com/backend';
 
+const formatWhatsAppNumber = (rawPhone) => {
+  if (!rawPhone) return '';
+  // Remover todo lo que no sea dígito
+  let cleaned = rawPhone.replace(/\D/g, '');
+  // Quitar ceros a la izquierda
+  if (cleaned.startsWith('00')) cleaned = cleaned.slice(2);
+  if (cleaned.startsWith('0')) cleaned = cleaned.slice(1);
+  
+  if (!cleaned.startsWith('54')) {
+    // Caso típico de Argentina: 11 15 1234 5678 (12 dígitos) -> sacamos el 15
+    if (cleaned.length === 12 && cleaned.substring(2, 4) === '15') {
+      cleaned = cleaned.slice(0, 2) + cleaned.slice(4);
+    }
+    if (cleaned.length === 10) {
+      cleaned = '549' + cleaned;
+    } else if (cleaned.length === 11 && cleaned.startsWith('9')) {
+      cleaned = '54' + cleaned;
+    } else if (cleaned.length > 10) {
+      if (cleaned.length === 12 && cleaned.substring(2, 4) === '15') {
+        cleaned = cleaned.slice(0, 2) + cleaned.slice(4);
+      } else if (cleaned.length === 13 && cleaned.substring(3, 5) === '15') {
+        cleaned = cleaned.slice(0, 3) + cleaned.slice(5);
+      } else if (cleaned.length === 14 && cleaned.substring(4, 6) === '15') {
+        cleaned = cleaned.slice(0, 4) + cleaned.slice(6);
+      }
+      if (cleaned.length === 10) {
+        cleaned = '549' + cleaned;
+      }
+    }
+  } else {
+    // Si ya empieza con 54, nos aseguramos de que tenga el 9 de celular y no tenga el 15
+    if (cleaned.length === 12) {
+      cleaned = '549' + cleaned.slice(2);
+    }
+    if (cleaned.length === 15 && cleaned.substring(3, 5) === '9' && cleaned.substring(5, 7) === '15') {
+      cleaned = cleaned.slice(0, 5) + cleaned.slice(7);
+    }
+    if (cleaned.length === 14 && cleaned.substring(2, 5) === '915') {
+      cleaned = cleaned.slice(0, 3) + cleaned.slice(5);
+    }
+  }
+  
+  if (cleaned.length === 11 && cleaned.startsWith('9')) {
+    cleaned = '54' + cleaned;
+  }
+  if (cleaned.length === 8) {
+    cleaned = '54911' + cleaned; // Fallback para números locales de BsAs
+  }
+  return cleaned;
+};
+
 const ContactForm = ({ catalogId = 1, catalogName = 'Nuestros Servicios', imageUrl }) => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -22,13 +73,14 @@ const ContactForm = ({ catalogId = 1, catalogName = 'Nuestros Servicios', imageU
     setLoading(true);
     try {
       const formattedMessage = `[${type}] ${message}`;
+      const cleanedPhone = formatWhatsAppNumber(phone.trim());
       const res = await fetch(`${API_BASE}/?request=contacts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           catalog_id: catalogId,
           name: name.trim(),
-          phone: phone.trim(),
+          phone: cleanedPhone,
           message: formattedMessage,
         })
       });

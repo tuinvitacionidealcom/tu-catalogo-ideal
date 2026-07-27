@@ -48,6 +48,53 @@ const NAV = [
 ];
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
+const formatWhatsAppNumber = (rawPhone) => {
+  if (!rawPhone) return '';
+  let cleaned = rawPhone.replace(/\D/g, '');
+  if (cleaned.startsWith('00')) cleaned = cleaned.slice(2);
+  if (cleaned.startsWith('0')) cleaned = cleaned.slice(1);
+  
+  if (!cleaned.startsWith('54')) {
+    if (cleaned.length === 12 && cleaned.substring(2, 4) === '15') {
+      cleaned = cleaned.slice(0, 2) + cleaned.slice(4);
+    }
+    if (cleaned.length === 10) {
+      cleaned = '549' + cleaned;
+    } else if (cleaned.length === 11 && cleaned.startsWith('9')) {
+      cleaned = '54' + cleaned;
+    } else if (cleaned.length > 10) {
+      if (cleaned.length === 12 && cleaned.substring(2, 4) === '15') {
+        cleaned = cleaned.slice(0, 2) + cleaned.slice(4);
+      } else if (cleaned.length === 13 && cleaned.substring(3, 5) === '15') {
+        cleaned = cleaned.slice(0, 3) + cleaned.slice(5);
+      } else if (cleaned.length === 14 && cleaned.substring(4, 6) === '15') {
+        cleaned = cleaned.slice(0, 4) + cleaned.slice(6);
+      }
+      if (cleaned.length === 10) {
+        cleaned = '549' + cleaned;
+      }
+    }
+  } else {
+    if (cleaned.length === 12) {
+      cleaned = '549' + cleaned.slice(2);
+    }
+    if (cleaned.length === 15 && cleaned.substring(3, 5) === '9' && cleaned.substring(5, 7) === '15') {
+      cleaned = cleaned.slice(0, 5) + cleaned.slice(7);
+    }
+    if (cleaned.length === 14 && cleaned.substring(2, 5) === '915') {
+      cleaned = cleaned.slice(0, 3) + cleaned.slice(5);
+    }
+  }
+  
+  if (cleaned.length === 11 && cleaned.startsWith('9')) {
+    cleaned = '54' + cleaned;
+  }
+  if (cleaned.length === 8) {
+    cleaned = '54911' + cleaned;
+  }
+  return cleaned;
+};
+
 const getClickCounts = () => {
   try { return JSON.parse(localStorage.getItem(LS_CLICKS) || '{}'); } catch { return {}; }
 };
@@ -737,7 +784,7 @@ const PerlaFitPanel = () => {
                     <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#475569', background: '#f8fafc', padding: '10px 12px', borderRadius: '10px', lineHeight: 1.6 }}>{c.message}</p>
                     <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                       {c.phone && (
-                        <a href={`https://wa.me/${c.phone}`} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: '#10b981', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '5px', textDecoration: 'none', background: '#f0fdf4', padding: '6px 10px', borderRadius: '8px' }}>
+                        <a href={`https://wa.me/${formatWhatsAppNumber(c.phone)}`} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: '#10b981', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '5px', textDecoration: 'none', background: '#f0fdf4', padding: '6px 10px', borderRadius: '8px' }}>
                           <Phone size={12} />{c.phone}
                         </a>
                       )}
