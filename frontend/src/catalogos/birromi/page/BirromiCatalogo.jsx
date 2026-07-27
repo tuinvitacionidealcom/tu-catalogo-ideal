@@ -182,19 +182,17 @@ const BirromiCatalogo = () => {
     fetch(`${API_BASE}/?request=products/1`)
       .then(res => res.json())
       .then(data => {
-        if (data.status === 'ok' && Array.isArray(data.data) && data.data.length > 0) {
-          setProducts(prevProducts => {
-            const map = new Map();
-            prevProducts.forEach(p => map.set(p.id, p));
-            data.data.forEach(p => {
-              const existing = map.get(p.id);
-              if ((!p.image || p.image.trim() === '') && existing && existing.image) {
-                p.image = existing.image;
+        if (data.status === 'ok' && Array.isArray(data.data)) {
+          const dbProducts = data.data.map(p => {
+            if (!p.image || p.image.trim() === '') {
+              const defaultProd = defaultProducts.find(dp => dp.id === p.id || dp.name.toLowerCase() === p.name.toLowerCase());
+              if (defaultProd) {
+                p.image = defaultProd.image;
               }
-              map.set(p.id, p);
-            });
-            return Array.from(map.values());
+            }
+            return p;
           });
+          setProducts(dbProducts);
         }
       })
       .catch(() => {});

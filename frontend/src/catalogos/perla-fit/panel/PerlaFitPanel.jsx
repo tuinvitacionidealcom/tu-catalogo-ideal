@@ -213,9 +213,18 @@ const PerlaFitPanel = () => {
     try {
       const res = await fetch(`${API_BASE}/?request=products/${catalogId}`);
       const data = await res.json();
-      if (data.status === 'ok' && Array.isArray(data.data) && data.data.length > 0) {
-        setProducts(data.data);
-        localStorage.setItem(LS_PRODUCTS, JSON.stringify(data.data));
+      if (data.status === 'ok' && Array.isArray(data.data)) {
+        const dbProducts = data.data.map(p => {
+          if (!p.image || p.image.trim() === '') {
+            const defaultProd = defaultProducts.find(dp => dp.id === p.id || dp.name.toLowerCase() === p.name.toLowerCase());
+            if (defaultProd) {
+              p.image = defaultProd.image;
+            }
+          }
+          return p;
+        });
+        setProducts(dbProducts);
+        localStorage.setItem(LS_PRODUCTS, JSON.stringify(dbProducts));
       }
     } catch {}
   }, [user?.catalog_id]);

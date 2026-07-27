@@ -208,8 +208,17 @@ const BakeryLimonCatalogo = () => {
     fetch(`${API_BASE}/?request=products/3`)
       .then(res => res.json())
       .then(data => {
-        if (data.status === 'ok' && Array.isArray(data.data) && data.data.length > 0) {
-          setProducts(data.data);
+        if (data.status === 'ok' && Array.isArray(data.data)) {
+          const dbProducts = data.data.map(p => {
+            if (!p.image || p.image.trim() === '') {
+              const defaultProd = defaultProducts.find(dp => dp.id === p.id || dp.name.toLowerCase() === p.name.toLowerCase());
+              if (defaultProd) {
+                p.image = defaultProd.image;
+              }
+            }
+            return p;
+          });
+          setProducts(dbProducts);
         }
       })
       .catch(() => {});
