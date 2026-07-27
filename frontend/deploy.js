@@ -34,28 +34,36 @@ async function deploy() {
         
         console.log("✅ Conectado con éxito.");
         
-        let pwd = await client.pwd();
-        console.log(`📍 Directorio inicial FTP: ${pwd}`);
-        
-        // Si el usuario no está ya dentro de public_html, ingresar a public_html
-        if (!pwd.endsWith('/public_html') && !pwd.endsWith('/public_html/')) {
-            try {
-                await client.cd('public_html');
-                pwd = await client.pwd();
-                console.log(`📍 Navegado a: ${pwd}`);
-            } catch (cdErr) {
-                console.log("ℹ️ No se pudo cambiar a public_html, utilizando directorio actual.");
-            }
-        }
-        
-        // Si estando en /public_html existe una subcarpeta duplicala llamada 'public_html', eliminarla
+        // 1. Ir a la raíz del hosting (/public_html)
         try {
-            await client.removeDir('public_html');
-            console.log("🧹 Subcarpeta duplicada 'public_html' eliminada correctamente.");
+            await client.cd('/public_html');
         } catch (e) {
-            // No existe subcarpeta duplicada
+            await client.cd('/');
         }
         
+        let currentPath = await client.pwd();
+        console.log(`📍 Posicionado en directorio raíz FTP: ${currentPath}`);
+
+        // 2. Si existe la subcarpeta duplicada 'public_html', vaciarla y borrarla
+        try {
+            await client.cd('public_html');
+            console.log("🧹 Subcarpeta duplicada 'public_html' detectada! Limpiando contenido...");
+            await client.clearWorkingDir();
+            await client.cd('..');
+            await client.removeDir('public_html');
+            console.log("✅ Subcarpeta duplicada eliminada con éxito.");
+        } catch (e) {
+            console.log("✅ No existe subcarpeta duplicada 'public_html'.");
+        }
+
+        // 3. Volver a estar seguros en /public_html
+        try {
+            await client.cd('/public_html');
+        } catch (e) {
+            await client.cd('/');
+        }
+        currentPath = await client.pwd();
+
         // Copiar .htaccess al directorio de build (dist/)
         const rootHtaccess = path.resolve(__dirname, '../.htaccess');
         const distHtaccess = path.resolve(__dirname, 'dist/.htaccess');
@@ -64,9 +72,9 @@ async function deploy() {
             console.log("✅ .htaccess copiado a dist/");
         }
         
-        // Subir local-dir (dist/) directamente dentro de public_html
+        // Subir local-dir (dist/) directamente en la raíz /public_html
         const localDistPath = path.resolve(__dirname, 'dist');
-        console.log(`📤 Subiendo todos los archivos desde ${localDistPath} a ${pwd}...`);
+        console.log(`📤 Subiendo todos los archivos desde ${localDistPath} a ${currentPath}...`);
         await client.uploadFromDir(localDistPath);
         
         console.log("🎉 ¡Sitio web y Backend subidos con éxito a Hostinger!");
