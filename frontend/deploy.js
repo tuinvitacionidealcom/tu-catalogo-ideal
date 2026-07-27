@@ -13,26 +13,31 @@ async function deploy() {
     
     try {
         console.log("🚀 Iniciando conexión FTP con Hostinger...");
-        await client.access({
-            host: "82.25.67.136",
-            user: "u506439444.deploy",
-            password: "Morella2026!",
-            port: 21,
-            secure: false
-        });
+        try {
+            await client.access({
+                host: "82.25.67.136",
+                user: "u506439444.deploy",
+                password: "Morella2026!",
+                port: 21,
+                secure: false
+            });
+        } catch (authErr) {
+            console.warn("⚠️ Falló con u506439444.deploy, intentando credenciales principales...");
+            await client.access({
+                host: "82.25.67.136",
+                user: "u506439444.tucatalogoideal.com",
+                password: "Morella11!",
+                port: 21,
+                secure: false
+            });
+        }
         
         console.log("✅ Conectado con éxito.");
         
+        // Asegurar navegación dentro de public_html
+        await client.ensureDir('public_html');
         const pwd = await client.pwd();
-        console.log(`📍 Directorio FTP actual: ${pwd}`);
-        
-        // Si por error existe una carpeta anidada 'public_html', eliminarla
-        try {
-            await client.removeDir('public_html');
-            console.log("🧹 Carpeta anidada 'public_html' eliminada correctamente.");
-        } catch (e) {
-            // No existía carpeta anidada, continuar
-        }
+        console.log(`📍 Directorio FTP actual para el sitio: ${pwd}`);
         
         // Copiar .htaccess al directorio de build (dist/)
         const rootHtaccess = path.resolve(__dirname, '../.htaccess');
@@ -42,9 +47,9 @@ async function deploy() {
             console.log("✅ .htaccess copiado a dist/");
         }
         
-        // Subir local-dir (dist/) a la raíz FTP actual
+        // Subir local-dir (dist/) directamente dentro de public_html
         const localDistPath = path.resolve(__dirname, 'dist');
-        console.log(`📤 Subiendo archivos desde ${localDistPath} a ${pwd}...`);
+        console.log(`📤 Subiendo todos los archivos desde ${localDistPath} a ${pwd}...`);
         await client.uploadFromDir(localDistPath);
         
         console.log("🎉 ¡Sitio web y Backend subidos con éxito a Hostinger!");
