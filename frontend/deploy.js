@@ -23,6 +23,17 @@ async function deploy() {
         
         console.log("✅ Conectado con éxito.");
         
+        const pwd = await client.pwd();
+        console.log(`📍 Directorio FTP actual: ${pwd}`);
+        
+        // Si por error existe una carpeta anidada 'public_html', eliminarla
+        try {
+            await client.removeDir('public_html');
+            console.log("🧹 Carpeta anidada 'public_html' eliminada correctamente.");
+        } catch (e) {
+            // No existía carpeta anidada, continuar
+        }
+        
         // Copiar .htaccess al directorio de build (dist/)
         const rootHtaccess = path.resolve(__dirname, '../.htaccess');
         const distHtaccess = path.resolve(__dirname, 'dist/.htaccess');
@@ -31,9 +42,9 @@ async function deploy() {
             console.log("✅ .htaccess copiado a dist/");
         }
         
-        // Subir local-dir (dist/) a server-dir (public_html/)
+        // Subir local-dir (dist/) a la raíz FTP actual
         const localDistPath = path.resolve(__dirname, 'dist');
-        console.log(`📤 Subiendo archivos desde ${localDistPath}...`);
+        console.log(`📤 Subiendo archivos desde ${localDistPath} a ${pwd}...`);
         await client.uploadFromDir(localDistPath);
         
         console.log("🎉 ¡Sitio web y Backend subidos con éxito a Hostinger!");
