@@ -153,8 +153,8 @@ const BirromiPanel = () => {
   };
 
   const fetchStats = useCallback(async () => {
-    const token = getToken();
-    const catalogId = user?.catalog_id || 1; // Fallback al id 1 si catalog_id no viene en la sesión
+    const token = localStorage.getItem('panel_token');
+    const catalogId = user?.catalog_id || 1;
     if (!token) {
       setStatsLoading(false);
       return;
@@ -173,10 +173,10 @@ const BirromiPanel = () => {
     } finally {
       setStatsLoading(false);
     }
-  }, [getToken, user?.catalog_id]);
+  }, [user?.catalog_id]);
 
   const fetchContacts = useCallback(async () => {
-    const token = getToken();
+    const token = localStorage.getItem('panel_token');
     const catalogId = user?.catalog_id || 1;
     if (!token) {
       setContactsLoading(false);
@@ -196,13 +196,13 @@ const BirromiPanel = () => {
     } finally {
       setContactsLoading(false);
     }
-  }, [getToken, user?.catalog_id]);
+  }, [user?.catalog_id]);
 
   useEffect(() => {
     if (!user) return;
     if (activeSection === 'stats')    fetchStats();
     if (activeSection === 'contacts') fetchContacts();
-  }, [activeSection, user, fetchStats, fetchContacts]);
+  }, [activeSection, !!user]);
 
   // ── Product CRUD ──────────────────────────────────────────────────────────────
   const openAdd  = () => setProductModal({ open: true, mode: 'add', data: { ...emptyProduct } });
