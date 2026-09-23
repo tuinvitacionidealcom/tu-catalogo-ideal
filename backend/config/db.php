@@ -12,11 +12,16 @@ class Database {
     private $conn;
 
     private $host = 'localhost';
-    private $user = 'root';
-    private $pass = '';
-    private $dbname = 'catalogo_ideal_local';
+    private $user = 'u506439444_catalogoideal';
+    private $pass = 'Akir@11!';
+    private $dbname = 'u506439444_catalogoideal';
 
     private function __construct() {
+        if (php_sapi_name() === 'cli-server' || (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'localhost') !== false)) {
+            $this->user = 'root';
+            $this->pass = '';
+            $this->dbname = 'catalogo_ideal_local';
+        }
         try {
             $this->conn = new PDO(
                 "mysql:host={$this->host};dbname={$this->dbname};charset=utf8mb4",
