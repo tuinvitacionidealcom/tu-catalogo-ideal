@@ -40,11 +40,11 @@ const emptyProduct = { id: null, name: '', description: '', price: '', category:
 
 // â”€â”€ Nav items â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const NAV = [
-  { id: 'products', label: 'Productos', Icon: ShoppingBag, emoji: '📦' },
-  { id: 'info', label: 'Mi Comercio', Icon: Store, emoji: 'ðŸª' },
-  { id: 'popular', label: 'Más Pedidos', Icon: Flame, emoji: '🔥' },
-  { id: 'stats', label: 'Estadísticas', Icon: BarChart2, emoji: '📊' },
-  { id: 'contacts', label: 'Consultas', Icon: MessageSquare, emoji: '💬' },
+  { id: 'products', label: 'Productos', Icon: ShoppingBag, emoji: '' },
+  { id: 'info', label: 'Mi Comercio', Icon: Store, emoji: '' },
+  { id: 'popular', label: 'Más Pedidos', Icon: Flame, emoji: '' },
+  { id: 'stats', label: 'Estadísticas', Icon: BarChart2, emoji: '' },
+  { id: 'contacts', label: 'Consultas', Icon: MessageSquare, emoji: '' },
 ];
 
 // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -853,7 +853,7 @@ const celebrartePanel = () => {
                 </div>
                 {stats.daily?.length > 0 ? (
                   <div style={{ background: '#fff', borderRadius: '18px', padding: '18px', border: '1px solid #f0ece8', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
-                    <p style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.6px', margin: '0 0 14px' }}>Ãšltimos 30 días</p>
+                    <p style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.6px', margin: '0 0 14px' }}>Ultimos 30 días</p>
                     <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '72px' }}>
                       {(() => {
                         const max = Math.max(...stats.daily.map(d => d.visitas), 1);

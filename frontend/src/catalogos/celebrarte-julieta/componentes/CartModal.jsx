@@ -47,21 +47,21 @@ const CartModal = ({ isOpen, onClose, cartItems, products = [], onAdd, onRemove,
     }
 
     // Formatear mensaje para WhatsApp
-    let message = `\uD83C\uDF89 *NUEVO PEDIDO DE PRESUPUESTO DESDE EL CATÁLOGO* \uD83C\uDF1F\n\n`;
-    message += `\uD83D\uDC64 *Cliente:* ${customerName}\n`;
-    message += `\uD83D\uDCC5 *Fecha del Evento:* ${eventDate}\n`;
-    message += `\uD83C\uDFAD *Tipo de Evento:* ${eventType}\n`;
-    message += `\uD83D\uDCCD *Ubicación / Zona:* ${eventLocation}\n`;
+    let message = `🎉 *NUEVO PEDIDO DE PRESUPUESTO DESDE EL CATÁLOGO* 🌟\n\n`;
+    message += `👤 *Cliente:* ${customerName}\n`;
+    message += `📅 *Fecha del Evento:* ${eventDate}\n`;
+    message += `🎭 *Tipo de Evento:* ${eventType}\n`;
+    message += `📍 *Ubicación / Zona:* ${eventLocation}\n`;
     if (eventGuests) {
-      message += `\uD83D\uDC65 *Cant. Invitados (aprox):* ${eventGuests}\n`;
+      message += `👥 *Cant. Invitados (aprox):* ${eventGuests}\n`;
     }
-    message += `\n\uD83D\uDED2 *Servicios de interés:*\n`;
+    message += `\n🛒 *Servicios de interés:*\n`;
     cartItems.forEach(item => {
       message += `- *${item.quantity}x* ${item.name} (${item.price > 0 ? '$' + (item.price * item.quantity).toLocaleString('es-AR') : 'Consultar precio'})\n`;
     });
     
     if (total > 0) {
-      message += `\n\uD83D\uDCB0 *Total estimado:* $${total.toLocaleString('es-AR')}\n\n`;
+      message += `\n💰 *Total estimado:* $${total.toLocaleString('es-AR')}\n\n`;
     } else {
       message += `\n\n`;
     }

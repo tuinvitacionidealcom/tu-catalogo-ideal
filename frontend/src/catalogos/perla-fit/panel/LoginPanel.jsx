@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Lock, User, Eye, EyeOff, Beer, Loader2, AlertCircle } from 'lucide-react';
 
 const LoginPanel = ({ onLogin, loading, error }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState(() => localStorage.getItem('panel_saved_user') || '');
+  const [password, setPassword] = useState(() => localStorage.getItem('panel_saved_pass') || '');
   const [showPass, setShowPass] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    localStorage.setItem('panel_saved_user', username);
+    localStorage.setItem('panel_saved_pass', password);
     onLogin(username, password);
   };
 
