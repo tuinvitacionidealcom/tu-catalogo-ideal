@@ -1,7 +1,18 @@
 <?php
 // seo.php - Interceptor para inyectar SEO dinámico
+
+// Mostrar errores en staging - QUITAR en producción final
+error_reporting(E_ALL);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
 define('SECURE_ACCESS', true);
-require_once __DIR__ . '/backend/config/db.php';
+
+try {
+    require_once __DIR__ . '/backend/config/db.php';
+} catch (Throwable $e) {
+    // Si db.php falla, seguimos igual (servimos el HTML sin SEO dinámico)
+}
 
 $requestUri = $_SERVER['REQUEST_URI'];
 // Extraer el slug del catálogo (primer segmento después de la raíz)
@@ -13,7 +24,7 @@ $title = "Tu Catálogo Ideal | Catálogos Digitales Profesionales para Emprended
 $description = "Creá tu catálogo digital profesional en minutos. One-page con diseño premium para mostrar tus productos y servicios.";
 $image = "https://www.tucatalogoideal.com/og-image.jpg"; // Genérica
 
-if (!empty($slug) && $slug !== 'backend') {
+if (!empty($slug) && $slug !== 'backend' && class_exists('Database')) {
     // Buscar el catálogo en la BD
     try {
         $db = Database::getInstance();
