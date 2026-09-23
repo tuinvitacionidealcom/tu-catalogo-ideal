@@ -2,7 +2,7 @@ import React from 'react';
 import { X, ShoppingBag } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 
-const ProductModal = ({ isOpen, onClose, product, whatsappNumber }) => {
+const ProductModal = ({ isOpen, onClose, product, whatsappNumber, catalogId = 1 }) => {
   React.useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
@@ -33,7 +33,7 @@ const ProductModal = ({ isOpen, onClose, product, whatsappNumber }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          catalog_id: 1,
+          catalog_id: catalogId,
           name: 'Cliente CatÃ¡logo',
           phone: '',
           email: '',

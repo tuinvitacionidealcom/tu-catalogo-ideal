@@ -11,14 +11,14 @@ import { useAuth } from './useAuth';
 import LoginPanel from './LoginPanel';
 import { useDialog } from '../../../components/ui/Dialog';
 
-const API_BASE    = import.meta.env.VITE_API_URL || 'https://tucatalogoideal.com/backend';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://tucatalogoideal.com/backend';
 const LS_PRODUCTS = 'celebrarte_products_custom';
-const LS_INFO     = 'celebrarte_info_custom';
-const LS_CLICKS   = 'celebrarte_product_clicks';
+const LS_INFO = 'celebrarte_info_custom';
+const LS_CLICKS = 'celebrarte_product_clicks';
 
-const DARK  = '#1a0800';
+const DARK = '#1a0800';
 const BRAND = '#c17f3c';
-const BG    = '#f5f2ee';
+const BG = '#f5f2ee';
 
 // â”€â”€ Default data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const defaultProducts = [
@@ -40,11 +40,11 @@ const emptyProduct = { id: null, name: '', description: '', price: '', category:
 
 // â”€â”€ Nav items â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const NAV = [
-  { id: 'products', label: 'Productos',     Icon: ShoppingBag,  emoji: 'ðŸ“¦' },
-  { id: 'info',     label: 'Mi Comercio',   Icon: Store,        emoji: 'ðŸª' },
-  { id: 'popular',  label: 'MÃ¡s Pedidos',   Icon: Flame,        emoji: 'ðŸ”¥' },
-  { id: 'stats',    label: 'EstadÃ­sticas',  Icon: BarChart2,    emoji: 'ðŸ“Š' },
-  { id: 'contacts', label: 'Consultas',     Icon: MessageSquare,emoji: 'ðŸ’¬' },
+  { id: 'products', label: 'Productos', Icon: ShoppingBag, emoji: '📦' },
+  { id: 'info', label: 'Mi Comercio', Icon: Store, emoji: 'ðŸª' },
+  { id: 'popular', label: 'Más Pedidos', Icon: Flame, emoji: '🔥' },
+  { id: 'stats', label: 'Estadísticas', Icon: BarChart2, emoji: '📊' },
+  { id: 'contacts', label: 'Consultas', Icon: MessageSquare, emoji: '💬' },
 ];
 
 // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -53,7 +53,7 @@ const formatWhatsAppNumber = (rawPhone) => {
   let cleaned = rawPhone.replace(/\D/g, '');
   if (cleaned.startsWith('00')) cleaned = cleaned.slice(2);
   if (cleaned.startsWith('0')) cleaned = cleaned.slice(1);
-  
+
   if (!cleaned.startsWith('54')) {
     if (cleaned.length === 12 && cleaned.substring(2, 4) === '15') {
       cleaned = cleaned.slice(0, 2) + cleaned.slice(4);
@@ -85,7 +85,7 @@ const formatWhatsAppNumber = (rawPhone) => {
       cleaned = cleaned.slice(0, 3) + cleaned.slice(5);
     }
   }
-  
+
   if (cleaned.length === 11 && cleaned.startsWith('9')) {
     cleaned = '54' + cleaned;
   }
@@ -172,22 +172,22 @@ const celebrartePanel = () => {
   const dialog = useDialog();
 
   // UI state
-  const [drawerOpen, setDrawerOpen]   = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('products');
 
   // Modals
   const [productModal, setProductModal] = useState({ open: false, mode: 'add', data: { ...emptyProduct } });
-  const [stockModal, setStockModal]     = useState({ open: false, product: null, input: '' });
+  const [stockModal, setStockModal] = useState({ open: false, product: null, input: '' });
 
   // Data
-  const [products, setProducts]       = useState(defaultProducts);
-  const [info, setInfo]               = useState(defaultInfo);
+  const [products, setProducts] = useState(defaultProducts);
+  const [info, setInfo] = useState(defaultInfo);
   const [clickCounts, setClickCounts] = useState({});
 
   // Backend
-  const [stats, setStats]                     = useState(null);
-  const [statsLoading, setStatsLoading]       = useState(false);
-  const [contacts, setContacts]               = useState([]);
+  const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [contacts, setContacts] = useState([]);
   const [contactsLoading, setContactsLoading] = useState(false);
 
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -210,7 +210,7 @@ const celebrartePanel = () => {
   };
 
   const fetchProductsFromDB = useCallback(async () => {
-    const catalogId = user?.catalog_id || 1;
+    const catalogId = user?.catalog_id;
     try {
       const res = await fetch(`${API_BASE}/?request=products/${catalogId}`);
       const data = await res.json();
@@ -227,19 +227,19 @@ const celebrartePanel = () => {
         setProducts(dbProducts);
         localStorage.setItem(LS_PRODUCTS, JSON.stringify(dbProducts));
       }
-    } catch {}
+    } catch { }
   }, [user?.catalog_id]);
 
   const fetchStats = useCallback(async () => {
     const token = getToken();
-    const catalogId = user?.catalog_id || 1;
+    const catalogId = user?.catalog_id;
     if (!token) {
       setStatsLoading(false);
       return;
     }
     setStatsLoading(true);
     try {
-      const res  = await fetch(`${API_BASE}/?request=visits/${catalogId}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(`${API_BASE}/?request=visits/${catalogId}`, { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
       if (data.status === 'ok') {
         setStats(data.data);
@@ -255,14 +255,14 @@ const celebrartePanel = () => {
 
   const fetchContacts = useCallback(async () => {
     const token = getToken();
-    const catalogId = user?.catalog_id || 1;
+    const catalogId = user?.catalog_id;
     if (!token) {
       setContactsLoading(false);
       return;
     }
     setContactsLoading(true);
     try {
-      const res  = await fetch(`${API_BASE}/?request=contacts/${catalogId}`, { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(`${API_BASE}/?request=contacts/${catalogId}`, { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
       if (data.status === 'ok') {
         setContacts(data.data);
@@ -284,12 +284,12 @@ const celebrartePanel = () => {
 
   useEffect(() => {
     if (!user) return;
-    if (activeSection === 'stats')    fetchStats();
+    if (activeSection === 'stats') fetchStats();
     if (activeSection === 'contacts') fetchContacts();
   }, [activeSection, user?.catalog_id, fetchStats, fetchContacts]);
 
   // â”€â”€ Product CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  const openAdd  = () => setProductModal({ open: true, mode: 'add', data: { ...emptyProduct } });
+  const openAdd = () => setProductModal({ open: true, mode: 'add', data: { ...emptyProduct } });
   const openEdit = (p) => setProductModal({ open: true, mode: 'edit', data: { ...p } });
   const closeProductModal = () => setProductModal(prev => ({ ...prev, open: false }));
 
@@ -299,19 +299,19 @@ const celebrartePanel = () => {
   const handleSaveProduct = async () => {
     const p = productModal.data;
     if (!p.name?.trim() || !p.price || !p.category?.trim()) {
-      await dialog.error('CompletÃ¡ Nombre, Precio y CategorÃ­a');
+      await dialog.error('Completá Nombre, Precio y Categoría');
       return;
     }
     const clean = {
       ...p,
-      catalog_id: user?.catalog_id || 1,
-      price:    parseFloat(p.price),
+      catalog_id: user?.catalog_id,
+      price: parseFloat(p.price),
       category: p.category.toUpperCase().trim(),
-      stock:    Math.max(0, parseInt(p.stock) || 0),
-      image:    p.image || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=60',
+      stock: Math.max(0, parseInt(p.stock) || 0),
+      image: p.image || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=60',
     };
 
-    // Guardar en MySQL Backend
+    const isAdd = productModal.mode === 'add';
     try {
       const token = getToken();
       const res = await fetch(`${API_BASE}/?request=products`, {
@@ -323,41 +323,88 @@ const celebrartePanel = () => {
         body: JSON.stringify(clean)
       });
       const data = await res.json();
-      if (data.status === 'ok' && data.id) {
+      if (!res.ok || data.status !== 'ok') {
+        throw new Error(data.error || 'Error del servidor al guardar');
+      }
+      if (data.id) {
         clean.id = data.id;
       }
+      if (isAdd) {
+        saveProducts([...products.filter(x => x.id !== clean.id), clean]);
+      } else {
+        saveProducts(products.map(x => x.id === p.id ? clean : x));
+      }
+      closeProductModal();
+      await dialog.success(isAdd ? 'Producto agregado con éxito.' : 'Producto guardado con éxito.');
     } catch (err) {
       console.warn('Error al guardar producto en MySQL:', err);
+      await dialog.error('Ocurrió un error al guardar el producto. Revisá tu conexión e intentá nuevamente.');
     }
-
-    const isAdd = productModal.mode === 'add';
-    if (isAdd) {
-      saveProducts([...products.filter(x => x.id !== clean.id), clean]);
-    } else {
-      saveProducts(products.map(x => x.id === p.id ? clean : x));
-    }
-    closeProductModal();
-    await dialog.success(isAdd ? 'Producto agregado con Ã©xito.' : 'Producto guardado con Ã©xito.');
   };
 
   const handleDelete = async (id) => {
-    const confirmed = await dialog.danger('Â¿EstÃ¡s seguro de que querÃ©s eliminar este producto? Esta acciÃ³n no se puede deshacer.');
+    const confirmed = await dialog.danger('¿Estás seguro de que querés eliminar este producto? Esta acción no se puede deshacer.');
     if (confirmed) {
       try {
         const token = getToken();
-        await fetch(`${API_BASE}/?request=products/${id}`, {
+        const res = await fetch(`${API_BASE}/?request=products/${id}`, {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${token}` }
         });
-      } catch {}
-      saveProducts(products.filter(p => p.id !== id));
-      await dialog.success('Producto eliminado con Ã©xito.');
+        const data = await res.json();
+        if (!res.ok || data.status !== 'ok') {
+          throw new Error(data.error || 'Error del servidor al eliminar');
+        }
+        saveProducts(products.filter(p => p.id !== id));
+        await dialog.success('Producto eliminado con éxito.');
+      } catch (err) {
+        console.warn('Error al eliminar producto:', err);
+        await dialog.error('Ocurrió un error al eliminar. Revisá tu conexión e intentá nuevamente.');
+      }
     }
   };
 
   // â”€â”€ Stock â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  const nudgeStock = (id, delta) =>
-    saveProducts(products.map(p => p.id === id ? { ...p, stock: Math.max(0, (p.stock || 0) + delta) } : p));
+  const saveStockToDB = async (productToSave, newStock) => {
+    try {
+      const token = getToken();
+      const clean = {
+        ...productToSave,
+        stock: newStock,
+        catalog_id: user?.catalog_id,
+      };
+      const res = await fetch(`${API_BASE}/?request=products`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(clean)
+      });
+      const data = await res.json();
+      if (!res.ok || data.status !== 'ok') throw new Error('Server error');
+      return true;
+    } catch (err) {
+      return false;
+    }
+  };
+
+  const nudgeStock = async (id, delta) => {
+    const p = products.find(x => x.id === id);
+    if (!p) return;
+    const newStock = Math.max(0, (p.stock || 0) + delta);
+
+    // Actualización local optimista
+    saveProducts(products.map(x => x.id === id ? { ...x, stock: newStock } : x));
+
+    // Sincronización
+    const success = await saveStockToDB(p, newStock);
+    if (!success) {
+      // Rollback
+      saveProducts(products.map(x => x.id === id ? { ...x, stock: p.stock } : x));
+      await dialog.error('Error al actualizar el stock. Revisá tu conexión.');
+    }
+  };
 
   const openStockModal = (product) =>
     setStockModal({ open: true, product, input: String(product.stock || 0) });
@@ -365,9 +412,19 @@ const celebrartePanel = () => {
   const saveStock = async () => {
     const val = parseInt(stockModal.input);
     if (!isNaN(val) && val >= 0) {
-      saveProducts(products.map(p => p.id === stockModal.product.id ? { ...p, stock: val } : p));
+      const p = stockModal.product;
+      const oldStock = p.stock;
+
+      saveProducts(products.map(x => x.id === p.id ? { ...x, stock: val } : x));
       setStockModal({ open: false, product: null, input: '' });
-      await dialog.success('Stock actualizado con Ã©xito.');
+
+      const success = await saveStockToDB(p, val);
+      if (success) {
+        await dialog.success('Stock actualizado con éxito.');
+      } else {
+        saveProducts(products.map(x => x.id === p.id ? { ...x, stock: oldStock } : x));
+        await dialog.error('Error al actualizar el stock. Revisá tu conexión.');
+      }
     } else {
       setStockModal({ open: false, product: null, input: '' });
     }
@@ -382,7 +439,7 @@ const celebrartePanel = () => {
     products.forEach(p => {
       counts[p.name.toLowerCase().trim()] = { id: p.id, count: 0 };
     });
-    
+
     contacts.forEach(c => {
       if (c.message && c.message.startsWith('Pedido de:')) {
         const content = c.message.replace('Pedido de: ', '').split(' - Total: ')[0];
@@ -423,7 +480,7 @@ const celebrartePanel = () => {
   // â”€â”€ Auth guard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (authLoading) return (
     <div style={{ minHeight: '100vh', background: DARK, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <Loader2 size={32} color="#d4a017" style={{ animation: 'panelSpin 1s linear infinite' }} />
+      <Loader2 size={32} color="#c58996" style={{ animation: 'panelSpin 1s linear infinite' }} />
       <style>{`@keyframes panelSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   );
@@ -467,14 +524,14 @@ const celebrartePanel = () => {
         {/* Drawer user section */}
         <div style={{ padding: '20px 18px 18px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '1.2px' }}>MenÃº</span>
+            <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '1.2px' }}>Menú</span>
             <button onClick={() => setDrawerOpen(false)} style={{ background: 'rgba(255,255,255,0.08)', border: 'none', borderRadius: '8px', width: '28px', height: '28px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <X size={13} color="rgba(255,255,255,0.5)" />
             </button>
           </div>
           {/* Avatar + info */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'linear-gradient(135deg, #b46414, #d4a017)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 12px rgba(180,100,20,0.4)' }}>
+            <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'linear-gradient(135deg, #9a5a69, #c58996)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 12px rgba(180,100,20,0.4)' }}>
               <span style={{ fontSize: '18px', fontWeight: 800, color: '#fff' }}>{user.username?.[0]?.toUpperCase()}</span>
             </div>
             <div>
@@ -496,10 +553,10 @@ const celebrartePanel = () => {
                   width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
                   padding: '12px 14px', borderRadius: '12px', border: 'none', cursor: 'pointer',
                   background: active ? 'rgba(193,127,60,0.18)' : 'transparent',
-                  color: active ? '#d4a017' : 'rgba(255,255,255,0.55)',
+                  color: active ? '#c58996' : 'rgba(255,255,255,0.55)',
                   fontWeight: 700, fontSize: '14px', marginBottom: '2px',
                   transition: 'all 0.15s',
-                  borderLeft: `3px solid ${active ? '#d4a017' : 'transparent'}`,
+                  borderLeft: `3px solid ${active ? '#c58996' : 'transparent'}`,
                   textAlign: 'left',
                 }}
               >
@@ -517,10 +574,10 @@ const celebrartePanel = () => {
             style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '10px', color: 'rgba(255,255,255,0.45)', textDecoration: 'none', fontSize: '13px', fontWeight: 600, marginBottom: '6px' }}
             onClick={() => setDrawerOpen(false)}
           >
-            <Eye size={14} />Ver catÃ¡logo
+            <Eye size={14} />Ver catálogo
           </Link>
           <button onClick={logout} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', border: 'none', color: '#f87171', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>
-            <LogOut size={14} />Cerrar sesiÃ³n
+            <LogOut size={14} />Cerrar sesión
           </button>
         </div>
       </div>
@@ -546,7 +603,7 @@ const celebrartePanel = () => {
         </div>
 
         {/* Avatar en header */}
-        <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'linear-gradient(135deg, #b46414, #d4a017)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(180,100,20,0.4)' }}>
+        <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'linear-gradient(135deg, #9a5a69, #c58996)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(180,100,20,0.4)' }}>
           <span style={{ fontSize: '14px', fontWeight: 800, color: '#fff' }}>{user.username?.[0]?.toUpperCase()}</span>
         </div>
       </header>
@@ -560,12 +617,12 @@ const celebrartePanel = () => {
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '18px' }}>
               <div>
                 <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: DARK }}>Productos</h2>
-                <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#94a3b8' }}>{products.length} productos â€¢ {products.filter(p => p.available).length} disponibles</p>
+                <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#94a3b8' }}>{products.length} productos • {products.filter(p => p.available).length} disponibles</p>
               </div>
               <button
                 id="add-product-btn"
                 onClick={openAdd}
-                style={{ background: `linear-gradient(135deg, #b46414, ${BRAND})`, border: 'none', borderRadius: '12px', padding: '10px 16px', color: '#fff', fontWeight: 800, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 16px rgba(180,100,20,0.3)', flexShrink: 0 }}
+                style={{ background: `linear-gradient(135deg, #9a5a69, ${BRAND})`, border: 'none', borderRadius: '12px', padding: '10px 16px', color: '#fff', fontWeight: 800, fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 16px rgba(197,137,150,0.3)', flexShrink: 0 }}
               >
                 <Plus size={15} />Agregar
               </button>
@@ -573,8 +630,8 @@ const celebrartePanel = () => {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {products.map(p => {
-                const stockLow  = (p.stock || 0) > 0 && (p.stock || 0) <= 5;
-                const stockOut  = (p.stock || 0) === 0;
+                const stockLow = (p.stock || 0) > 0 && (p.stock || 0) <= 5;
+                const stockOut = (p.stock || 0) === 0;
                 return (
                   <div key={p.id} style={{
                     background: '#fff', borderRadius: '18px', padding: '14px',
@@ -627,7 +684,7 @@ const celebrartePanel = () => {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <Package size={12} color={stockOut ? '#ef4444' : stockLow ? '#f59e0b' : '#94a3b8'} />
                         <span style={{ fontSize: '11px', fontWeight: 700, color: stockOut ? '#ef4444' : stockLow ? '#f59e0b' : '#64748b' }}>
-                          {stockOut ? 'âš  Sin stock' : stockLow ? 'âš  Stock bajo' : 'Stock disponible'}
+                          {stockOut ? '⚠️  Sin stock' : stockLow ? '⚠️  Stock bajo' : 'Stock disponible'}
                         </span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
@@ -680,15 +737,15 @@ const celebrartePanel = () => {
           >
             <div style={{ marginBottom: '4px' }}>
               <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: DARK }}>Mi Comercio</h2>
-              <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#94a3b8' }}>Datos que se muestran en el catÃ¡logo</p>
+              <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#94a3b8' }}>Datos que se muestran en el catálogo</p>
             </div>
 
             {[
               { label: 'Nombre del Comercio', key: 'name', required: true },
-              { label: 'WhatsApp (cÃ³digo + nÃºmero, sin +)', key: 'phone', placeholder: '5491123456789', required: true },
+              { label: 'WhatsApp (código + número, sin +)', key: 'phone', placeholder: '5491123456789', required: true },
               { label: 'Instagram (sin @)', key: 'instagram', placeholder: 'tucuenta' },
-              { label: 'DirecciÃ³n', key: 'address' },
-              { label: 'Horarios de AtenciÃ³n', key: 'hours' },
+              { label: 'Dirección', key: 'address' },
+              { label: 'Horarios de Atención', key: 'hours' },
             ].map(f => (
               <div key={f.key}>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '6px' }}>{f.label}</label>
@@ -705,7 +762,7 @@ const celebrartePanel = () => {
               </div>
             ))}
             <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '6px' }}>DescripciÃ³n</label>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '6px' }}>Descripción</label>
               <textarea
                 value={info.description || ''}
                 onChange={e => setInfo(prev => ({ ...prev, description: e.target.value }))}
@@ -715,7 +772,7 @@ const celebrartePanel = () => {
                 onBlur={e => e.target.style.borderColor = '#e8e0d8'}
               />
             </div>
-            <button type="submit" style={{ background: `linear-gradient(135deg, #b46414, ${BRAND})`, border: 'none', borderRadius: '14px', padding: '15px', color: '#fff', fontWeight: 800, fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 16px rgba(180,100,20,0.3)', marginTop: '4px' }}>
+            <button type="submit" style={{ background: `linear-gradient(135deg, #9a5a69, ${BRAND})`, border: 'none', borderRadius: '14px', padding: '15px', color: '#fff', fontWeight: 800, fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 16px rgba(197,137,150,0.3)', marginTop: '4px' }}>
               <Save size={16} />Guardar Cambios
             </button>
           </form>
@@ -725,7 +782,7 @@ const celebrartePanel = () => {
         {activeSection === 'popular' && (
           <div>
             <div style={{ marginBottom: '18px' }}>
-              <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: DARK }}>MÃ¡s Pedidos</h2>
+              <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: DARK }}>Más Pedidos</h2>
               <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#94a3b8' }}>Ranking de productos por pedidos de WhatsApp</p>
             </div>
             {popular.some(p => p.clicks > 0) ? (
@@ -763,8 +820,8 @@ const celebrartePanel = () => {
             ) : (
               <div style={{ textAlign: 'center', padding: '64px 20px', color: '#94a3b8' }}>
                 <Flame size={44} style={{ margin: '0 auto 14px', display: 'block', opacity: 0.25 }} />
-                <p style={{ fontWeight: 800, fontSize: '15px', margin: '0 0 8px', color: '#64748b' }}>Sin datos de pedidos aÃºn</p>
-                <p style={{ fontSize: '13px', margin: 0, lineHeight: 1.6 }}>Los clicks se registran cuando los clientes presionan <strong>"Hacer Pedido"</strong> en el catÃ¡logo</p>
+                <p style={{ fontWeight: 800, fontSize: '15px', margin: '0 0 8px', color: '#64748b' }}>Sin datos de pedidos aún</p>
+                <p style={{ fontSize: '13px', margin: 0, lineHeight: 1.6 }}>Los clicks se registran cuando los clientes presionan <strong>"Hacer Pedido"</strong> en el catálogo</p>
               </div>
             )}
           </div>
@@ -775,8 +832,8 @@ const celebrartePanel = () => {
           <div>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '18px' }}>
               <div>
-                <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: DARK }}>EstadÃ­sticas</h2>
-                <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#94a3b8' }}>Visitas al catÃ¡logo</p>
+                <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 800, color: DARK }}>Estadísticas</h2>
+                <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#94a3b8' }}>Visitas al catálogo</p>
               </div>
               <button onClick={fetchStats} style={{ background: '#fff', border: `1.5px solid ${BRAND}`, borderRadius: '10px', padding: '7px 13px', color: BRAND, fontWeight: 700, fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <TrendingUp size={12} />Actualizar
@@ -789,14 +846,14 @@ const celebrartePanel = () => {
             ) : stats ? (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
-                  <StatCard icon={Eye}        label="Total"       value={stats.total?.toLocaleString('es-AR') || '0'} color="#b46414" />
-                  <StatCard icon={Calendar}   label="Hoy"         value={stats.today?.toLocaleString('es-AR') || '0'} color="#10b981" sub="visitas de hoy" />
-                  <StatCard icon={TrendingUp} label="7 dÃ­as"      value={stats.last_7_days?.toLocaleString('es-AR') || '0'} color="#6366f1" sub="Ãºltima semana" />
-                  <StatCard icon={Users}      label="Promedio"    value={stats.daily?.length > 0 ? Math.round(stats.total / Math.max(stats.daily.length, 1)) : '0'} color="#f59e0b" sub="visitas por dÃ­a" />
+                  <StatCard icon={Eye} label="Total" value={stats.total?.toLocaleString('es-AR') || '0'} color="#9a5a69" />
+                  <StatCard icon={Calendar} label="Hoy" value={stats.today?.toLocaleString('es-AR') || '0'} color="#10b981" sub="visitas de hoy" />
+                  <StatCard icon={TrendingUp} label="7 días" value={stats.last_7_days?.toLocaleString('es-AR') || '0'} color="#6366f1" sub="última semana" />
+                  <StatCard icon={Users} label="Promedio" value={stats.daily?.length > 0 ? Math.round(stats.total / Math.max(stats.daily.length, 1)) : '0'} color="#f59e0b" sub="visitas por día" />
                 </div>
                 {stats.daily?.length > 0 ? (
                   <div style={{ background: '#fff', borderRadius: '18px', padding: '18px', border: '1px solid #f0ece8', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
-                    <p style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.6px', margin: '0 0 14px' }}>Ãšltimos 30 dÃ­as</p>
+                    <p style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.6px', margin: '0 0 14px' }}>Ãšltimos 30 días</p>
                     <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '72px' }}>
                       {(() => {
                         const max = Math.max(...stats.daily.map(d => d.visitas), 1);
@@ -807,7 +864,7 @@ const celebrartePanel = () => {
                             style={{
                               flex: 1, minWidth: '5px',
                               height: `${Math.max((d.visitas / max) * 100, 6)}%`,
-                              background: `linear-gradient(180deg, #b46414, #d4a017)`,
+                              background: `linear-gradient(180deg, #9a5a69, #c58996)`,
                               borderRadius: '4px 4px 0 0',
                               cursor: 'pointer', transition: 'opacity 0.15s',
                             }}
@@ -820,15 +877,15 @@ const celebrartePanel = () => {
                   </div>
                 ) : (
                   <div style={{ background: '#fff', borderRadius: '18px', padding: '24px', textAlign: 'center', border: '1px solid #f0ece8' }}>
-                    <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>AÃºn no hay registro de visitas registrado en la base de datos.</p>
+                    <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>Aún no hay registro de visitas registrado en la base de datos.</p>
                   </div>
                 )}
               </>
             ) : (
               <div style={{ textAlign: 'center', padding: '64px 20px', color: '#94a3b8' }}>
                 <BarChart2 size={44} style={{ margin: '0 auto 14px', display: 'block', opacity: 0.25 }} />
-                <p style={{ fontWeight: 800, fontSize: '15px', margin: '0 0 8px', color: '#64748b' }}>Sin datos todavÃ­a</p>
-                <p style={{ fontSize: '13px', margin: 0 }}>PresionÃ¡ "Actualizar" para cargar los datos del servidor</p>
+                <p style={{ fontWeight: 800, fontSize: '15px', margin: '0 0 8px', color: '#64748b' }}>Sin datos todavía</p>
+                <p style={{ fontSize: '13px', margin: 0 }}>Presioná "Actualizar" para cargar los datos del servidor</p>
               </div>
             )}
           </div>
@@ -855,7 +912,7 @@ const celebrartePanel = () => {
                 {contacts.map(c => (
                   <div key={c.id} style={{ background: '#fff', borderRadius: '18px', padding: '16px', border: '1px solid #f0ece8', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
                     <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
-                      <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: `linear-gradient(135deg, #b46414, #d4a017)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: `linear-gradient(135deg, #9a5a69, #c58996)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <span style={{ fontWeight: 800, color: '#fff', fontSize: '15px' }}>{c.name?.[0]?.toUpperCase()}</span>
                       </div>
                       <div>
@@ -885,18 +942,18 @@ const celebrartePanel = () => {
               <div style={{ textAlign: 'center', padding: '64px 20px', color: '#94a3b8' }}>
                 <MessageSquare size={44} style={{ margin: '0 auto 14px', display: 'block', opacity: 0.25 }} />
                 <p style={{ fontWeight: 800, fontSize: '15px', margin: '0 0 8px', color: '#64748b' }}>Sin consultas por ahora</p>
-                <p style={{ fontSize: '13px', margin: 0 }}>Aparecen acÃ¡ cuando alguien manda un mensaje desde el catÃ¡logo</p>
+                <p style={{ fontSize: '13px', margin: 0 }}>Aparecen acá cuando alguien manda un mensaje desde el catálogo</p>
               </div>
             )}
           </div>
         )}
       </main>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â• MODAL: Producto â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* â• â• â• â• â• â• â• â• â• â• â• â• â• â•  MODAL: Producto â• â• â• â• â• â• â• â• â• â• â• â• â• â•  */}
       <Sheet
         open={productModal.open}
         onClose={closeProductModal}
-        title={productModal.mode === 'add' ? 'âž• Nuevo Producto' : 'âœï¸ Editar Producto'}
+        title={productModal.mode === 'add' ? '• Nuevo Producto' : '  Editar Producto'}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '13px' }}>
           {/* Preview imagen si hay URL */}
@@ -921,15 +978,15 @@ const celebrartePanel = () => {
             />
           </div>
 
-          {/* CategorÃ­a con Dropdown + OpciÃ³n de Nueva CategorÃ­a */}
+          {/* Categoría con Dropdown + Opción de Nueva Categoría */}
           <div>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '6px' }}>CategorÃ­a *</label>
+            <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '6px' }}>Categoría *</label>
             <input
               type="text"
               list="categories-list"
               value={productModal.data.category || ''}
               onChange={e => setPField('category', e.target.value.toUpperCase())}
-              placeholder="SeleccionÃ¡ o escribÃ­ una nueva categorÃ­a..."
+              placeholder="Seleccioná o escribí una nueva categoría..."
               style={{ width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '11px', padding: '11px 13px', fontSize: '14px', color: DARK, outline: 'none', fontFamily: 'inherit', transition: 'border-color 0.2s' }}
               onFocus={e => e.target.style.borderColor = BRAND}
               onBlur={e => e.target.style.borderColor = '#e2e8f0'}
@@ -942,7 +999,7 @@ const celebrartePanel = () => {
           </div>
 
           {[
-            { label: 'DescripciÃ³n', key: 'description', placeholder: 'Detalle breve del producto' },
+            { label: 'Descripción', key: 'description', placeholder: 'Detalle breve del producto' },
           ].map(f => (
             <div key={f.key}>
               <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '6px' }}>{f.label}</label>
@@ -999,14 +1056,14 @@ const celebrartePanel = () => {
                 disabled={uploadingImage}
                 style={{ background: '#f1f5f9', border: '1.5px solid #cbd5e1', borderRadius: '11px', padding: '10px 14px', fontSize: '13px', fontWeight: 700, color: DARK, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', width: '100%', justifyContent: 'center' }}
               >
-                {uploadingImage ? <Loader2 size={16} color={BRAND} style={{ animation: 'panelSpin 1s linear infinite' }} /> : 'ðŸ“· Subir Foto desde mi celular/dispositivo'}
+                {uploadingImage ? <Loader2 size={16} color={BRAND} style={{ animation: 'panelSpin 1s linear infinite' }} /> : '📸 Subir Foto desde mi celular/dispositivo'}
               </button>
             </div>
             <input
               type="text"
               value={productModal.data.image || ''}
               onChange={e => setPField('image', e.target.value)}
-              placeholder="O pegÃ¡ un link de imagen (https://...)"
+              placeholder="O pegá un link de imagen (https://...)"
               style={{ width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '11px', padding: '11px 13px', fontSize: '13px', color: DARK, outline: 'none', fontFamily: 'inherit' }}
             />
           </div>
@@ -1031,7 +1088,7 @@ const celebrartePanel = () => {
           </label>
           <button
             onClick={handleSaveProduct}
-            style={{ background: `linear-gradient(135deg, #b46414, ${BRAND})`, border: 'none', borderRadius: '13px', padding: '15px', color: '#fff', fontWeight: 800, fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 16px rgba(180,100,20,0.3)', marginTop: '4px' }}
+            style={{ background: `linear-gradient(135deg, #9a5a69, ${BRAND})`, border: 'none', borderRadius: '13px', padding: '15px', color: '#fff', fontWeight: 800, fontSize: '15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 16px rgba(197,137,150,0.3)', marginTop: '4px' }}
           >
             <Check size={17} />{productModal.mode === 'add' ? 'Agregar Producto' : 'Guardar Cambios'}
           </button>
@@ -1068,7 +1125,7 @@ const celebrartePanel = () => {
                 type="number"
                 value={stockModal.input}
                 onChange={e => setStockModal(prev => ({ ...prev, input: e.target.value }))}
-                style={{ width: '96px', textAlign: 'center', fontSize: '36px', fontWeight: 800, color: DARK, border: `2.5px solid ${BRAND}`, borderRadius: '16px', padding: '10px 0', outline: 'none', fontFamily: 'inherit', background: '#fffbf5' }}
+                style={{ width: '96px', textAlign: 'center', fontSize: '36px', fontWeight: 800, color: DARK, border: `2.5px solid ${BRAND}`, borderRadius: '16px', padding: '10px 0', outline: 'none', fontFamily: 'inherit', background: '#fcf0f2' }}
               />
               <button
                 onClick={() => setStockModal(prev => ({ ...prev, input: String(parseInt(prev.input || '0') + 1) }))}
@@ -1079,7 +1136,7 @@ const celebrartePanel = () => {
             </div>
             <button
               onClick={saveStock}
-              style={{ width: '100%', background: `linear-gradient(135deg, #b46414, ${BRAND})`, border: 'none', borderRadius: '14px', padding: '15px', color: '#fff', fontWeight: 800, fontSize: '15px', cursor: 'pointer', boxShadow: '0 4px 16px rgba(180,100,20,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              style={{ width: '100%', background: `linear-gradient(135deg, #9a5a69, ${BRAND})`, border: 'none', borderRadius: '14px', padding: '15px', color: '#fff', fontWeight: 800, fontSize: '15px', cursor: 'pointer', boxShadow: '0 4px 16px rgba(197,137,150,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
             >
               <Check size={17} />Confirmar Stock
             </button>

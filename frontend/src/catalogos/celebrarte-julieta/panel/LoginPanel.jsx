@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { Lock, User, Eye, EyeOff, Beer, Loader2, AlertCircle } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, PartyPopper, Loader2, AlertCircle } from 'lucide-react';
 
 const LoginPanel = ({ onLogin, loading, error }) => {
   const [username, setUsername] = useState('');
@@ -14,7 +14,7 @@ const LoginPanel = ({ onLogin, loading, error }) => {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #1a0a00 0%, #2d1200 40%, #1a0a00 100%)',
+      background: 'linear-gradient(135deg, #2a111a 0%, #4a212d 40%, #2a111a 100%)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -30,18 +30,18 @@ const LoginPanel = ({ onLogin, loading, error }) => {
         <div style={{
           position: 'absolute', top: '-20%', left: '-10%',
           width: '500px', height: '500px', borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(180,100,20,0.15) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(197,137,150,0.15) 0%, transparent 70%)',
         }} />
         <div style={{
           position: 'absolute', bottom: '-20%', right: '-10%',
           width: '400px', height: '400px', borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(180,100,20,0.1) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(197,137,150,0.1) 0%, transparent 70%)',
         }} />
-        {/* PatrÃ³n de puntos */}
+        {/* Patrón de puntos */}
         <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.04 }}>
           <defs>
             <pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-              <circle cx="2" cy="2" r="1.5" fill="#d4a017" />
+              <circle cx="2" cy="2" r="1.5" fill="#c58996" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#dots)" />
@@ -53,7 +53,7 @@ const LoginPanel = ({ onLogin, loading, error }) => {
         width: '100%', maxWidth: '400px',
         background: 'rgba(255,255,255,0.04)',
         backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(212,160,23,0.2)',
+        border: '1px solid rgba(197,137,150,0.2)',
         borderRadius: '24px',
         padding: '40px 32px',
         boxShadow: '0 32px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)',
@@ -65,11 +65,11 @@ const LoginPanel = ({ onLogin, loading, error }) => {
           <div style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             width: '64px', height: '64px', borderRadius: '20px',
-            background: 'linear-gradient(135deg, #b46414 0%, #d4a017 100%)',
+            background: 'linear-gradient(135deg, #9a5a69 0%, #c58996 100%)',
             marginBottom: '16px',
-            boxShadow: '0 8px 24px rgba(180,100,20,0.4)',
+            boxShadow: '0 8px 24px rgba(197,137,150,0.4)',
           }}>
-            <Beer size={32} color="#fff" />
+            <PartyPopper size={32} color="#fff" />
           </div>
           <h1 style={{
             fontSize: '22px', fontWeight: 800, color: '#ffffff', margin: '0 0 6px',
@@ -78,7 +78,7 @@ const LoginPanel = ({ onLogin, loading, error }) => {
             Panel de Control
           </h1>
           <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)', margin: 0 }}>
-            IngresÃ¡ con tu usuario y contraseÃ±a
+            Ingresá con tu usuario y contraseña
           </p>
         </div>
 
@@ -130,14 +130,14 @@ const LoginPanel = ({ onLogin, loading, error }) => {
             </div>
           </div>
 
-          {/* ContraseÃ±a */}
+          {/* Contraseña */}
           <div>
             <label style={{
               display: 'block', fontSize: '11px', fontWeight: 700,
               color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase',
               letterSpacing: '0.8px', marginBottom: '8px',
             }}>
-              ContraseÃ±a
+              Contraseña
             </label>
             <div style={{ position: 'relative' }}>
               <Lock size={15} color="rgba(255,255,255,0.25)" style={{
@@ -148,7 +148,7 @@ const LoginPanel = ({ onLogin, loading, error }) => {
                 type={showPass ? 'text' : 'password'}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                placeholder="••••••••"
                 required
                 autoComplete="current-password"
                 style={{
@@ -176,7 +176,7 @@ const LoginPanel = ({ onLogin, loading, error }) => {
             </div>
           </div>
 
-          {/* BotÃ³n */}
+          {/* Botón */}
           <button
             id="panel-login-btn"
             type="submit"
@@ -185,7 +185,7 @@ const LoginPanel = ({ onLogin, loading, error }) => {
               width: '100%', marginTop: '8px',
               background: loading
                 ? 'rgba(180,100,20,0.5)'
-                : 'linear-gradient(135deg, #b46414 0%, #d4a017 100%)',
+                : 'linear-gradient(135deg, #9a5a69 0%, #c58996 100%)',
               border: 'none', borderRadius: '14px',
               padding: '15px', cursor: loading ? 'not-allowed' : 'pointer',
               color: '#fff', fontSize: '14px', fontWeight: 800,
@@ -209,7 +209,7 @@ const LoginPanel = ({ onLogin, loading, error }) => {
           textAlign: 'center', marginTop: '24px', marginBottom: 0,
           fontSize: '11px', color: 'rgba(255,255,255,0.2)',
         }}>
-          Tu CatÃ¡logo Ideal Â© {new Date().getFullYear()}
+          Tu Catálogo Ideal © {new Date().getFullYear()}
         </p>
       </div>
 

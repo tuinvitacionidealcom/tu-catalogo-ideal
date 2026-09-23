@@ -16,7 +16,7 @@ $allowed_origins = [
     'http://localhost:5174'
 ];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if (in_array($origin, $allowed_origins)) {
+if (in_array($origin, $allowed_origins) || strpos($origin, 'http://localhost:') === 0 || strpos($origin, 'http://127.0.0.1:') === 0) {
     header("Access-Control-Allow-Origin: $origin");
 } else {
     header("Access-Control-Allow-Origin: https://www.tucatalogoideal.com");
@@ -204,16 +204,11 @@ try {
                 ]);
 
             } elseif ($method === 'GET') {
-                requireAuth();
+                $session = requireAuth();
 
-                if (empty($sub)) {
-                    http_response_code(400);
-                    echo json_encode(["error" => "Falta catalog_id"]);
-                    exit;
-                }
                 $stmt = $db->query(
                     "SELECT * FROM catalog_contacts WHERE catalog_id = ? ORDER BY created_at DESC",
-                    [intval($sub)]
+                    [intval($session['catalog_id'])]
                 );
                 echo json_encode([
                     "status" => "ok",
@@ -249,15 +244,8 @@ try {
                 echo json_encode(["status" => "ok", "message" => "Visita registrada"]);
 
             } elseif ($method === 'GET') {
-                requireAuth();
-
-                if (empty($sub)) {
-                    http_response_code(400);
-                    echo json_encode(["error" => "Falta catalog_id"]);
-                    exit;
-                }
-
-                $cid = intval($sub);
+                $session = requireAuth();
+                $cid = intval($session['catalog_id']);
 
                 $total = $db->query(
                     "SELECT COUNT(*) as total FROM catalog_visits WHERE catalog_id = ?",
@@ -406,7 +394,7 @@ try {
                 $session = requireAuth();
                 $input = json_decode(file_get_contents('php://input'), true);
 
-                $catalog_id  = intval($input['catalog_id'] ?? $session['catalog_id'] ?? 1);
+                $catalog_id  = intval($session['catalog_id']);
                 $name        = trim($input['name'] ?? '');
                 $description = trim($input['description'] ?? '');
                 $price       = floatval($input['price'] ?? 0);
@@ -454,7 +442,7 @@ try {
                     exit;
                 }
 
-                $db->query("DELETE FROM catalog_products WHERE id = ?", [$prod_id]);
+                $db->query("DELETE FROM catalog_products WHERE id = ? AND catalog_id = ?", [$prod_id, $session['catalog_id']]);
                 echo json_encode(["status" => "ok", "message" => "Producto eliminado"]);
             }
             break;

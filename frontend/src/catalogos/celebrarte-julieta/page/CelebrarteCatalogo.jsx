@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, ShoppingBag, ArrowLeft, Store, X, ArrowUp, Grid, List } from 'lucide-react';
 import { FaWhatsapp, FaInstagram } from 'react-icons/fa';
 import HeroCatalogo from '../componentes/HeroCatalogo';
@@ -42,7 +42,7 @@ const defaultInfo = {
   description: "Creamos experiencias y eventos únicos en CABA. Nos especializamos en Ambientaciones integrales, propuestas exclusivas de Fiesta del Té y Glitter Bar para darle un toque mágico a tu celebración. Cada detalle está pensado para que tu evento sea verdaderamente inolvidable.",
   address: DEFAULT_ADDRESS,
   phone: "5491131307799",
-  instagram: "https://www.instagram.com/celebrarte_ok/",
+  instagram: "celebrarte_ok",
   hours: DEFAULT_HOURS,
   logo: logoImg
 };
@@ -56,51 +56,48 @@ const celebrarteCatalogo = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' (2 columnas) o 'list' (1 columna / lista)
+  const [viewMode, setViewMode] = useState('grid');
+  const [catalogId, setCatalogId] = useState(null); // 'grid' (2 columnas) o 'list' (1 columna / lista)
 
   // Load custom data from localStorage if exists + Update Title & Favicon + Record Visit
   useEffect(() => {
-    // Registrar visita al catálogo
     const API_BASE = import.meta.env.VITE_API_URL || 'https://tucatalogoideal.com/backend';
-    fetch(`${API_BASE}/?request=visits`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ catalog_id: 1 })
-    }).catch(() => {});
 
-    let initialProducts = defaultProducts;
-    const savedProducts = localStorage.getItem(LOCAL_STORAGE_PRODUCTS_KEY);
-    if (savedProducts) {
-      try {
-        const parsed = JSON.parse(savedProducts);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const map = new Map();
-          defaultProducts.forEach(p => map.set(p.id, p));
-          parsed.forEach(p => map.set(p.id, p));
-          initialProducts = Array.from(map.values());
-        }
-      } catch {}
-    }
-    setProducts(initialProducts);
-
-    // Cargar productos actualizados desde MySQL
-    fetch(`${API_BASE}/?request=products/1`)
+    // 1. Obtener ID del catálogo por SLUG
+    fetch(`${API_BASE}/?request=catalogs/celebrarte-julieta`)
       .then(res => res.json())
-      .then(data => {
-        if (data.status === 'ok' && Array.isArray(data.data)) {
-          const dbProducts = data.data.map(p => {
-            if (!p.image || p.image.trim() === '') {
-              const defaultProd = defaultProducts.find(dp => dp.id === p.id || dp.name.toLowerCase() === p.name.toLowerCase());
-              if (defaultProd) {
-                p.image = defaultProd.image;
+      .then(catalogData => {
+        if (catalogData.status === 'ok' && catalogData.data) {
+          const currentCatalogId = catalogData.data.id;
+          setCatalogId(currentCatalogId);
+
+          // 2. Registrar visita usando el ID dinámico
+          fetch(`${API_BASE}/?request=visits`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ catalog_id: currentCatalogId })
+          }).catch(() => {});
+
+          // 3. Cargar productos desde MySQL usando el ID dinámico
+          fetch(`${API_BASE}/?request=products/${currentCatalogId}`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.status === 'ok' && Array.isArray(data.data)) {
+                const dbProducts = data.data.map(p => {
+                  if (!p.image || p.image.trim() === '') {
+                    const defaultProd = defaultProducts.find(dp => dp.id === p.id || dp.name.toLowerCase() === p.name.toLowerCase());
+                    if (defaultProd) {
+                      p.image = defaultProd.image;
+                    }
+                  }
+                  return p;
+                });
+                setProducts(dbProducts);
               }
-            }
-            return p;
-          });
-          setProducts(dbProducts);
+            })
+            .catch(() => {});
         }
-      })
-      .catch(() => {});
+      }).catch(() => {});
 
     // Aplicar clase de tema para colores marrones
     document.body.classList.add('celebrarte-theme');
@@ -481,7 +478,7 @@ const celebrarteCatalogo = () => {
       {/* Formulario de Consultas antes del Footer */}
       <div className="px-4 max-w-4xl mx-auto my-12">
         <ContactForm 
-          catalogId={1} 
+          catalogId={catalogId || 1} 
           catalogName={info.name || 'Celebrarte by Juli'} 
           imageUrl={imgFormulario}
           buttonBackground="var(--color-brand)"
@@ -567,6 +564,7 @@ const celebrarteCatalogo = () => {
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         cartItems={cart}
+        catalogId={catalogId || 1}
         products={products}
         onAdd={handleAddToCart}
         onRemove={handleRemoveFromCart}
@@ -579,6 +577,7 @@ const celebrarteCatalogo = () => {
         isOpen={!!selectedProduct}
         onClose={() => setSelectedProduct(null)}
         product={selectedProduct}
+        catalogId={catalogId || 1}
         whatsappNumber={info.phone}
       />
     </div>

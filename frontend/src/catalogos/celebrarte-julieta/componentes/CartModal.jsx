@@ -84,7 +84,7 @@ const CartModal = ({ isOpen, onClose, cartItems, products = [], onAdd, onRemove,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          catalog_id: 1,
+          catalog_id: catalogId,
           name: 'Pedido de Presupuesto',
           phone: '',
           email: '',

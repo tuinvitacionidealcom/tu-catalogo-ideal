@@ -188,8 +188,9 @@ const PerlaFitCatalogo = () => {
   const categories = [...new Set(products.map(p => p.category))];
 
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          product.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const normalizeStr = (str) => (str || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const query = normalizeStr(searchQuery);
+    const matchesSearch = normalizeStr(product.name).includes(query) || normalizeStr(product.description).includes(query);
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
