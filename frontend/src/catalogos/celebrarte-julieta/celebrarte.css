@@ -1,0 +1,20 @@
+/* Tema para Catálogo Celebrarte */
+body.celebrarte-theme {
+  --color-brand: #C58996;
+  --color-brand-light: #E0B0BC;
+  --color-brand-dark: #9A5A69;
+  
+  --color-accent: #F2D5DA;
+  --color-accent-light: #FCF0F2;
+  --color-accent-dark: #DFABB5;
+  
+  --color-web-bg: #ffffff;
+  --color-web-bg-warm: #fcfcfc;
+  --color-web-card: #ffffff;
+  --color-web-border: #f0f0f0;
+  --color-web-text: #000000;
+  --color-web-text-muted: #666666;
+  --color-web-dark: #000000;
+  --color-web-dark-soft: #333333;
+}
+

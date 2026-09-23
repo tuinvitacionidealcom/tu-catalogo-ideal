@@ -55,7 +55,19 @@ const formatWhatsAppNumber = (rawPhone) => {
   return cleaned;
 };
 
-const ContactForm = ({ catalogId = 1, catalogName = 'Nuestros Servicios', imageUrl }) => {
+const ContactForm = ({ 
+  catalogId = 1, 
+  catalogName = 'Nuestros Servicios', 
+  imageUrl,
+  subjectOptions = [
+    { value: "Consulta General", label: "Consulta General" },
+    { value: "Presupuesto", label: "Solicitar Presupuesto" },
+    { value: "Envío / Stock", label: "Envíos y Stock" },
+    { value: "Otro", label: "Otro Asunto" }
+  ],
+  buttonBackground = 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+  buttonShadow = '0 8px 20px rgba(37,99,235,0.25)'
+}) => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [type, setType] = useState('Consulta General');
@@ -215,10 +227,9 @@ const ContactForm = ({ catalogId = 1, catalogName = 'Nuestros Servicios', imageU
                 onFocus={e => { e.target.style.borderColor = '#3b82f6'; e.target.style.background = '#fff'; }}
                 onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.background = '#f8fafc'; }}
               >
-                <option value="Consulta General">Consulta General</option>
-                <option value="Presupuesto">Solicitar Presupuesto</option>
-                <option value="Envío / Stock">Envíos y Stock</option>
-                <option value="Otro">Otro Asunto</option>
+                {subjectOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -260,7 +271,7 @@ const ContactForm = ({ catalogId = 1, catalogName = 'Nuestros Servicios', imageU
               padding: '14px',
               borderRadius: '14px',
               border: 'none',
-              background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+              background: buttonBackground,
               color: '#fff',
               fontSize: '15px',
               fontWeight: 700,
@@ -269,7 +280,7 @@ const ContactForm = ({ catalogId = 1, catalogName = 'Nuestros Servicios', imageU
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
-              boxShadow: '0 8px 20px rgba(37,99,235,0.25)',
+              boxShadow: buttonShadow,
               transition: 'all 0.2s'
             }}
             onMouseEnter={e => { if (!loading) e.currentTarget.style.transform = 'translateY(-1px)'; }}
