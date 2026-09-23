@@ -2,7 +2,8 @@
   RewriteEngine On
   RewriteBase /
   
-  ErrorDocument 404 /seo.php
+  # Evitar bucle infinito si ya estamos en seo.php
+  RewriteRule ^seo\.php$ - [L]
   
   # Si el archivo o directorio existe realmente (imagenes, css, js, etc.), servirlo directo
   RewriteCond %{REQUEST_FILENAME} -f [OR]
@@ -13,5 +14,5 @@
   RewriteCond %{REQUEST_URI} !^/backend/
   
   # Todo el resto del tráfico (las rutas de React) mandarlo a seo.php
-  RewriteRule ^(.*)$ seo.php [L,QSA]
+  RewriteRule . /seo.php [L]
 </IfModule>

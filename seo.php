@@ -1,5 +1,6 @@
 <?php
 // seo.php - Interceptor para inyectar SEO dinámico
+define('SECURE_ACCESS', true);
 require_once __DIR__ . '/backend/config/db.php';
 
 $requestUri = $_SERVER['REQUEST_URI'];
