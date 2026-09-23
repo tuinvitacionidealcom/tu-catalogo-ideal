@@ -2,6 +2,8 @@
 RewriteEngine On
 RewriteBase /
 
+ErrorDocument 404 /seo.php
+
 # Evitar bucle
 RewriteRule ^seo\.php$ - [L]
 
@@ -11,5 +13,5 @@ RewriteCond %{REQUEST_URI} !^/backend/
 # Si NO es archivo ni directorio, enviar a seo.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /seo.php [L]
+RewriteRule ^(.*)$ seo.php [L,QSA]
 </IfModule>
