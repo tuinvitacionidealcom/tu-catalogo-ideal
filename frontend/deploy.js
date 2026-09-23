@@ -1,11 +1,10 @@
 import ftp from 'basic-ftp';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-import fs from 'fs';
 
 async function deploy() {
     const client = new ftp.Client();
@@ -64,22 +63,45 @@ async function deploy() {
         }
         currentPath = await client.pwd();
 
-        // Copiar .htaccess al directorio de build (dist/)
-        const rootHtaccess = path.resolve(__dirname, '../.htaccess');
+        // 4. Copiar .htaccess al directorio de build (dist/) antes de subir
+        const rootDir = path.resolve(__dirname, '..');
+        const rootHtaccess = path.resolve(rootDir, '.htaccess');
         const distHtaccess = path.resolve(__dirname, 'dist/.htaccess');
         if (fs.existsSync(rootHtaccess)) {
             fs.copyFileSync(rootHtaccess, distHtaccess);
             console.log("✅ .htaccess copiado a dist/");
         }
         
-        // Subir local-dir (dist/) directamente en la raíz /public_html
+        // 5. Subir frontend/dist/ directamente en la raíz /public_html
         const localDistPath = path.resolve(__dirname, 'dist');
-        console.log(`📤 Subiendo todos los archivos desde ${localDistPath} a ${currentPath}...`);
+        console.log(`📤 Subiendo frontend desde ${localDistPath} a ${currentPath}...`);
         await client.uploadFromDir(localDistPath);
+        console.log("✅ Frontend subido.");
+
+        // 6. Subir seo.php desde la raíz del proyecto
+        const seoPhpPath = path.resolve(rootDir, 'seo.php');
+        if (fs.existsSync(seoPhpPath)) {
+            console.log("📤 Subiendo seo.php...");
+            await client.uploadFrom(seoPhpPath, 'seo.php');
+            console.log("✅ seo.php subido.");
+        } else {
+            console.warn("⚠️ seo.php no encontrado en la raíz del proyecto.");
+        }
+
+        // 7. Subir carpeta backend/ desde la raíz del proyecto
+        const backendPath = path.resolve(rootDir, 'backend');
+        if (fs.existsSync(backendPath)) {
+            console.log("📤 Subiendo backend/...");
+            await client.uploadFromDir(backendPath, 'backend');
+            console.log("✅ backend/ subido.");
+        } else {
+            console.warn("⚠️ Carpeta backend/ no encontrada.");
+        }
         
         console.log("🎉 ¡Sitio web y Backend subidos con éxito a Hostinger!");
     } catch (err) {
         console.error("❌ Ocurrió un error en el despliegue:", err);
+        process.exit(1);
     } finally {
         client.close();
     }
