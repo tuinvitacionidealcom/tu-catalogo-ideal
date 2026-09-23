@@ -2,6 +2,9 @@
   RewriteEngine On
   RewriteBase /
   
+  Options -MultiViews
+  ErrorDocument 404 /seo.php
+  
   # Si el archivo o directorio existe realmente (imagenes, css, js, etc.), servirlo directo
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
