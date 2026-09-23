@@ -1,20 +1,15 @@
 <IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
-  
-  ErrorDocument 404 /seo.php
-  
-  # Evitar bucle infinito si ya estamos en seo.php
-  RewriteRule ^seo\.php$ - [L]
-  
-  # Si el archivo o directorio existe realmente (imagenes, css, js, etc.), servirlo directo
-  RewriteCond %{REQUEST_FILENAME} -f [OR]
-  RewriteCond %{REQUEST_FILENAME} -d
-  RewriteRule ^ - [L]
-  
-  # Excluir la carpeta del backend de estas reglas para que las APIs sigan funcionando
-  RewriteCond %{REQUEST_URI} !^/backend/
-  
-  # Todo el resto del tráfico (las rutas de React) mandarlo a seo.php
-  RewriteRule ^(.*)$ seo.php [L,QSA]
+RewriteEngine On
+RewriteBase /
+
+# Evitar bucle
+RewriteRule ^seo\.php$ - [L]
+
+# Excluir backend
+RewriteCond %{REQUEST_URI} !^/backend/
+
+# Si NO es archivo ni directorio, enviar a seo.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /seo.php [L]
 </IfModule>
