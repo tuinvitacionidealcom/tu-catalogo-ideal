@@ -293,7 +293,11 @@ try {
 
                 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
                 $host = $_SERVER['HTTP_HOST'] ?? 'tucatalogoideal.com';
-                $baseUrl = $protocol . $host . '/backend/uploads/';
+                // En el servidor built-in de PHP (dev local), el root ya ES la carpeta backend/
+                // En producción con Apache, el root es la raíz del sitio y /backend/ es una subcarpeta
+                $isLocalDev = (php_sapi_name() === 'cli-server');
+                $uploadsPath = $isLocalDev ? '/uploads/' : '/backend/uploads/';
+                $baseUrl = $protocol . $host . $uploadsPath;
 
                 // 1. Archivo subido por multipart/form-data
                 if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
@@ -384,7 +388,8 @@ try {
                         "category"    => $p['category'],
                         "image"       => $p['image'],
                         "available"   => (bool)$p['available'],
-                        "stock"       => intval($p['stock'])
+                        "stock"       => intval($p['stock']),
+                        "sizes"       => $p['sizes'] ?? ''
                     ];
                 }, $products);
 
@@ -402,6 +407,7 @@ try {
                 $image       = trim($input['image'] ?? '');
                 $available   = isset($input['available']) ? ($input['available'] ? 1 : 0) : 1;
                 $stock       = intval($input['stock'] ?? 0);
+                $sizes       = trim($input['sizes'] ?? '');
                 $prod_id     = isset($input['id']) && is_numeric($input['id']) ? intval($input['id']) : null;
 
                 if (empty($name)) {
@@ -415,8 +421,8 @@ try {
                     $existing = $db->query("SELECT id FROM catalog_products WHERE id = ? AND catalog_id = ?", [$prod_id, $catalog_id])->fetch();
                     if ($existing) {
                         $db->query(
-                            "UPDATE catalog_products SET name = ?, description = ?, price = ?, category = ?, image = ?, available = ?, stock = ? WHERE id = ? AND catalog_id = ?",
-                            [$name, $description, $price, $category, $image, $available, $stock, $prod_id, $catalog_id]
+                            "UPDATE catalog_products SET name = ?, description = ?, price = ?, category = ?, image = ?, available = ?, stock = ?, sizes = ? WHERE id = ? AND catalog_id = ?",
+                            [$name, $description, $price, $category, $image, $available, $stock, $sizes, $prod_id, $catalog_id]
                         );
                         echo json_encode(["status" => "ok", "message" => "Producto actualizado", "id" => $prod_id]);
                         exit;
@@ -425,8 +431,8 @@ try {
 
                 // Insertar producto nuevo
                 $db->query(
-                    "INSERT INTO catalog_products (catalog_id, name, description, price, category, image, available, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                    [$catalog_id, $name, $description, $price, $category, $image, $available, $stock]
+                    "INSERT INTO catalog_products (catalog_id, name, description, price, category, image, available, stock, sizes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    [$catalog_id, $name, $description, $price, $category, $image, $available, $stock, $sizes]
                 );
                 $newId = intval($db->getConnection()->lastInsertId());
 

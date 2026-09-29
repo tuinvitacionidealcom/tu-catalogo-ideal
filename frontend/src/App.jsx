@@ -24,8 +24,8 @@ import CelebrarteCatalogo from './catalogos/celebrarte-julieta/page/CelebrarteCa
 import CelebrartePanel from './catalogos/celebrarte-julieta/panel/CelebrartePanel';
 
 // Catálogo Perla Fit
-import PerlaFitCatalogo from './catalogos/perla-fit/page/PerlaFitCatalogo';
-import PerlaFitPanel from './catalogos/perla-fit/panel/PerlaFitPanel';
+import PerlaFitCatalogo from './catalogos/perla-fit-pri/page/PerlaFitPriCatalogo';
+import PerlaFitPanel from './catalogos/perla-fit-pri/panel/PerlaFitPriPanel';
 
 // Catálogo Bakery Limón
 import BakeryLimonCatalogo from './catalogos/bakery-limon/page/BakeryLimonCatalogo';

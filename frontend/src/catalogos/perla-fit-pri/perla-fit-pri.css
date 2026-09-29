@@ -1,0 +1,20 @@
+/* Tema para Catálogo Perla Fit */
+body.perla-fit-pri-theme {
+  --color-brand: #374151; /* Dark Gray */
+  --color-brand-light: #6B7280; /* Medium Gray */
+  --color-brand-dark: #111827; /* Very Dark Gray */
+  
+  --color-accent: #E5E7EB; /* Light Gray */
+  --color-accent-light: #F3F4F6; /* Extra Light Gray */
+  --color-accent-dark: #9CA3AF; /* Muted Gray */
+  
+  --color-web-bg: #ffffff;
+  --color-web-bg-warm: #fcfcfc;
+  --color-web-card: #ffffff;
+  --color-web-border: #f0f0f0;
+  --color-web-text: #1f2937;
+  --color-web-text-muted: #6b7280;
+  --color-web-dark: #111827;
+  --color-web-dark-soft: #374151;
+}
+
