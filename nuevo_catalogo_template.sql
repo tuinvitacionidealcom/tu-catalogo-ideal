@@ -71,3 +71,4 @@ SELECT
 FROM `catalogs` c
 JOIN `panel_users` u ON u.catalog_id = c.id
 WHERE c.slug = @slug;
+
