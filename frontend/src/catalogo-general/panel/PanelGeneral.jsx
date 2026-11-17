@@ -343,6 +343,7 @@ const PanelGeneral = ({ slugOverride }) => {
         loading={authLoading}
         error={authError}
         catalogName={catalogPreset.name}
+        catalogSlug={effectiveSlug}
         logoImage={catalogPreset.logoImage}
       />
     );

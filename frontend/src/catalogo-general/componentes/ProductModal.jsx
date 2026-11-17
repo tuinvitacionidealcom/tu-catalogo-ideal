@@ -11,7 +11,7 @@ const getProductImages = (imgData) => {
       try {
         const parsed = JSON.parse(trimmed);
         if (Array.isArray(parsed)) return parsed.filter(Boolean);
-      } catch {}
+      } catch { }
     }
     if (trimmed.includes(',')) {
       return trimmed.split(',').map(s => s.trim()).filter(Boolean);
@@ -86,7 +86,7 @@ const ProductModal = ({ product, isOpen, onClose, onAddToCart, quantityInCart = 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
-      <div 
+      <div
         className="bg-white rounded-3xl overflow-hidden max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl relative animate-scale-up"
         onClick={(e) => e.stopPropagation()}
       >
@@ -153,9 +153,8 @@ const ProductModal = ({ product, isOpen, onClose, onAddToCart, quantityInCart = 
                 <button
                   key={idx}
                   onClick={() => setActiveImageIdx(idx)}
-                  className={`w-14 h-14 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
-                    activeImageIdx === idx ? 'border-brand scale-105 shadow-sm' : 'border-slate-200 opacity-60 hover:opacity-100'
-                  }`}
+                  className={`w-14 h-14 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${activeImageIdx === idx ? 'border-brand scale-105 shadow-sm' : 'border-slate-200 opacity-60 hover:opacity-100'
+                    }`}
                 >
                   <img src={imgUrl} alt={`Miniatura ${idx + 1}`} className="w-full h-full object-cover" />
                 </button>
@@ -187,11 +186,10 @@ const ProductModal = ({ product, isOpen, onClose, onAddToCart, quantityInCart = 
                     <button
                       key={s}
                       onClick={() => setSelectedSize(s)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                        selectedSize === s
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${selectedSize === s
                           ? 'bg-brand text-white shadow-xs'
                           : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                      }`}
+                        }`}
                     >
                       {s}
                     </button>
