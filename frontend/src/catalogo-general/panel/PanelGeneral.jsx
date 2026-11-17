@@ -3,7 +3,7 @@ import { useParams, useLocation, Link } from 'react-router-dom';
 import {
   ShoppingBag, Store, BarChart2, MessageSquare, LogOut,
   Plus, Edit3, Trash2, Check, X, Loader2, Upload, ExternalLink,
-  Search, Eye, AlertCircle, Images
+  Search, Eye, AlertCircle, Images, Camera, Info
 } from 'lucide-react';
 
 import { useAuth } from './useAuth';
@@ -348,6 +348,10 @@ const PanelGeneral = ({ slugOverride }) => {
       />
     );
   }
+
+  const existingCategories = Array.from(
+    new Set(products.map(p => p.category?.trim().toUpperCase()).filter(Boolean))
+  );
 
   const filteredProducts = products.filter(p => {
     if (!searchFilter.trim()) return true;
@@ -734,49 +738,70 @@ const PanelGeneral = ({ slugOverride }) => {
 
       {/* ── MODAL PRODUCTO (AGREGAR / EDITAR) ── */}
       {productModal.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-xs animate-fade-in">
           <div 
-            className="bg-white rounded-3xl overflow-hidden max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl relative animate-scale-up"
+            className="bg-white rounded-3xl overflow-hidden max-w-xl w-full max-h-[92vh] flex flex-col shadow-2xl relative animate-scale-up border border-slate-100"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header Modal */}
-            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-900 text-white">
-              <h3 className="font-bold text-sm">
-                {productModal.mode === 'add' ? 'Nuevo Producto / Servicio' : 'Editar Producto'}
-              </h3>
+            <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900 text-white shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-brand/20 border border-brand/40 flex items-center justify-center text-brand">
+                  <ShoppingBag className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm leading-tight text-white">
+                    {productModal.mode === 'add' ? 'Nuevo Producto / Servicio' : 'Editar Producto'}
+                  </h3>
+                  <p className="text-[10px] text-slate-400">
+                    Completá los datos que verán tus clientes en el catálogo
+                  </p>
+                </div>
+              </div>
               <button
                 onClick={() => setProductModal({ ...productModal, open: false })}
-                className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center cursor-pointer"
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors cursor-pointer"
+                title="Cerrar"
               >
                 <X className="w-4 h-4 text-white" />
               </button>
             </div>
 
-            {/* Formulario */}
-            <div className="p-6 overflow-y-auto space-y-4 flex-1">
-              {/* Fotos del Producto (Hasta 5) */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                    Fotos del Producto ({productModal.data.images?.length || 0}/5)
+            {/* Formulario Mobile-First Ecommerce Stacked */}
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-5 flex-1 divide-y divide-slate-100">
+              
+              {/* BLOQUE 1: Fotos del Producto */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <Camera className="w-4 h-4 text-brand" />
+                    <span>Fotos del producto</span>
+                    <span className="text-[11px] font-semibold text-slate-500">
+                      ({productModal.data.images?.length || 0}/5)
+                    </span>
                   </label>
-                  <span className="text-[10px] text-slate-400">Máximo 5 fotos</span>
+                  <span className="text-[10px] font-bold text-brand bg-brand/10 px-2 py-0.5 rounded-full">
+                    Hasta 5 fotos
+                  </span>
                 </div>
+                <p className="text-[11px] text-slate-500">
+                  La primera foto será la <strong>portada principal</strong> en la lista del catálogo.
+                </p>
 
                 {/* Grilla de Miniaturas */}
-                <div className="grid grid-cols-5 gap-2.5 mb-3">
+                <div className="grid grid-cols-5 gap-2">
                   {(productModal.data.images || []).map((imgUrl, idx) => (
-                    <div key={idx} className="relative aspect-square rounded-xl overflow-hidden bg-slate-100 border border-slate-200 group">
+                    <div key={idx} className="relative aspect-square rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 group shadow-xs">
                       <img src={imgUrl} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover" />
                       {idx === 0 && (
-                        <span className="absolute bottom-1 left-1 bg-brand text-white text-[8px] font-bold px-1 rounded shadow-xs">
-                          Principal
+                        <span className="absolute bottom-1 left-1 right-1 text-center bg-slate-900/90 text-white text-[8px] font-bold py-0.5 rounded shadow-xs">
+                          ⭐ Portada
                         </span>
                       )}
                       <button
                         type="button"
                         onClick={() => handleRemoveImage(idx)}
-                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center shadow-xs transition-all cursor-pointer opacity-80 hover:opacity-100"
+                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center shadow-xs transition-all cursor-pointer"
                         title="Eliminar foto"
                       >
                         <X className="w-3 h-3" />
@@ -784,22 +809,22 @@ const PanelGeneral = ({ slugOverride }) => {
                     </div>
                   ))}
 
-                  {/* Slot para agregar si no llegó a 5 */}
+                  {/* Slot vacío para sumar */}
                   {(productModal.data.images?.length || 0) < 5 && (
                     <label
                       htmlFor="multi-file-upload-input"
-                      className="aspect-square rounded-xl border-2 border-dashed border-slate-300 hover:border-brand bg-slate-50 hover:bg-slate-100 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all"
+                      className="aspect-square rounded-2xl border-2 border-dashed border-slate-300 hover:border-brand bg-slate-50 hover:bg-slate-100 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all text-slate-400 hover:text-brand"
                       title="Subir foto"
                     >
-                      <Plus className="w-5 h-5 text-slate-400" />
-                      <span className="text-[9px] font-bold text-slate-400">Agregar</span>
+                      <Plus className="w-5 h-5" />
+                      <span className="text-[9px] font-bold">Agregar</span>
                     </label>
                   )}
                 </div>
 
                 {/* Botón de subida y link */}
                 {(productModal.data.images?.length || 0) < 5 && (
-                  <div className="space-y-2">
+                  <div className="space-y-2 pt-1">
                     <input
                       type="file"
                       id="multi-file-upload-input"
@@ -813,17 +838,17 @@ const PanelGeneral = ({ slugOverride }) => {
                     />
                     <label
                       htmlFor="multi-file-upload-input"
-                      className="w-full inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2.5 px-4 rounded-xl cursor-pointer transition-all border border-slate-200"
+                      className="w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold py-3 px-4 rounded-xl cursor-pointer transition-all border border-slate-200 shadow-xs"
                     >
                       {uploadingImage ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin text-brand" />
-                          <span>Subiendo fotos...</span>
+                          <span>Subiendo fotos a la nube...</span>
                         </>
                       ) : (
                         <>
                           <Upload className="w-4 h-4 text-brand" />
-                          <span>📸 Subir fotos desde mi celular/PC (hasta 5)</span>
+                          <span>Subir fotos desde celular o PC</span>
                         </>
                       )}
                     </label>
@@ -835,7 +860,7 @@ const PanelGeneral = ({ slugOverride }) => {
                         value={urlInput}
                         onChange={(e) => setUrlInput(e.target.value)}
                         placeholder="O pegá un link directo (https://...)"
-                        className="flex-1 text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand"
+                        className="flex-1 text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand bg-slate-50/50"
                       />
                       <button
                         type="button"
@@ -844,7 +869,7 @@ const PanelGeneral = ({ slugOverride }) => {
                           setUrlInput('');
                         }}
                         disabled={!urlInput.trim()}
-                        className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-white text-xs font-bold px-3 py-2.5 rounded-xl transition-all cursor-pointer"
+                        className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all cursor-pointer"
                       >
                         Agregar
                       </button>
@@ -853,42 +878,57 @@ const PanelGeneral = ({ slugOverride }) => {
                 )}
               </div>
 
-              <div>
-                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                  Nombre del Producto o Servicio *
-                </label>
-                <input
-                  type="text"
-                  value={productModal.data.name}
-                  onChange={(e) => setProductModal({
-                    ...productModal,
-                    data: { ...productModal.data, name: e.target.value }
-                  })}
-                  placeholder="Ej: Ambientaciones o Calza Deportiva"
-                  className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
+              {/* BLOQUE 2: Información Básica (Uno debajo de otro) */}
+              <div className="pt-5 space-y-4">
+                
+                {/* Nombre */}
                 <div>
-                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                    Precio $ ARS (0 para 'Consultar')
+                  <label className="text-xs font-bold text-slate-800 flex items-center justify-between mb-1.5">
+                    <span>Nombre del producto o servicio <span className="text-red-500">*</span></span>
+                    <span className="text-[10px] font-semibold text-slate-400">Requerido</span>
                   </label>
                   <input
-                    type="number"
-                    value={productModal.data.price}
+                    type="text"
+                    value={productModal.data.name}
                     onChange={(e) => setProductModal({
                       ...productModal,
-                      data: { ...productModal.data, price: e.target.value }
+                      data: { ...productModal.data, name: e.target.value }
                     })}
-                    placeholder="Ej: 15000 (o 0)"
-                    className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand"
+                    placeholder="Ej: Ambientación Cumpleaños Infantil o Calza Levanta Cola"
+                    className="w-full text-xs sm:text-sm p-3 sm:p-3.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all font-medium text-slate-800 shadow-xs"
                   />
                 </div>
+
+                {/* Categoría con sugerencias */}
                 <div>
-                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                    Categoría *
+                  <label className="text-xs font-bold text-slate-800 flex items-center justify-between mb-1.5">
+                    <span>Categoría <span className="text-red-500">*</span></span>
+                    <span className="text-[10px] font-semibold text-slate-400">Requerida</span>
                   </label>
+
+                  {/* Chips de categorías existentes para tocar y autocompletar */}
+                  {existingCategories.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-2">
+                      {existingCategories.slice(0, 8).map((cat) => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => setProductModal({
+                            ...productModal,
+                            data: { ...productModal.data, category: cat }
+                          })}
+                          className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                            productModal.data.category?.toUpperCase() === cat
+                              ? 'bg-brand text-white border-brand shadow-xs'
+                              : 'bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200'
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                   <input
                     type="text"
                     value={productModal.data.category}
@@ -896,31 +936,44 @@ const PanelGeneral = ({ slugOverride }) => {
                       ...productModal,
                       data: { ...productModal.data, category: e.target.value }
                     })}
-                    placeholder="Ej: SERVICIOS o ROPA"
-                    className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand"
+                    placeholder="Escribí una categoría (Ej: SERVICIOS, ROPA, DECO)"
+                    className="w-full text-xs sm:text-sm p-3 sm:p-3.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all font-medium text-slate-800 uppercase shadow-xs"
                   />
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    Tocá una de las opciones arriba o escribí una nueva categoría.
+                  </p>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-3">
+                {/* Precio */}
                 <div>
-                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                    Talles / Medidas (separados por coma)
+                  <label className="text-xs font-bold text-slate-800 mb-1.5 block">
+                    Precio ($ ARS)
                   </label>
-                  <input
-                    type="text"
-                    value={productModal.data.sizes || ''}
-                    onChange={(e) => setProductModal({
-                      ...productModal,
-                      data: { ...productModal.data, sizes: e.target.value }
-                    })}
-                    placeholder="Ej: S, M, L, XL"
-                    className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand"
-                  />
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">$</span>
+                    <input
+                      type="number"
+                      value={productModal.data.price}
+                      onChange={(e) => setProductModal({
+                        ...productModal,
+                        data: { ...productModal.data, price: e.target.value }
+                      })}
+                      placeholder="0"
+                      className="w-full text-xs sm:text-sm pl-8 pr-4 py-3 sm:py-3.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all font-bold text-slate-800 shadow-xs"
+                    />
+                  </div>
+                  <div className="mt-1.5 flex items-start gap-1.5 text-[11px] text-amber-800 bg-amber-50/90 border border-amber-200/80 p-2.5 rounded-xl">
+                    <Info className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-600" />
+                    <span>
+                      <strong>¿Es un servicio o presupuesto personalizado?</strong> Dejá <strong>0</strong> y se mostrará automáticamente como <strong>"Consultar"</strong> en el catálogo.
+                    </span>
+                  </div>
                 </div>
+
+                {/* Stock */}
                 <div>
-                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                    Stock
+                  <label className="text-xs font-bold text-slate-800 mb-1.5 block">
+                    Stock disponible
                   </label>
                   <input
                     type="number"
@@ -930,50 +983,95 @@ const PanelGeneral = ({ slugOverride }) => {
                       data: { ...productModal.data, stock: e.target.value }
                     })}
                     placeholder="0"
-                    className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand"
+                    className="w-full text-xs sm:text-sm p-3 sm:p-3.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all font-medium text-slate-800 shadow-xs"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    Dejá 0 si ofrecés servicios o venta bajo pedido sin límite de unidades.
+                  </p>
+                </div>
+
+                {/* Talles o Medidas */}
+                <div>
+                  <label className="text-xs font-bold text-slate-800 flex items-center justify-between mb-1.5">
+                    <span>Talles, Medidas o Variantes</span>
+                    <span className="text-[10px] font-normal text-slate-400">Opcional</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={productModal.data.sizes || ''}
+                    onChange={(e) => setProductModal({
+                      ...productModal,
+                      data: { ...productModal.data, sizes: e.target.value }
+                    })}
+                    placeholder="Ej: S, M, L, XL ó Chico, Mediano, Grande"
+                    className="w-full text-xs sm:text-sm p-3 sm:p-3.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all font-medium text-slate-800 shadow-xs"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    Separalos por coma para que el cliente elija antes de hacer el pedido.
+                  </p>
+                </div>
+
+                {/* Descripción */}
+                <div>
+                  <label className="text-xs font-bold text-slate-800 flex items-center justify-between mb-1.5">
+                    <span>Descripción detallada</span>
+                    <span className="text-[10px] font-normal text-slate-400">Opcional</span>
+                  </label>
+                  <textarea
+                    value={productModal.data.description}
+                    onChange={(e) => setProductModal({
+                      ...productModal,
+                      data: { ...productModal.data, description: e.target.value }
+                    })}
+                    rows={3}
+                    placeholder="Contale a tus clientes qué incluye, materiales, cómo se entrega o condiciones del servicio..."
+                    className="w-full text-xs sm:text-sm p-3 sm:p-3.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all font-medium text-slate-800 shadow-xs resize-none"
                   />
                 </div>
+
               </div>
 
-              <div>
-                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                  Descripción
+              {/* BLOQUE 3: Disponibilidad */}
+              <div className="pt-5">
+                <label 
+                  htmlFor="prod-available"
+                  className={`p-3.5 rounded-2xl border transition-all flex items-start gap-3 cursor-pointer select-none ${
+                    productModal.data.available
+                      ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
+                      : 'bg-slate-50 border-slate-200 text-slate-600'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    id="prod-available"
+                    checked={productModal.data.available}
+                    onChange={(e) => setProductModal({
+                      ...productModal,
+                      data: { ...productModal.data, available: e.target.checked }
+                    })}
+                    className="w-5 h-5 mt-0.5 rounded-md text-brand focus:ring-brand cursor-pointer shrink-0"
+                  />
+                  <div>
+                    <p className="text-xs font-bold leading-tight">
+                      {productModal.data.available ? 'Producto activo y visible' : 'Producto pausado / No disponible'}
+                    </p>
+                    <p className="text-[11px] opacity-80 mt-0.5">
+                      {productModal.data.available
+                        ? 'Tus clientes podrán verlo y agregarlo al pedido de WhatsApp.'
+                        : 'Aparecerá marcado como "Sin Stock" o pausado.'}
+                    </p>
+                  </div>
                 </label>
-                <textarea
-                  value={productModal.data.description}
-                  onChange={(e) => setProductModal({
-                    ...productModal,
-                    data: { ...productModal.data, description: e.target.value }
-                  })}
-                  rows={3}
-                  placeholder="Detalles sobre el producto, materiales, servicios incluidos, etc."
-                  className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-brand"
-                />
               </div>
 
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="prod-available"
-                  checked={productModal.data.available}
-                  onChange={(e) => setProductModal({
-                    ...productModal,
-                    data: { ...productModal.data, available: e.target.checked }
-                  })}
-                  className="w-4 h-4 text-brand rounded cursor-pointer"
-                />
-                <label htmlFor="prod-available" className="text-xs font-bold text-slate-700 cursor-pointer">
-                  Producto disponible para pedir (si se desmarca, aparecerá como Sin Stock)
-                </label>
-              </div>
             </div>
 
-            {/* Footer Modal */}
-            <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-3">
+            {/* Footer Modal con botones optimizados para mobile */}
+            <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-3 shrink-0">
               <button
                 type="button"
                 onClick={() => setProductModal({ ...productModal, open: false })}
-                className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-200 transition-colors cursor-pointer"
+                className="w-1/3 sm:w-auto px-4 sm:px-6 py-3 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer text-center"
               >
                 Cancelar
               </button>
@@ -981,15 +1079,15 @@ const PanelGeneral = ({ slugOverride }) => {
                 type="button"
                 onClick={handleSaveProduct}
                 disabled={savingProduct}
-                className="px-6 py-2.5 rounded-xl text-xs font-bold bg-brand hover:bg-brand-dark text-white flex items-center gap-2 shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                className="flex-1 sm:flex-none px-6 sm:px-8 py-3 rounded-xl text-xs font-bold bg-brand hover:bg-brand-dark text-white flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer disabled:opacity-50"
               >
                 {savingProduct ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <Loader2 className="w-4 h-4 animate-spin" />
                     <span>Guardando...</span>
                   </>
                 ) : (
-                  <span>Guardar Producto</span>
+                  <span>{productModal.mode === 'add' ? 'Guardar Producto' : 'Guardar Cambios'}</span>
                 )}
               </button>
             </div>
