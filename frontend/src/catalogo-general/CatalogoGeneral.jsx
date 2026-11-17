@@ -138,7 +138,7 @@ const CatalogoGeneral = ({ slugOverride }) => {
         setLoading(false);
       });
 
-    // Título y Favicon dinámicos
+    // Título, Favicon y Metadatos dinámicos
     const originalTitle = document.title;
     document.title = `${config.name} | Catálogo Digital`;
 
@@ -146,6 +146,22 @@ const CatalogoGeneral = ({ slugOverride }) => {
     const originalFavicon = faviconLink ? faviconLink.href : '/favicon.svg';
     if (faviconLink && config.logoImage) {
       faviconLink.href = config.logoImage;
+    }
+
+    // Actualizar meta description y OpenGraph en el cliente
+    const updateMeta = (selector, attr, value) => {
+      if (!value) return;
+      let el = document.querySelector(selector);
+      if (el) {
+        el.setAttribute(attr, value);
+      }
+    };
+
+    updateMeta('meta[name="description"]', 'content', config.description);
+    updateMeta('meta[property="og:title"]', 'content', `${config.name} | Catálogo Digital`);
+    updateMeta('meta[property="og:description"]', 'content', config.description);
+    if (config.logoImage || config.coverImage) {
+      updateMeta('meta[property="og:image"]', 'content', config.logoImage || config.coverImage);
     }
 
     return () => {

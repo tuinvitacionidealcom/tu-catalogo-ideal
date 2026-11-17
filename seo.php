@@ -28,18 +28,36 @@ if (!empty($slug) && $slug !== 'backend' && class_exists('Database')) {
     // Buscar el catálogo en la BD
     try {
         $db = Database::getInstance();
-        $stmt = $db->query("SELECT id, business_name, description FROM catalogs WHERE slug = ?", [$slug]);
+        $targetSlug = ($slug === 'celebrarte-julieta') ? 'celebrarte' : $slug;
+        $stmt = $db->query("SELECT id, slug, business_name, description FROM catalogs WHERE slug = ? OR slug = ? LIMIT 1", [$slug, $targetSlug]);
         if ($catalog = $stmt->fetch()) {
+            $catSlug = $catalog['slug'];
             $title = htmlspecialchars($catalog['business_name']) . " | Catálogo Digital";
             
             // Limpiar y acortar la descripción
             $clean_desc = strip_tags(str_replace(["\r", "\n"], " ", $catalog['description']));
-            $description = htmlspecialchars(mb_substr($clean_desc, 0, 140) . (mb_strlen($clean_desc) > 140 ? '...' : ''));
+            $description = htmlspecialchars(mb_substr($clean_desc, 0, 160) . (mb_strlen($clean_desc) > 160 ? '...' : ''));
             
-            // Intentar buscar la foto de algún producto para usar de portada en WhatsApp
-            $imgStmt = $db->query("SELECT image FROM catalog_products WHERE catalog_id = ? AND image != '' LIMIT 1", [$catalog['id']]);
-            if ($prodImg = $imgStmt->fetch()) {
-                $image = htmlspecialchars($prodImg['image']);
+            // 1. Prioridad: Logo o Foto de portada oficial del catálogo
+            $publicDir = __DIR__;
+            if (file_exists($publicDir . "/catalogos/{$catSlug}/logo.webp")) {
+                $image = "https://www.tucatalogoideal.com/catalogos/{$catSlug}/logo.webp";
+            } elseif (file_exists($publicDir . "/catalogos/{$catSlug}/foto-portada.webp")) {
+                $image = "https://www.tucatalogoideal.com/catalogos/{$catSlug}/foto-portada.webp";
+            } else {
+                // 2. Fallback: Foto del primer producto en la BD
+                $imgStmt = $db->query("SELECT image FROM catalog_products WHERE catalog_id = ? AND image != '' LIMIT 1", [$catalog['id']]);
+                if ($prodImg = $imgStmt->fetch()) {
+                    $rawImg = trim($prodImg['image']);
+                    // Si viene como array JSON de hasta 5 fotos, extraer la primera foto
+                    if (str_starts_with($rawImg, '[') && str_ends_with($rawImg, ']')) {
+                        $decoded = json_decode($rawImg, true);
+                        if (is_array($decoded) && !empty($decoded[0])) {
+                            $rawImg = $decoded[0];
+                        }
+                    }
+                    $image = htmlspecialchars($rawImg);
+                }
             }
         }
     } catch (Exception $e) {
