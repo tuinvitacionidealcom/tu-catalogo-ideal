@@ -460,11 +460,25 @@ try {
         case 'catalogs':
             $db = Database::getInstance();
 
+            // Auto-sync de Celebrarte: consolidar productos y usuario en catalog_id 4
+            try {
+                $check5 = $db->query("SELECT COUNT(*) FROM catalog_products WHERE catalog_id = 5")->fetchColumn();
+                if ($check5 > 0) {
+                    $db->query("DELETE FROM catalog_products WHERE catalog_id = 4");
+                    $db->query("UPDATE catalog_products SET catalog_id = 4 WHERE catalog_id = 5");
+                    $db->query("UPDATE panel_users SET catalog_id = 4, catalog_slug = 'celebrarte' WHERE username = 'celebrarte'");
+                    $db->query("UPDATE panel_sessions SET catalog_id = 4, catalog_slug = 'celebrarte' WHERE username = 'celebrarte'");
+                }
+            } catch (Throwable $t) {
+                // Silencioso
+            }
+
             if ($method === 'GET') {
                 if (!empty($sub)) {
-                    $stmt    = $db->query(
-                        "SELECT * FROM catalogs WHERE slug = ? AND status = 'active'",
-                        [$sub]
+                    $targetSlug = ($sub === 'celebrarte-julieta') ? 'celebrarte' : $sub;
+                    $stmt = $db->query(
+                        "SELECT * FROM catalogs WHERE (slug = ? OR slug = ?) AND status = 'active' LIMIT 1",
+                        [$sub, $targetSlug]
                     );
                     $catalog = $stmt->fetch();
                     if ($catalog) {

@@ -15,19 +15,13 @@ import WhatsAppCTA from './components/main-web/WhatsAppCTA';
 import ArmaTuCatalogoPage from './pages/ArmaTuCatalogoPage';
 import NotFound from './pages/NotFound';
 
-// Catálogo Birromi
+// Catálogo y Panel General Unificado (Dinámico con catalogos.json)
+import CatalogoGeneral from './catalogo-general/CatalogoGeneral';
+import PanelGeneral from './catalogo-general/panel/PanelGeneral';
+
+// Catálogos anteriores
 import BirromiCatalogo from './catalogos/birromi/page/BirromiCatalogo';
 import BirromiPanel from './catalogos/birromi/panel/BirromiPanel';
-
-// Catálogo Celebrarte Julieta
-import CelebrarteCatalogo from './catalogos/celebrarte-julieta/page/CelebrarteCatalogo';
-import CelebrartePanel from './catalogos/celebrarte-julieta/panel/CelebrartePanel';
-
-// Catálogo Perla Fit
-import PerlaFitCatalogo from './catalogos/perla-fit-pri/page/PerlaFitPriCatalogo';
-import PerlaFitPanel from './catalogos/perla-fit-pri/panel/PerlaFitPriPanel';
-
-// Catálogo Bakery Limón
 import BakeryLimonCatalogo from './catalogos/bakery-limon/page/BakeryLimonCatalogo';
 import BakeryLimonPanel from './catalogos/bakery-limon/panel/BakeryLimonPanel';
 
@@ -58,10 +52,7 @@ const ScrollToTop = () => {
 function App() {
     const location = useLocation();
     // Ocultamos el botón flotante de la landing page si estamos en cualquier catálogo o panel comercial
-    const isCatalogRoute = location.pathname.toLowerCase().startsWith('/mr-bebidas') ||
-        location.pathname.toLowerCase().startsWith('/perla-fit') ||
-        location.pathname.toLowerCase().startsWith('/bakery-limon') ||
-        location.pathname.toLowerCase().startsWith('/celebrarte');
+    const isCatalogRoute = location.pathname !== '/' && location.pathname !== '/arma-tu-catalogo';
 
     return (
         <>
@@ -77,17 +68,21 @@ function App() {
                 <Route path="/mr-bebidas" element={<BirromiCatalogo />} />
                 <Route path="/mr-bebidas/panel" element={<BirromiPanel />} />
 
-                {/* Rutas del Catálogo Celebrarte Julieta */}
-                <Route path="/celebrarte" element={<CelebrarteCatalogo />} />
-                <Route path="/celebrarte/panel" element={<CelebrartePanel />} />
+                {/* Rutas Catálogo Unificado: Celebrarte Julieta */}
+                <Route path="/celebrarte" element={<CatalogoGeneral slugOverride="celebrarte" />} />
+                <Route path="/celebrarte/panel" element={<PanelGeneral slugOverride="celebrarte" />} />
 
-                {/* Rutas del Catálogo Perla Fit */}
-                <Route path="/perla-fit" element={<PerlaFitCatalogo />} />
-                <Route path="/perla-fit/panel" element={<PerlaFitPanel />} />
+                {/* Rutas Catálogo Unificado: Perla Fit */}
+                <Route path="/perla-fit" element={<CatalogoGeneral slugOverride="perla-fit" />} />
+                <Route path="/perla-fit/panel" element={<PanelGeneral slugOverride="perla-fit" />} />
 
                 {/* Rutas del Catálogo Bakery Limón */}
                 <Route path="/bakery-limon" element={<BakeryLimonCatalogo />} />
                 <Route path="/bakery-limon/panel" element={<BakeryLimonPanel />} />
+
+                {/* Ruta Dinámica para Nuevos Catálogos (SaaS / JSON) */}
+                <Route path="/:slug" element={<CatalogoGeneral />} />
+                <Route path="/:slug/panel" element={<PanelGeneral />} />
 
                 {/* 404 */}
                 <Route path="*" element={<NotFound />} />
