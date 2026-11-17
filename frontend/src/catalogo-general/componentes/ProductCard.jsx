@@ -1,9 +1,30 @@
 import React from 'react';
-import { Plus, Minus, ShoppingBag } from 'lucide-react';
+import { Plus, Minus, ShoppingBag, Images } from 'lucide-react';
+
+const getProductImages = (imgData) => {
+  if (!imgData) return [];
+  if (Array.isArray(imgData)) return imgData.filter(Boolean);
+  if (typeof imgData === 'string') {
+    const trimmed = imgData.trim();
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) return parsed.filter(Boolean);
+      } catch {}
+    }
+    if (trimmed.includes(',')) {
+      return trimmed.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    return [trimmed].filter(Boolean);
+  }
+  return [];
+};
 
 const ProductCard = ({ product, quantityInCart = 0, onAdd, onRemove, onClick, horizontalView = false }) => {
   const { id, name, description, price, image, category, available = true, sizes } = product;
 
+  const images = getProductImages(image);
+  const mainImage = images[0] || '';
   const sizesList = sizes ? sizes.split(',').map(s => s.trim()).filter(Boolean) : [];
 
   return (
@@ -17,9 +38,9 @@ const ProductCard = ({ product, quantityInCart = 0, onAdd, onRemove, onClick, ho
       <div className={`relative bg-slate-100 overflow-hidden shrink-0 ${
         horizontalView ? 'w-28 sm:w-36 h-full' : 'aspect-video w-full'
       }`}>
-        {image ? (
+        {mainImage ? (
           <img
-            src={image}
+            src={mainImage}
             alt={name}
             className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
             loading="lazy"
@@ -34,6 +55,14 @@ const ProductCard = ({ product, quantityInCart = 0, onAdd, onRemove, onClick, ho
         {category && (
           <span className="absolute top-2 left-2 bg-brand/90 backdrop-blur-xs text-white text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full shadow-xs">
             {category}
+          </span>
+        )}
+
+        {/* Multi-images badge */}
+        {images.length > 1 && (
+          <span className="absolute top-2 right-2 bg-black/60 backdrop-blur-xs text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-1 shadow-xs">
+            <Images className="w-3 h-3" />
+            <span>{images.length}</span>
           </span>
         )}
 

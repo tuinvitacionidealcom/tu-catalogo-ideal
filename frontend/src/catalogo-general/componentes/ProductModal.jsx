@@ -1,17 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { X, ShoppingBag, Plus, Minus } from 'lucide-react';
+import { X, ShoppingBag, Plus, Minus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
+
+const getProductImages = (imgData) => {
+  if (!imgData) return [];
+  if (Array.isArray(imgData)) return imgData.filter(Boolean);
+  if (typeof imgData === 'string') {
+    const trimmed = imgData.trim();
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) return parsed.filter(Boolean);
+      } catch {}
+    }
+    if (trimmed.includes(',')) {
+      return trimmed.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    return [trimmed].filter(Boolean);
+  }
+  return [];
+};
 
 const ProductModal = ({ product, isOpen, onClose, onAddToCart, quantityInCart = 0, whatsappNumber = '5491131307799' }) => {
   if (!isOpen || !product) return null;
 
   const { id, name, description, price, image, category, available = true, sizes } = product;
 
+  const images = getProductImages(image);
+  const [activeImageIdx, setActiveImageIdx] = useState(0);
+
   const sizesList = sizes ? sizes.split(',').map(s => s.trim()).filter(Boolean) : [];
   const [selectedSize, setSelectedSize] = useState(sizesList[0] || '');
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
+    setActiveImageIdx(0);
     if (sizesList.length > 0) {
       setSelectedSize(sizesList[0]);
     } else {
@@ -20,9 +43,24 @@ const ProductModal = ({ product, isOpen, onClose, onAddToCart, quantityInCart = 
     setQuantity(1);
   }, [product]);
 
+  const handleNextImage = () => {
+    if (images.length > 1) {
+      setActiveImageIdx((activeImageIdx + 1) % images.length);
+    }
+  };
+
+  const handlePrevImage = () => {
+    if (images.length > 1) {
+      setActiveImageIdx((activeImageIdx - 1 + images.length) % images.length);
+    }
+  };
+
+  const currentDisplayImage = images[activeImageIdx] || images[0] || '';
+
   const handleAdd = () => {
     onAddToCart({
       ...product,
+      image: currentDisplayImage,
       selectedSize: selectedSize || null,
       customQuantity: quantity
     });
@@ -62,25 +100,68 @@ const ProductModal = ({ product, isOpen, onClose, onAddToCart, quantityInCart = 
 
         {/* Modal Body */}
         <div className="overflow-y-auto flex-1">
-          {/* Image */}
-          <div className="relative aspect-video w-full bg-slate-100">
-            {image ? (
+          {/* Gallery / Image Carousel */}
+          <div className="relative aspect-video w-full bg-slate-100 overflow-hidden group">
+            {currentDisplayImage ? (
               <img
-                src={image}
+                src={currentDisplayImage}
                 alt={name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-all duration-300"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-slate-400">
                 <ShoppingBag className="w-12 h-12 opacity-30" />
               </div>
             )}
+
+            {/* Navigation Arrows */}
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={handlePrevImage}
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all cursor-pointer backdrop-blur-xs"
+                  aria-label="Foto anterior"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={handleNextImage}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all cursor-pointer backdrop-blur-xs"
+                  aria-label="Foto siguiente"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+
+                {/* Counter Badge */}
+                <span className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs">
+                  {activeImageIdx + 1} / {images.length}
+                </span>
+              </>
+            )}
+
             {category && (
               <span className="absolute bottom-3 left-3 bg-brand/90 backdrop-blur-xs text-white text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full shadow-xs">
                 {category}
               </span>
             )}
           </div>
+
+          {/* Thumbnails strip */}
+          {images.length > 1 && (
+            <div className="flex gap-2 px-6 pt-3 overflow-x-auto scrollbar-none">
+              {images.map((imgUrl, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveImageIdx(idx)}
+                  className={`w-14 h-14 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
+                    activeImageIdx === idx ? 'border-brand scale-105 shadow-sm' : 'border-slate-200 opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  <img src={imgUrl} alt={`Miniatura ${idx + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="p-6">
             <h2 className="text-xl sm:text-2xl font-bold text-slate-800 leading-tight mb-2">

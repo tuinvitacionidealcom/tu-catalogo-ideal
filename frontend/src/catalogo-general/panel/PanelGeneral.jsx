@@ -3,7 +3,7 @@ import { useParams, useLocation, Link } from 'react-router-dom';
 import {
   ShoppingBag, Store, BarChart2, MessageSquare, LogOut,
   Plus, Edit3, Trash2, Check, X, Loader2, Upload, ExternalLink,
-  Search, Eye, AlertCircle
+  Search, Eye, AlertCircle, Images
 } from 'lucide-react';
 
 import { useAuth } from './useAuth';
@@ -12,13 +12,32 @@ import catalogosData from '../../config';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'https://tucatalogoideal.com/backend';
 
+const getProductImages = (imgData) => {
+  if (!imgData) return [];
+  if (Array.isArray(imgData)) return imgData.filter(Boolean);
+  if (typeof imgData === 'string') {
+    const trimmed = imgData.trim();
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) return parsed.filter(Boolean);
+      } catch {}
+    }
+    if (trimmed.includes(',')) {
+      return trimmed.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    return [trimmed].filter(Boolean);
+  }
+  return [];
+};
+
 const emptyProduct = {
   id: null,
   name: '',
   description: '',
   price: '',
   category: '',
-  image: '',
+  images: [],
   available: true,
   stock: 0,
   sizes: ''
@@ -68,6 +87,7 @@ const PanelGeneral = ({ slugOverride }) => {
     mode: 'add', // 'add' | 'edit'
     data: { ...emptyProduct }
   });
+  const [urlInput, setUrlInput] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const [savingProduct, setSavingProduct] = useState(false);
   const [toast, setToast] = useState(null);
@@ -147,36 +167,84 @@ const PanelGeneral = ({ slugOverride }) => {
     }
   }, [user?.catalog_id, fetchProducts, fetchStats, fetchContacts]);
 
-  // Subir imagen
-  const handleImageUpload = async (file) => {
-    if (!file) return;
+  // Subir imágenes múltiples (máximo 5)
+  const handleImagesUpload = async (fileList) => {
+    if (!fileList || fileList.length === 0) return;
+    const currentImages = productModal.data.images || [];
+    const remaining = 5 - currentImages.length;
+
+    if (remaining <= 0) {
+      alert('Ya alcanzaste el máximo de 5 fotos para este producto.');
+      return;
+    }
+
+    const filesToUpload = Array.from(fileList).slice(0, remaining);
+    if (fileList.length > remaining) {
+      alert(`Solo podés agregar ${remaining} foto(s) más (máximo 5 en total).`);
+    }
+
     setUploadingImage(true);
     try {
       const token = getToken();
-      const formData = new FormData();
-      formData.append('image', file);
+      const uploadedUrls = [];
 
-      const res = await fetch(`${API_BASE}/?request=upload`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData
-      });
+      for (const file of filesToUpload) {
+        const formData = new FormData();
+        formData.append('image', file);
 
-      const data = await res.json();
-      if (data.status === 'ok' && data.url) {
+        const res = await fetch(`${API_BASE}/?request=upload`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData
+        });
+
+        const data = await res.json();
+        if (data.status === 'ok' && data.url) {
+          uploadedUrls.push(data.url);
+        }
+      }
+
+      if (uploadedUrls.length > 0) {
         setProductModal(prev => ({
           ...prev,
-          data: { ...prev.data, image: data.url }
+          data: {
+            ...prev.data,
+            images: [...(prev.data.images || []), ...uploadedUrls]
+          }
         }));
-        showToast('Imagen subida con éxito', 'success');
-      } else {
-        alert(data.error || 'Error al subir la imagen');
+        showToast(`${uploadedUrls.length} foto(s) subida(s) con éxito`);
       }
     } catch (err) {
-      alert('Error de conexión al subir la imagen.');
+      alert('Error de conexión al subir imágenes.');
     } finally {
       setUploadingImage(false);
     }
+  };
+
+  const handleRemoveImage = (indexToRemove) => {
+    setProductModal(prev => ({
+      ...prev,
+      data: {
+        ...prev.data,
+        images: (prev.data.images || []).filter((_, idx) => idx !== indexToRemove)
+      }
+    }));
+  };
+
+  const handleAddUrlImage = (url) => {
+    if (!url || !url.trim()) return;
+    const currentImages = productModal.data.images || [];
+    if (currentImages.length >= 5) {
+      alert('Máximo 5 imágenes por producto.');
+      return;
+    }
+    setProductModal(prev => ({
+      ...prev,
+      data: {
+        ...prev.data,
+        images: [...(prev.data.images || []), url.trim()]
+      }
+    }));
   };
 
   // Guardar Producto
@@ -196,6 +264,9 @@ const PanelGeneral = ({ slugOverride }) => {
       const token = getToken();
       const parsedPrice = (p.price === '' || p.price === null || p.price === undefined) ? 0 : parseFloat(p.price);
 
+      const imagesArray = p.images || [];
+      const imagePayload = imagesArray.length > 0 ? JSON.stringify(imagesArray) : '';
+
       const payload = {
         id: p.id || undefined,
         catalog_id: user?.catalog_id,
@@ -203,7 +274,7 @@ const PanelGeneral = ({ slugOverride }) => {
         description: p.description?.trim() || '',
         price: isNaN(parsedPrice) ? 0 : parsedPrice,
         category: p.category.toUpperCase().trim(),
-        image: p.image || '',
+        image: imagePayload,
         available: p.available ? 1 : 0,
         stock: parseInt(p.stock) || 0,
         sizes: p.sizes ? p.sizes.trim() : ''
@@ -439,64 +510,75 @@ const PanelGeneral = ({ slugOverride }) => {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredProducts.map((p) => (
-                  <div
-                    key={p.id}
-                    className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex gap-3.5 items-start justify-between hover:border-slate-300 transition-all"
-                  >
-                    {/* Thumbnail */}
-                    <div className="w-20 h-20 bg-slate-100 rounded-xl overflow-hidden shrink-0 border border-slate-100">
-                      {p.image ? (
-                        <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-slate-400">
-                          <ShoppingBag className="w-6 h-6 opacity-30" />
-                        </div>
-                      )}
-                    </div>
+                {filteredProducts.map((p) => {
+                  const prodImages = getProductImages(p.image);
+                  const mainThumb = prodImages[0] || '';
 
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <span className="text-[9px] font-bold uppercase tracking-wider text-brand block mb-0.5">
-                        {p.category}
-                      </span>
-                      <h4 className="font-bold text-sm text-slate-800 leading-tight truncate mb-1">
-                        {p.name}
-                      </h4>
-                      <p className="text-xs font-extrabold text-slate-700 mb-1">
-                        {p.price > 0 ? `$${p.price.toLocaleString('es-AR')}` : 'A consultar'}
-                      </p>
-                      {p.sizes && (
-                        <span className="text-[10px] text-slate-500 font-medium block truncate">
-                          Talles: {p.sizes}
+                  return (
+                    <div
+                      key={p.id}
+                      className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex gap-3.5 items-start justify-between hover:border-slate-300 transition-all"
+                    >
+                      {/* Thumbnail */}
+                      <div className="w-20 h-20 bg-slate-100 rounded-xl overflow-hidden shrink-0 border border-slate-100 relative">
+                        {mainThumb ? (
+                          <img src={mainThumb} alt={p.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-slate-400">
+                            <ShoppingBag className="w-6 h-6 opacity-30" />
+                          </div>
+                        )}
+                        {prodImages.length > 1 && (
+                          <span className="absolute bottom-1 right-1 bg-black/60 backdrop-blur-xs text-white text-[8px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                            <Images className="w-2.5 h-2.5" />
+                            <span>{prodImages.length}</span>
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-brand block mb-0.5">
+                          {p.category}
                         </span>
-                      )}
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full inline-block mt-1 ${
-                        p.available ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
-                      }`}>
-                        {p.available ? 'Disponible' : 'Sin Stock'}
-                      </span>
-                    </div>
+                        <h4 className="font-bold text-sm text-slate-800 leading-tight truncate mb-1">
+                          {p.name}
+                        </h4>
+                        <p className="text-xs font-extrabold text-slate-700 mb-1">
+                          {p.price > 0 ? `$${p.price.toLocaleString('es-AR')}` : 'A consultar'}
+                        </p>
+                        {p.sizes && (
+                          <span className="text-[10px] text-slate-500 font-medium block truncate">
+                            Talles: {p.sizes}
+                          </span>
+                        )}
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full inline-block mt-1 ${
+                          p.available ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
+                        }`}>
+                          {p.available ? 'Disponible' : 'Sin Stock'}
+                        </span>
+                      </div>
 
-                    {/* Acciones */}
-                    <div className="flex flex-col gap-1.5 shrink-0">
-                      <button
-                        onClick={() => setProductModal({ open: true, mode: 'edit', data: { ...p } })}
-                        className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
-                        title="Editar"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteProduct(p.id)}
-                        className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors cursor-pointer"
-                        title="Eliminar"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {/* Acciones */}
+                      <div className="flex flex-col gap-1.5 shrink-0">
+                        <button
+                          onClick={() => setProductModal({ open: true, mode: 'edit', data: { ...p, images: prodImages } })}
+                          className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
+                          title="Editar"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteProduct(p.id)}
+                          className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors cursor-pointer"
+                          title="Eliminar"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -671,60 +753,103 @@ const PanelGeneral = ({ slugOverride }) => {
 
             {/* Formulario */}
             <div className="p-6 overflow-y-auto space-y-4 flex-1">
-              {/* Foto y Subida */}
+              {/* Fotos del Producto (Hasta 5) */}
               <div>
-                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">
-                  Foto del Producto
-                </label>
-                <div className="flex items-center gap-4 mb-3">
-                  <div className="w-20 h-20 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 shrink-0">
-                    {productModal.data.image ? (
-                      <img src={productModal.data.image} alt="Preview" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-400">
-                        <ShoppingBag className="w-6 h-6 opacity-30" />
-                      </div>
-                    )}
-                  </div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                    Fotos del Producto ({productModal.data.images?.length || 0}/5)
+                  </label>
+                  <span className="text-[10px] text-slate-400">Máximo 5 fotos</span>
+                </div>
 
-                  <div className="flex-1">
+                {/* Grilla de Miniaturas */}
+                <div className="grid grid-cols-5 gap-2.5 mb-3">
+                  {(productModal.data.images || []).map((imgUrl, idx) => (
+                    <div key={idx} className="relative aspect-square rounded-xl overflow-hidden bg-slate-100 border border-slate-200 group">
+                      <img src={imgUrl} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover" />
+                      {idx === 0 && (
+                        <span className="absolute bottom-1 left-1 bg-brand text-white text-[8px] font-bold px-1 rounded shadow-xs">
+                          Principal
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(idx)}
+                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center shadow-xs transition-all cursor-pointer opacity-80 hover:opacity-100"
+                        title="Eliminar foto"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+
+                  {/* Slot para agregar si no llegó a 5 */}
+                  {(productModal.data.images?.length || 0) < 5 && (
+                    <label
+                      htmlFor="multi-file-upload-input"
+                      className="aspect-square rounded-xl border-2 border-dashed border-slate-300 hover:border-brand bg-slate-50 hover:bg-slate-100 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all"
+                      title="Subir foto"
+                    >
+                      <Plus className="w-5 h-5 text-slate-400" />
+                      <span className="text-[9px] font-bold text-slate-400">Agregar</span>
+                    </label>
+                  )}
+                </div>
+
+                {/* Botón de subida y link */}
+                {(productModal.data.images?.length || 0) < 5 && (
+                  <div className="space-y-2">
                     <input
                       type="file"
-                      id="file-upload-input"
+                      id="multi-file-upload-input"
                       accept="image/*"
-                      onChange={(e) => handleImageUpload(e.target.files?.[0])}
+                      multiple
+                      onChange={(e) => {
+                        handleImagesUpload(e.target.files);
+                        e.target.value = '';
+                      }}
                       className="hidden"
                     />
                     <label
-                      htmlFor="file-upload-input"
-                      className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2.5 px-4 rounded-xl cursor-pointer transition-all border border-slate-200"
+                      htmlFor="multi-file-upload-input"
+                      className="w-full inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2.5 px-4 rounded-xl cursor-pointer transition-all border border-slate-200"
                     >
                       {uploadingImage ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin text-brand" />
-                          <span>Subiendo...</span>
+                          <span>Subiendo fotos...</span>
                         </>
                       ) : (
                         <>
                           <Upload className="w-4 h-4 text-brand" />
-                          <span>Subir desde mi celular/PC</span>
+                          <span>📸 Subir fotos desde mi celular/PC (hasta 5)</span>
                         </>
                       )}
                     </label>
-                    <p className="text-[10px] text-slate-400 mt-1">Formato JPG, PNG o WEBP</p>
-                  </div>
-                </div>
 
-                <input
-                  type="text"
-                  value={productModal.data.image}
-                  onChange={(e) => setProductModal({
-                    ...productModal,
-                    data: { ...productModal.data, image: e.target.value }
-                  })}
-                  placeholder="O pegá un link directo de imagen (https://...)"
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand"
-                />
+                    {/* Pegar link directo */}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={urlInput}
+                        onChange={(e) => setUrlInput(e.target.value)}
+                        placeholder="O pegá un link directo (https://...)"
+                        className="flex-1 text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleAddUrlImage(urlInput);
+                          setUrlInput('');
+                        }}
+                        disabled={!urlInput.trim()}
+                        className="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-white text-xs font-bold px-3 py-2.5 rounded-xl transition-all cursor-pointer"
+                      >
+                        Agregar
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
