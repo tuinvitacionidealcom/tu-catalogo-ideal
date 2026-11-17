@@ -108,3 +108,4 @@ const FooterCatalogo = ({ info = {} }) => {
 };
 
 export default FooterCatalogo;
+

@@ -34,3 +34,4 @@ const CategoryTabs = ({ categories = [], selectedCategory = 'all', onSelectCateg
 };
 
 export default CategoryTabs;
+

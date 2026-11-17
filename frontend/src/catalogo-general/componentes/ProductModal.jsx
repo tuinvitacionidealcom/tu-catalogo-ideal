@@ -184,3 +184,4 @@ const ProductModal = ({ product, isOpen, onClose, onAddToCart, quantityInCart = 
 };
 
 export default ProductModal;
+

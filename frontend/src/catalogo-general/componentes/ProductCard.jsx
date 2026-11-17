@@ -119,3 +119,4 @@ const ProductCard = ({ product, quantityInCart = 0, onAdd, onRemove, onClick, ho
 };
 
 export default ProductCard;
+

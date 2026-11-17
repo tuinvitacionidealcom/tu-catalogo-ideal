@@ -1,0 +1,70 @@
+{
+  "slug": "celebrarte",
+  "name": "Celebrarte by Juli",
+  "businessType": "Eventos y Ambientaciones",
+  "phone": "5491131307799",
+  "instagram": "celebrarte_ok",
+  "address": "Ciudad Autónoma de BsAs",
+  "hours": "Lunes a Sábados de 9 a 20 hs",
+  "description": "Soy Julieta y te ayudo a que tu evento sea inolvidable!! 🎉\nRealizo ambientaciones 🌟\nFiesta del té ☕️🎂\nGlitter Bar ✨️✨️✨️\nCiudad Autónoma de BsAs",
+  "coverImage": "/catalogos/celebrarte/foto-portada.webp",
+  "logoImage": "/catalogos/celebrarte/logo.webp",
+  "formImage": "/catalogos/celebrarte/img-formulario.webp",
+  "isServices": true,
+  "theme": {
+    "--color-brand": "#C58996",
+    "--color-brand-light": "#E0B0BC",
+    "--color-brand-dark": "#9A5A69",
+    "--color-accent": "#F2D5DA",
+    "--color-accent-light": "#FCF0F2",
+    "--color-accent-dark": "#DFABB5",
+    "--color-web-bg": "#ffffff",
+    "--color-web-bg-warm": "#fcf0f2",
+    "--color-web-card": "#ffffff",
+    "--color-web-border": "#f0f0f0",
+    "--color-web-text": "#1a0800",
+    "--color-web-text-muted": "#666666",
+    "--color-web-dark": "#1a0800",
+    "--color-web-dark-soft": "#4a212d"
+  },
+  "features": [
+    {
+      "title": "Ambientación Integral",
+      "description": "Diseñamos la decoración de tu evento de principio a fin.",
+      "icon": "Star"
+    },
+    {
+      "title": "Fiesta del Té",
+      "description": "Vajilla completa y decoración para una tarde inolvidable.",
+      "icon": "Coffee"
+    },
+    {
+      "title": "Glitter Bar",
+      "description": "Maquillaje y brillos para darle color a tu fiesta.",
+      "icon": "Sparkles"
+    },
+    {
+      "title": "Todos los medios de pago",
+      "description": "Aceptamos efectivo, transferencias bancarias, Mercado Pago y tarjetas.",
+      "icon": "CreditCard"
+    }
+  ],
+  "faq": [
+    {
+      "question": "¿Con cuánta anticipación debo reservar mi fecha?",
+      "answer": "Recomendamos reservar con al menos 15 a 30 días de anticipación para asegurar disponibilidad de fecha y materiales."
+    },
+    {
+      "question": "¿De qué se trata la Fiesta del Té?",
+      "answer": "Es una propuesta completa que incluye vajilla vintage de porcelana, mantelería, teteras, tazas y decoración delicada para una merienda mágica."
+    },
+    {
+      "question": "¿Qué incluye el Glitter Bar?",
+      "answer": "Incluye maquillajes hipoalergénicos, glitter en gel, gemas faciales, strass y una persona encargada de maquillar a los invitados."
+    },
+    {
+      "question": "¿Cómo se coordina el envío o retiro?",
+      "answer": "Coordinamos la entrega y retiro en el lugar del evento dentro de CABA y Gran Buenos Aires. El costo de traslado se calcula según la zona."
+    }
+  ]
+}

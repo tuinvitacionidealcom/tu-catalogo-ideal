@@ -1,86 +1,8 @@
 {
   "celebrarte": {
-    "slug": "celebrarte",
-    "name": "Celebrarte by Juli",
-    "businessType": "Eventos y Ambientaciones",
-    "phone": "5491131307799",
-    "instagram": "celebrarte_ok",
-    "address": "Ciudad Autónoma de BsAs",
-    "hours": "Lunes a Sábados de 9 a 20 hs",
-    "description": "Soy Julieta y te ayudo a que tu evento sea inolvidable!! 🎉\nRealizo ambientaciones 🌟\nFiesta del té ☕️🎂\nGlitter Bar ✨️✨️✨️\nCiudad Autónoma de BsAs",
-    "coverImage": "/catalogos/celebrarte/foto-portada.webp",
-    "logoImage": "/catalogos/celebrarte/logo.webp",
-    "formImage": "/catalogos/celebrarte/img-formulario.webp",
-    "isServices": true,
-    "theme": {
-      "--color-brand": "#C58996",
-      "--color-brand-light": "#E0B0BC",
-      "--color-brand-dark": "#9A5A69",
-      "--color-accent": "#F2D5DA",
-      "--color-accent-light": "#FCF0F2",
-      "--color-accent-dark": "#DFABB5",
-      "--color-web-bg": "#ffffff",
-      "--color-web-bg-warm": "#fcf0f2",
-      "--color-web-card": "#ffffff",
-      "--color-web-border": "#f0f0f0",
-      "--color-web-text": "#1a0800",
-      "--color-web-text-muted": "#666666",
-      "--color-web-dark": "#1a0800",
-      "--color-web-dark-soft": "#4a212d"
-    },
-    "features": [
-      { "title": "Ambientación Integral", "description": "Diseñamos la decoración de tu evento de principio a fin.", "icon": "Star" },
-      { "title": "Fiesta del Té", "description": "Vajilla completa y decoración para una tarde inolvidable.", "icon": "Coffee" },
-      { "title": "Glitter Bar", "description": "Maquillaje y brillos para darle color a tu fiesta.", "icon": "Sparkles" },
-      { "title": "Todos los medios de pago", "description": "Aceptamos efectivo, transferencias bancarias, Mercado Pago y tarjetas.", "icon": "CreditCard" }
-    ],
-    "faq": [
-      { "question": "¿Con cuánta anticipación debo reservar mi fecha?", "answer": "Recomendamos reservar con al menos 15 a 30 días de anticipación para asegurar disponibilidad de fecha y materiales." },
-      { "question": "¿De qué se trata la Fiesta del Té?", "answer": "Es una propuesta completa que incluye vajilla vintage de porcelana, mantelería, teteras, tazas y decoración delicada para una merienda mágica." },
-      { "question": "¿Qué incluye el Glitter Bar?", "answer": "Incluye maquillajes hipoalergénicos, glitter en gel, gemas faciales, strass y una persona encargada de maquillar a los invitados." },
-      { "question": "¿Cómo se coordina el envío o retiro?", "answer": "Coordinamos la entrega y retiro en el lugar del evento dentro de CABA y Gran Buenos Aires. El costo de traslado se calcula según la zona." }
-    ]
+    "configFile": "celebrarte/celebrarteConfig.json"
   },
   "perla-fit": {
-    "slug": "perla-fit",
-    "name": "Perla Fit",
-    "businessType": "Indumentaria Deportiva",
-    "phone": "5491162721905",
-    "instagram": "perlafit.ok",
-    "address": "Ciudad Autónoma de BsAs",
-    "hours": "Lunes a Sábados de 9 a 20 hs",
-    "description": "Potenciá tu entrenamiento con indumentaria de alta compresión y calidad premium.",
-    "coverImage": "/catalogos/perla-fit/foto-portada.webp",
-    "logoImage": "/catalogos/perla-fit/logo.webp",
-    "formImage": "/catalogos/perla-fit/img-formulario.webp",
-    "isServices": false,
-    "theme": {
-      "--color-brand": "#374151",
-      "--color-brand-light": "#6B7280",
-      "--color-brand-dark": "#111827",
-      "--color-accent": "#E5E7EB",
-      "--color-accent-light": "#F3F4F6",
-      "--color-accent-dark": "#9CA3AF",
-      "--color-web-bg": "#ffffff",
-      "--color-web-bg-warm": "#fcfcfc",
-      "--color-web-card": "#ffffff",
-      "--color-web-border": "#f0f0f0",
-      "--color-web-text": "#1f2937",
-      "--color-web-text-muted": "#6b7280",
-      "--color-web-dark": "#111827",
-      "--color-web-dark-soft": "#374151"
-    },
-    "features": [
-      { "title": "Calidad Premium", "description": "Prendas de compresión que se adaptan a tu cuerpo.", "icon": "Sparkles" },
-      { "title": "Variedad de Talles", "description": "Modelos disponibles en talles reales del S al XXL.", "icon": "Star" },
-      { "title": "Envíos a Todo el País", "description": "Llegamos a cada rincón de Argentina con envíos rápidos.", "icon": "Truck" },
-      { "title": "Todos los medios de pago", "description": "Efectivo, transferencia y tarjetas con cuotas.", "icon": "CreditCard" }
-    ],
-    "faq": [
-      { "question": "¿Cómo elijo mi talle correcto?", "answer": "En la descripción de cada producto vas a ver los talles disponibles y tabla de medidas orientativa." },
-      { "question": "¿Hacen envíos a todo el país?", "answer": "Sí, realizamos envíos a todo el territorio argentino por Correo Argentino o expreso." },
-      { "question": "¿Qué medios de pago aceptan?", "answer": "Aceptamos transferencias bancarias, efectivo y todas las tarjetas a través de Mercado Pago." },
-      { "question": "¿Tienen cambio las prendas?", "answer": "Sí, contás con 15 días desde la recepción para solicitar el cambio de talle manteniendo las etiquetas intactas." }
-    ]
+    "configFile": "perla-fit/perlaFitConfig.json"
   }
 }

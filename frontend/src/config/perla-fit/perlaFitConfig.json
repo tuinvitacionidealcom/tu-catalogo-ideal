@@ -1,0 +1,70 @@
+{
+  "slug": "perla-fit",
+  "name": "Perla Fit",
+  "businessType": "Indumentaria Deportiva",
+  "phone": "5491162721905",
+  "instagram": "perlafit.ok",
+  "address": "Ciudad Autónoma de BsAs",
+  "hours": "Lunes a Sábados de 9 a 20 hs",
+  "description": "Potenciá tu entrenamiento con indumentaria de alta compresión y calidad premium.",
+  "coverImage": "/catalogos/perla-fit/foto-portada.webp",
+  "logoImage": "/catalogos/perla-fit/logo.webp",
+  "formImage": "/catalogos/perla-fit/img-formulario.webp",
+  "isServices": false,
+  "theme": {
+    "--color-brand": "#374151",
+    "--color-brand-light": "#6B7280",
+    "--color-brand-dark": "#111827",
+    "--color-accent": "#E5E7EB",
+    "--color-accent-light": "#F3F4F6",
+    "--color-accent-dark": "#9CA3AF",
+    "--color-web-bg": "#ffffff",
+    "--color-web-bg-warm": "#fcfcfc",
+    "--color-web-card": "#ffffff",
+    "--color-web-border": "#f0f0f0",
+    "--color-web-text": "#1f2937",
+    "--color-web-text-muted": "#6b7280",
+    "--color-web-dark": "#111827",
+    "--color-web-dark-soft": "#374151"
+  },
+  "features": [
+    {
+      "title": "Calidad Premium",
+      "description": "Prendas de compresión que se adaptan a tu cuerpo.",
+      "icon": "Sparkles"
+    },
+    {
+      "title": "Variedad de Talles",
+      "description": "Modelos disponibles en talles reales del S al XXL.",
+      "icon": "Star"
+    },
+    {
+      "title": "Envíos a Todo el País",
+      "description": "Llegamos a cada rincón de Argentina con envíos rápidos.",
+      "icon": "Truck"
+    },
+    {
+      "title": "Todos los medios de pago",
+      "description": "Efectivo, transferencia y tarjetas con cuotas.",
+      "icon": "CreditCard"
+    }
+  ],
+  "faq": [
+    {
+      "question": "¿Cómo elijo mi talle correcto?",
+      "answer": "En la descripción de cada producto vas a ver los talles disponibles y tabla de medidas orientativa."
+    },
+    {
+      "question": "¿Hacen envíos a todo el país?",
+      "answer": "Sí, realizamos envíos a todo el territorio argentino por Correo Argentino o expreso."
+    },
+    {
+      "question": "¿Qué medios de pago aceptan?",
+      "answer": "Aceptamos transferencias bancarias, efectivo y todas las tarjetas a través de Mercado Pago."
+    },
+    {
+      "question": "¿Tienen cambio las prendas?",
+      "answer": "Sí, contás con 15 días desde la recepción para solicitar el cambio de talle manteniendo las etiquetas intactas."
+    }
+  ]
+}

@@ -57,3 +57,4 @@ const FAQ = ({ faqs = [] }) => {
 };
 
 export default FAQ;
+

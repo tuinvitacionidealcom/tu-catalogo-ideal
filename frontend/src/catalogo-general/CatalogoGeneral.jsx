@@ -12,7 +12,7 @@ import CartModal from './componentes/CartModal';
 import FAQ from './componentes/FAQ';
 import FooterCatalogo from './componentes/FooterCatalogo';
 
-import catalogosData from '../config/catalogos.json';
+import catalogosData from '../config';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'https://tucatalogoideal.com/backend';
 

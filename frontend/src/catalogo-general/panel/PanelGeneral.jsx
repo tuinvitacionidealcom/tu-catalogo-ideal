@@ -8,7 +8,7 @@ import {
 
 import { useAuth } from './useAuth';
 import LoginPanel from './LoginPanel';
-import catalogosData from '../../config/catalogos.json';
+import catalogosData from '../../config';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'https://tucatalogoideal.com/backend';
 

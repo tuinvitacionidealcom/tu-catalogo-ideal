@@ -108,3 +108,4 @@ const LoginPanel = ({ onLogin, loading, error, catalogName = 'Comercio', logoIma
 };
 
 export default LoginPanel;
+

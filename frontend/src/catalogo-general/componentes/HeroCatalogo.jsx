@@ -66,3 +66,4 @@ const HeroCatalogo = ({ info = {}, onScrollToProducts }) => {
 };
 
 export default HeroCatalogo;
+
