@@ -11,6 +11,11 @@
   "logoImage": "/catalogos/celebrarte/logo.webp",
   "formImage": "/catalogos/celebrarte/img-formulario.webp",
   "isServices": true,
+  "showDeliveryOptions": false,
+  "addressLabel": "Zona o Localidad del evento",
+  "addressPlaceholder": "Ej: CABA, Palermo, San Isidro...",
+  "notesLabel": "Fecha del evento y detalles",
+  "notesPlaceholder": "Ej: Cumpleaños infantil para el próximo sábado, temática glitter...",
   "theme": {
     "--color-brand": "#C58996",
     "--color-brand-light": "#E0B0BC",

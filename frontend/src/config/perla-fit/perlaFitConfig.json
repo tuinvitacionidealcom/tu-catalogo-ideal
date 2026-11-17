@@ -11,6 +11,15 @@
   "logoImage": "/catalogos/perla-fit/logo.webp",
   "formImage": "/catalogos/perla-fit/img-formulario.webp",
   "isServices": false,
+  "showDeliveryOptions": true,
+  "deliveryOptions": [
+    "Envío a domicilio",
+    "Retiro en persona"
+  ],
+  "addressLabel": "Dirección de entrega o Localidad",
+  "addressPlaceholder": "Ej: Av. Santa Fe 1234, CABA",
+  "notesLabel": "Aclaraciones sobre el pedido",
+  "notesPlaceholder": "Ej: Horario preferente de entrega, color alternativo...",
   "theme": {
     "--color-brand": "#374151",
     "--color-brand-light": "#6B7280",

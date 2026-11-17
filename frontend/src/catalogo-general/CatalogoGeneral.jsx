@@ -426,6 +426,12 @@ const CatalogoGeneral = ({ slugOverride }) => {
         whatsappNumber={info.phone}
         catalogId={catalogId}
         isServices={info.isServices}
+        showDeliveryOptions={info.showDeliveryOptions ?? false}
+        deliveryOptions={info.deliveryOptions}
+        addressLabel={info.addressLabel}
+        addressPlaceholder={info.addressPlaceholder}
+        notesLabel={info.notesLabel}
+        notesPlaceholder={info.notesPlaceholder}
       />
 
       {/* ── Botón Flotante de Carrito en Mobile ── */}

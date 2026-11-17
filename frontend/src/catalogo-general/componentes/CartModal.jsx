@@ -12,12 +12,20 @@ const CartModal = ({
   businessName = "Comercio",
   whatsappNumber = "5491131307799",
   catalogId = null,
-  isServices = false
+  isServices = false,
+  showDeliveryOptions = false,
+  deliveryOptions = ['Envío a domicilio', 'Retiro en persona'],
+  addressLabel = "Dirección o Zona / Localidad",
+  addressPlaceholder = "Ej: Palermo, CABA",
+  notesLabel = "Aclaraciones o fecha de evento / entrega",
+  notesPlaceholder = "Ej: ¿Tienen disponibilidad para el próximo sábado?"
 }) => {
   if (!isOpen) return null;
 
   const [customerName, setCustomerName] = useState('');
-  const [deliveryType, setDeliveryType] = useState('Envío a domicilio');
+  const [deliveryType, setDeliveryType] = useState(
+    deliveryOptions && deliveryOptions.length > 0 ? deliveryOptions[0] : 'Envío a domicilio'
+  );
   const [address, setAddress] = useState('');
   const [notes, setNotes] = useState('');
 
@@ -33,9 +41,11 @@ const CartModal = ({
 
     let msg = `Hola *${businessName}*! 👋 Quiero hacer el siguiente pedido desde su catálogo online:\n\n`;
     msg += `👤 *Cliente:* ${customerName.trim()}\n`;
-    msg += `📦 *Modalidad:* ${deliveryType}\n`;
+    if (showDeliveryOptions && deliveryType) {
+      msg += `📦 *Modalidad:* ${deliveryType}\n`;
+    }
     if (address.trim()) {
-      msg += `📍 *Dirección/Zona:* ${address.trim()}\n`;
+      msg += `📍 *${addressLabel}:* ${address.trim()}\n`;
     }
     msg += `\n🛒 *DETALLE DEL PEDIDO:*\n`;
 
@@ -50,7 +60,7 @@ const CartModal = ({
     }
 
     if (notes.trim()) {
-      msg += `\n📝 *Notas adicionales:* ${notes.trim()}\n`;
+      msg += `\n📝 *${notesLabel}:* ${notes.trim()}\n`;
     }
 
     msg += `\n¿Me confirman disponibilidad y los pasos para coordinar? ¡Muchas gracias!`;
@@ -200,52 +210,47 @@ const CartModal = ({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setDeliveryType('Envío a domicilio')}
-                  className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                    deliveryType === 'Envío a domicilio'
-                      ? 'border-brand bg-brand/5 text-brand'
-                      : 'border-slate-200 text-slate-600'
-                  }`}
-                >
-                  Envío a domicilio
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDeliveryType('Retiro en local/taller')}
-                  className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                    deliveryType === 'Retiro en local/taller'
-                      ? 'border-brand bg-brand/5 text-brand'
-                      : 'border-slate-200 text-slate-600'
-                  }`}
-                >
-                  Retiro en persona
-                </button>
-              </div>
+              {/* Selector de Entrega / Retiro solo si el catálogo lo tiene configurado */}
+              {showDeliveryOptions && deliveryOptions && deliveryOptions.length > 0 && (
+                <div className="grid grid-cols-2 gap-2">
+                  {deliveryOptions.map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => setDeliveryType(opt)}
+                      className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                        deliveryType === opt
+                          ? 'border-brand bg-brand/5 text-brand shadow-xs'
+                          : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               <div>
                 <label className="text-[11px] font-semibold text-slate-500 block mb-1">
-                  Dirección o Zona / Localidad
+                  {addressLabel}
                 </label>
                 <input
                   type="text"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  placeholder="Ej: Palermo, CABA"
+                  placeholder={addressPlaceholder}
                   className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand"
                 />
               </div>
 
               <div>
                 <label className="text-[11px] font-semibold text-slate-500 block mb-1">
-                  Aclaraciones o fecha de evento / entrega
+                  {notesLabel}
                 </label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Ej: ¿Tienen disponibilidad para el próximo sábado?"
+                  placeholder={notesPlaceholder}
                   rows={2}
                   className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-brand"
                 />
